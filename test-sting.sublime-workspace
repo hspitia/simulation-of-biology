@@ -1,0 +1,1773 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"FOR",
+				"foreach\tfunc"
+			],
+			[
+				"tmp",
+				"tmpArray"
+			],
+			[
+				"crop",
+				"cropLength"
+			],
+			[
+				"inS",
+				"inFastaSeqFile"
+			],
+			[
+				"midd",
+				"middle_kamer"
+			],
+			[
+				"he",
+				"line-height"
+			],
+			[
+				"mi",
+				"united.min.css"
+			],
+			[
+				"te",
+				"text-align"
+			],
+			[
+				"margin",
+				"margin"
+			],
+			[
+				"margi",
+				"margin-right"
+			],
+			[
+				"print",
+				"printMessage"
+			],
+			[
+				"fq",
+				"fq_files"
+			],
+			[
+				"for",
+				"for_\tFor Loop"
+			],
+			[
+				"T",
+				"TStringVector"
+			],
+			[
+				"gen",
+				"genId"
+			],
+			[
+				"ge",
+				"Getopt"
+			],
+			[
+				"lengh",
+				"length"
+			],
+			[
+				"script",
+				"scriptNameSize"
+			],
+			[
+				"scrip",
+				"scriptName"
+			],
+			[
+				"new",
+				"newLength"
+			],
+			[
+				"out",
+				"outId"
+			],
+			[
+				"trun",
+				"truncatedInSeq"
+			],
+			[
+				"in",
+				"inSeq"
+			],
+			[
+				"jp",
+				"pic_01.resized.jpg\tw:310 h:310"
+			],
+			[
+				"kmer",
+				"kmer_processed"
+			],
+			[
+				"kmer_",
+				"kmer_coverage"
+			],
+			[
+				"kme",
+				"kmer_coverage"
+			],
+			[
+				"max",
+				"max_count"
+			],
+			[
+				"FILE",
+				"FIELD_SEPARATOR"
+			],
+			[
+				"getI",
+				"getInferredSt"
+			],
+			[
+				"TS",
+				"TStringVector"
+			],
+			[
+				"inferred",
+				"inferred_profile"
+			],
+			[
+				"ce",
+				"cerr"
+			],
+			[
+				"NO",
+				"NO_ST_IN_TABLE"
+			],
+			[
+				"ST",
+				"ST_PREDICTED"
+			],
+			[
+				"ret",
+				"return"
+			],
+			[
+				"GET",
+				"getPredictedSt"
+			],
+			[
+				"Gene",
+				"GeneDetector.h"
+			],
+			[
+				"Kmer",
+				"KmerMatcher.h"
+			],
+			[
+				"program",
+				"program_name"
+			],
+			[
+				"progr",
+				"program_description"
+			],
+			[
+				"FIEL",
+				"FIELD_SEPARATOR"
+			],
+			[
+				"counts",
+				"counts_vector"
+			],
+			[
+				"TCo",
+				"TCountPair"
+			],
+			[
+				"SEPA",
+				"FILE_SEPARATOR"
+			],
+			[
+				"run",
+				"runMlstIndexer"
+			],
+			[
+				"MLS",
+				"MLST_MODE"
+			],
+			[
+				"proce",
+				"processGeneDetectorConfigFile"
+			],
+			[
+				"out_",
+				"out_classes"
+			],
+			[
+				"get",
+				"get_classes"
+			],
+			[
+				"meta",
+				"metadata_merged"
+			],
+			[
+				"co",
+				"co\tc++.cout_simple"
+			],
+			[
+				"getN",
+				"getNRows"
+			],
+			[
+				"col",
+				"columnNames"
+			],
+			[
+				"cold",
+				"colsDataMap"
+			],
+			[
+				"tr",
+				"try\ttry catch block"
+			],
+			[
+				"ex",
+				"exception"
+			],
+			[
+				"set",
+				"setColumns"
+			],
+			[
+				"data",
+				"colsDataMap"
+			],
+			[
+				"map",
+				"map\tstd::map"
+			],
+			[
+				"vector",
+				"vector\tstd::vector"
+			],
+			[
+				"arg",
+				"argv"
+			],
+			[
+				"Pro",
+				"ProfilesTable"
+			],
+			[
+				"Profile",
+				"ProfilesTable"
+			],
+			[
+				"tye",
+				"typename"
+			],
+			[
+				"getPro",
+				"getProfileString"
+			],
+			[
+				"typer",
+				"typer_app"
+			],
+			[
+				"getAll",
+				"getAlleleCounts"
+			],
+			[
+				"STyperOP",
+				"STyperOptions.h"
+			],
+			[
+				"ty",
+				"types.hpp"
+			],
+			[
+				"inc",
+				"inc\t#include \"…\""
+			],
+			[
+				"copy",
+				"copyFile"
+			],
+			[
+				"getO",
+				"getOutPrefixFilename"
+			],
+			[
+				"alleles",
+				"alleles_esa_index"
+			],
+			[
+				"indexer",
+				"indexer_app"
+			],
+			[
+				"index",
+				"indexer_app"
+			],
+			[
+				"processRe",
+				"processReadsFiles"
+			],
+			[
+				"process",
+				"processReads"
+			],
+			[
+				"filena",
+				"filename_tokens"
+			],
+			[
+				"inferr",
+				"inferred_st"
+			],
+			[
+				"TCHa",
+				"TCharStringSet"
+			],
+			[
+				"loci",
+				"loci_ids"
+			],
+			[
+				"config",
+				"config_item"
+			],
+			[
+				"confi",
+				"config_map"
+			],
+			[
+				"TSee",
+				"TSequence"
+			],
+			[
+				"loc",
+				"loci_ids"
+			],
+			[
+				"max_allel",
+				"max_alleles_numbers"
+			],
+			[
+				"seqeunces",
+				"sequences"
+			],
+			[
+				"ifn",
+				"ifndef"
+			],
+			[
+				"profiles",
+				"profiles_index_filename"
+			],
+			[
+				"allel",
+				"allele_counts"
+			],
+			[
+				"max_alle",
+				"max_alleles_numbers"
+			],
+			[
+				"coun",
+				"countReads"
+			],
+			[
+				"config_",
+				"config_file_param_name"
+			],
+			[
+				"ArgParse",
+				"ArgParseOption"
+			],
+			[
+				"curren",
+				"current_prof"
+			],
+			[
+				"curre",
+				"current_prof"
+			],
+			[
+				"creat",
+				"createProfilesIndex"
+			],
+			[
+				"SAVE",
+				"SAVE_ERROR"
+			],
+			[
+				"SA",
+				"SAVE_ERROR"
+			],
+			[
+				"Save",
+				"SaveFileResult"
+			],
+			[
+				"Sva",
+				"SaveFileResult"
+			],
+			[
+				"pro",
+				"profiles_filename"
+			],
+			[
+				"coutn",
+				"counts_file"
+			],
+			[
+				"seq",
+				"seq_ids"
+			],
+			[
+				"sequen",
+				"sequence_counts"
+			],
+			[
+				"profile",
+				"profiles_table"
+			],
+			[
+				"profiles_",
+				"profiles_table"
+			],
+			[
+				"lo",
+				"loci_alleles_index"
+			],
+			[
+				"save",
+				"saveSeqsFileIndex"
+			],
+			[
+				"seq_",
+				"seqs_file_index"
+			],
+			[
+				"file",
+				"filename"
+			],
+			[
+				"che",
+				"checkFile"
+			],
+			[
+				"ref",
+				"ref_files"
+			],
+			[
+				"inFi",
+				"inFileName"
+			],
+			[
+				"inF",
+				"inFileName"
+			],
+			[
+				"prin",
+				"printGenomesMap"
+			],
+			[
+				"genome_",
+				"genome_counts"
+			],
+			[
+				"genome",
+				"genome_counts"
+			],
+			[
+				"fastq",
+				"fastq_files"
+			],
+			[
+				"annota",
+				"annotation_subset"
+			],
+			[
+				"str",
+				"start"
+			],
+			[
+				"cu",
+				"current_region"
+			],
+			[
+				"file_l",
+				"file_list_handle"
+			],
+			[
+				"gene",
+				"gene_list"
+			],
+			[
+				"rev",
+				"rev_comp_read"
+			],
+			[
+				"finde",
+				"finder_esa"
+			],
+			[
+				"LO",
+				"LOG_ON"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "/home/hspitia/projects/test_sting/tools/scripts/crop_regions.pl",
+			"settings":
+			{
+				"buffer_size": 4944,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/home/hspitia/projects/test_sting/detector/amr/blast/run_blast.sh",
+			"settings":
+			{
+				"buffer_size": 1800,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/home/hspitia/projects/test_sting/data/amr/genes/ksg.fasta",
+			"settings":
+			{
+				"buffer_size": 1596,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/home/hspitia/projects/test_sting/detector/amr/regions_to_crop_from_genomes.tsv",
+			"settings":
+			{
+				"buffer_size": 3124,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "Packages/Markdown Preview/Markdown.sublime-build",
+	"build_system_choices":
+	[
+		[
+			[
+				[
+					"Packages/C++ Starting Kit/C++ - Starting Kit.sublime-build",
+					""
+				],
+				[
+					"Packages/C++ Starting Kit/C++ - Starting Kit.sublime-build",
+					"Run"
+				]
+			],
+			[
+				"Packages/C++ Starting Kit/C++ - Starting Kit.sublime-build",
+				""
+			]
+		],
+		[
+			[
+				[
+					"Packages/C++/C++ Single File.sublime-build",
+					""
+				],
+				[
+					"Packages/C++/C++ Single File.sublime-build",
+					"Run"
+				],
+				[
+					"Packages/C++ Starting Kit/C++ - Starting Kit.sublime-build",
+					""
+				],
+				[
+					"Packages/C++ Starting Kit/C++ - Starting Kit.sublime-build",
+					"Run"
+				]
+			],
+			[
+				"Packages/C++/C++ Single File.sublime-build",
+				""
+			]
+		],
+		[
+			[
+				[
+					"Packages/Makefile/Make.sublime-build",
+					""
+				],
+				[
+					"Packages/Makefile/Make.sublime-build",
+					"Clean"
+				],
+				[
+					"Packages/Markdown Preview/Markdown.sublime-build",
+					""
+				]
+			],
+			[
+				"Packages/Markdown Preview/Markdown.sublime-build",
+				""
+			]
+		]
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 375.0,
+		"last_filter": "mar",
+		"selected_items":
+		[
+			[
+				"mar",
+				"Markdown Preview: Save to HTML"
+			],
+			[
+				"mark",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"inst",
+				"Package Control: Install Package"
+			],
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
+			[
+				"pic",
+				"Color Picker: Insert Color"
+			],
+			[
+				"in",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: ",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: ins",
+				"Package Control: Install Package"
+			],
+			[
+				"Mar",
+				"Markdown Preview: Open Markdown Cheat sheet"
+			],
+			[
+				"Package Control: in",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: re",
+				"Package Control: Remove Package"
+			],
+			[
+				"Package Control: lis",
+				"Package Control: List Packages"
+			],
+			[
+				"prev",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"marl",
+				"Markdown Preview: Save to HTML"
+			],
+			[
+				"pac",
+				"Package Control: List Packages"
+			],
+			[
+				"isnta",
+				"Package Control: Install Package"
+			],
+			[
+				":line",
+				"Package Control: List Unmanaged Packages"
+			],
+			[
+				"packa",
+				"Package Control: List Packages"
+			],
+			[
+				"apack",
+				"Package Control: List Packages"
+			],
+			[
+				"pre",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"Packa",
+				"Package Control: Remove Package"
+			],
+			[
+				"Insta",
+				"Package Control: Install Package"
+			],
+			[
+				"intall",
+				"Package Control: Install Package"
+			],
+			[
+				"Goto",
+				"Goto Documentation"
+			],
+			[
+				"PackageRe",
+				"PackageResourceViewer: Open Resource"
+			],
+			[
+				"preview",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"\t",
+				"Markdown Preview: Preview in Browser"
+			]
+		],
+		"width": 615.0
+	},
+	"console":
+	{
+		"height": 210.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '2915d1851351e5ee549c20394736b442' + '8bc59f460fa1548d1514676163dafc88'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by) "
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/home/hspitia/projects/test_sting",
+		"/home/hspitia/projects/test_sting/tools",
+		"/home/hspitia/projects/test_sting/tools/scripts"
+	],
+	"file_history":
+	[
+		"/home/hspitia/projects/test_sting/data/genomes/dummy.fasta",
+		"/home/hspitia/projects/test_sting/detector/amr/regions_to_crop_from_genomes.tsv",
+		"/home/hspitia/projects/test_sting/detector/amr/dummy-NG.fasta",
+		"/home/hspitia/projects/test_sting/data/genomes/cdifficile_ermb_to_crop.txt",
+		"/home/hspitia/projects/test_sting/data/amr/genes/ermb.fasta",
+		"/home/hspitia/projects/test_sting/data/amr/genes/erm.fasta",
+		"/home/hspitia/projects/test_sting/data/amr/genes/amr.all.fna",
+		"/home/hspitia/projects/test_sting/data/amr/genes/pbp2x.fasta",
+		"/home/hspitia/projects/test_sting/data/amr/genes/excluded_duplicates/pen.fasta",
+		"/home/hspitia/projects/test_sting/data/amr/genes/pbp2b.fasta",
+		"/home/hspitia/projects/test_sting/data/amr/genes/pbp1a.fasta",
+		"/home/hspitia/projects/test_sting/data/amr/genes/excluded_duplicates/README.md",
+		"/home/hspitia/projects/test_sting/data/amr/genes/pen.fasta",
+		"/home/hspitia/projects/test_sting/detector/amr/blast/header.tsv",
+		"/home/hspitia/Desktop/URLLink.acsm",
+		"/home/hspitia/projects/test_sting/detector/amr/genes/pen.fasta",
+		"/home/hspitia/Dropbox/apps_config/ubuntu/desktop/packages/install_packages.sh",
+		"/home/hspitia/Dropbox/apps_config/ubuntu/desktop/packages/packages_list.16.04.txt",
+		"/media/hspitia/MyPassport/.cm0013",
+		"/home/hspitia/projects/sting/src/Typer.cpp",
+		"/home/hspitia/projects/sting/Makefile.am",
+		"/home/hspitia/projects/sting/src/Indexer.cpp",
+		"/home/hspitia/projects/sting/src/Detector.cpp",
+		"/home/hspitia/projects/sting/src/Detector.h",
+		"/home/hspitia/projects/sting/README.md",
+		"/home/hspitia/projects/sting/src/Typer.h",
+		"/home/hspitia/projects/sting/src/types.hpp",
+		"/home/hspitia/projects/sting/.gitignore",
+		"/home/hspitia/projects/sting/src/GeneDetector.cpp",
+		"/home/hspitia/projects/sting/src/KmerMatcher.cpp",
+		"/home/hspitia/.config/sublime-text-3/Packages/User/MarkdownTOC.sublime-settings",
+		"/home/hspitia/projects/sting/src/MlsTyper.cpp",
+		"/home/hspitia/.config/sublime-text-3/Packages/MarkdownTOC/MarkdownTOC.sublime-settings",
+		"/home/hspitia/projects/sting/test/amr.config_file.txt",
+		"/home/hspitia/projects/suffix_trees/docs/git_cheatsheet.md",
+		"/home/hspitia/projects/suffix_trees/docs/suffix_trees_implementations.md",
+		"/home/hspitia/projects/suffix_trees/docs/todo.md",
+		"/home/hspitia/projects/personal_website/tricks.md",
+		"/home/hspitia/projects/personal_website/tricks.html",
+		"/home/hspitia/projects/personal_website/tricks.Rmd",
+		"/home/hspitia/projects/sting/src/KmerMatcherOptions.cpp",
+		"/home/hspitia/projects/sting/src/KmerMatcherOptions.h",
+		"/home/hspitia/classes/simulation_of_biology/assignments/sketch_01_game_of_life_Espitia_pde/sketch_01_game_of_life_Espitia_pde.pde",
+		"/home/hspitia/projects/test_sting/tools/nanosim/example.sh",
+		"/home/hspitia/Downloads/Windows 10/pastilla/Instrucciones.txt",
+		"/run/user/1000/gvfs/archive:host=file%253A%252F%252F%252Fhome%252Fhspitia%252Fsoftware%252FSW_DVD5_Win_Pro_10_1607_64BIT_Spanish_Latam_MLF_X21-07311.ISO/README.TXT",
+		"/home/hspitia/.customrc.sh",
+		"/media/hspitia/MyPassport/Data/cenicana/laptop/descargas/PCRPlatesGenerator.edit/README.md",
+		"/home/hspitia/projects/test_sting/tools/readsim-1.6/example/script/run_readsim.ecoli.nanopore.sh",
+		"/home/hspitia/projects/sting/scripts/generate_reads.pl",
+		"/home/hspitia/projects/test_sting/tools/scripts/generate_nanopore_reads.pl",
+		"/home/hspitia/projects/pchecker/application/www/css/custom.css",
+		"/home/hspitia/projects/test_sting/tools/scripts/generate_reads.pl",
+		"/home/hspitia/projects/test_sting/tools/scripts/test_detector.card.pl",
+		"/home/hspitia/projects/test_sting/tools/silico/convertToFasta.py",
+		"/home/hspitia/projects/test_sting/data/genomes/NC_000962.3-Mycobacterium_tuberculosis-aac2ic.fasta.fai",
+		"/tmp/.fr-jFsfza/simulated_read_positions_trial_1.bed",
+		"/home/hspitia/projects/test_sting/SiLiCO_Scratch/chrdist.td",
+		"/home/hspitia/projects/test_sting/SiLiCO_Scratch/NC_009089.1_Clostridioides_difficile_630,_complete_genome.fa",
+		"/home/hspitia/projects/test_sting/data/genomes/NC_003098.1-Streptococcus_pneumoniae-pbp2x.fasta",
+		"/tmp/.fr-KjKBmw/simulated_read_positions_trial_1.bed",
+		"/home/hspitia/projects/pchecker/application/functions.R",
+		"/home/hspitia/Desktop/JD2Setup_x64.sh",
+		"/home/hspitia/projects/pchecker/data/text.txt",
+		"/home/hspitia/Downloads/shiny/inst/www/shared/shiny.js",
+		"/home/hspitia/Downloads/fonts-master/README.rst",
+		"/home/hspitia/Desktop/FLD0113_S148.krona.txt",
+		"/home/hspitia/projects/pchecker/application/www/js/custom.js",
+		"/home/hspitia/R/x86_64-pc-linux-gnu-library/3.3/htmlwidgets/R/htmlwidgets",
+		"/home/hspitia/R/x86_64-pc-linux-gnu-library/3.3/htmlwidgets/R/htmlwidgets.rdb",
+		"/home/hspitia/R/x86_64-pc-linux-gnu-library/3.3/htmlwidgets/DESCRIPTION",
+		"/home/hspitia/projects/pchecker/application/www/united.css",
+		"/home/hspitia/projects/pchecker/application/data/params.tsv",
+		"/home/hspitia/.config/sublime-text-3/Packages/Gutter Color/GutterColor.sublime-settings",
+		"/home/hspitia/.config/sublime-text-3/Packages/User/ColorHighlighter.sublime-settings",
+		"/home/hspitia/projects/pchecker/application/data/empty.tsv",
+		"/home/hspitia/projects/sting/scripts/fix_card_seq_ids_to_sting_format.pl",
+		"/home/hspitia/.config/sublime-text-3/Packages/Color Highlighter/ColorHighlighter.sublime-settings",
+		"/home/hspitia/projects/sting/scripts/test_detector.pl",
+		"/home/hspitia/projects/sting/test/card_data/genomes/names",
+		"/home/hspitia/projects/sting/test/card.config_file.txt",
+		"/home/hspitia/projects/sting/src/GeneDetector.h",
+		"/home/hspitia/projects/sting/src/custom_utils.hpp",
+		"/home/hspitia/projects/sting/src/KmerMatcher.h",
+		"/home/hspitia/projects/sting/test/card_data/card_db/nucleotide_fasta_protein_homolog_model.fasta",
+		"/home/hspitia/projects/sting/counts.txt",
+		"/home/hspitia/projects/sting/names.txt",
+		"/home/hspitia/projects/sting/test/card_data/card_db/sample.fasta",
+		"/home/hspitia/projects/sting/scripts/get_seq_length.pl",
+		"/home/hspitia/.software/scripts/getSeqLength.sh",
+		"/home/hspitia/.software/scripts/templates/template.bash.basic_args.sh",
+		"/home/hspitia/.software/scripts/generic_operations.sh",
+		"/home/hspitia/.software/scripts/templates/template.bash.getopts.sh",
+		"/home/hspitia/projects/sting/test/card_data/card_db/CARD-Download-README.txt",
+		"/tmp/.fr-wOuTSg/[ARO:3002501]-2016-12-26T21:46:18+00:00-nucleotide.fasta",
+		"/home/hspitia/backup_dropbox/gatech/classes/01_fall_2015/BIOL_8803B_programming_bioinformatics/tasks/07_snp_pipeline/week7/week7.sh",
+		"/home/hspitia/.software/scripts/getFastaSequenceLength.sh",
+		"/tmp/.fr-giaW2J/CARD-Download-README.txt",
+		"/home/hspitia/.software/scripts/templates/template.bash.sh",
+		"/home/hspitia/projects/sting/test/amr_data/amr.fa",
+		"/home/hspitia/projects/sting/test/amr_data/detector.amr2.log",
+		"/home/hspitia/projects/sting/test/amr_data/crop_regions.pl",
+		"/home/hspitia/projects/sting/test/amr_data/generate_reads.pl",
+		"/home/hspitia/projects/sting/test/amr_data/test_detector.pl",
+		"/home/hspitia/projects/sting/test/amr_data/genomes/list",
+		"/run/user/1000/gvfs/sftp:host=thebeast.biology.gatech.edu/data/home/hfen3/projects/sting/test/amr_data/salida",
+		"/home/hspitia/projects/sting/test/amr_data/genomes/batch.txt",
+		"/home/hspitia/projects/sting/test/amr_data/regions_to_crop_from_genomes.tsv",
+		"/home/hspitia/projects/sting/test/fastq_files/amr/GCF_000014105.fasta",
+		"/home/hspitia/projects/sting/test/fastq_files/amr/GCF_000009465.fasta",
+		"/home/hspitia/projects/sting/test/fastq_files/amr/GCF_000009105.fasta",
+		"/home/hspitia/projects/sting/test/fastq_files/amr/GCF_000008805.fasta",
+		"/home/hspitia/projects/sting/test/fastq_files/amr/GCF_000009465NG.fasta",
+		"/run/user/1000/gvfs/sftp:host=thebeast.biology.gatech.edu/data/home/hfen3/projects/sting/test/amr_data/aac2ic.fasta",
+		"/home/hspitia/projects/sting/test/amr_data/amr1/pen1-AHW75033.1.faa",
+		"/home/hspitia/projects/sting/test/amr_data/amr1/pen1-ponA.fna",
+		"/home/hspitia/projects/sting/test/amr_data/amr1/pen1-AHW75033.1.fa}a",
+		"/home/hspitia/projects/sting/test/amr.config_file_2.txt",
+		"/home/hspitia/projects/sting/test/amr_data/aph6id.fasta",
+		"/home/hspitia/projects/sting/test/amr_data/mepa.fasta",
+		"/home/hspitia/projects/sting/test/amr_data/amr1/CAM09192.1-qacE1.fasta",
+		"/home/hspitia/projects/sting/test/amr_data/amr1/CAM09192.1-qacE1.fna",
+		"/home/hspitia/projects/sting/pen1.fasta",
+		"/home/hspitia/projects/sting/test/amr_data/test_gene_detector.pl",
+		"/home/hspitia/projects/sting/test/amr_data/ermb.fasta",
+		"/home/hspitia/projects/sting/test/amr_data/bl2a_1.fasta",
+		"/home/hspitia/projects/sting/test/amr_data/aac2ic.fasta",
+		"/home/hspitia/projects/sting/test/amr_data/pbp2b.fasta"
+	],
+	"find":
+	{
+		"height": 30.0
+	},
+	"find_in_files":
+	{
+		"height": 98.0,
+		"where_history":
+		[
+			"C:\\Users\\hfen3\\Dropbox\\gatech\\projects\\suffix_trees\\mummer\\MUMmer3.23\\src"
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"/home/hspitia/projects/sting/test/amr_data/genomes",
+			"GeneDetector",
+			"GENE_DETECTOR_H",
+			"MlsTyper",
+			"options available",
+			"inf",
+			"ARGV[0]",
+			"btn-default",
+			"plot",
+			"custom-table",
+			"custom-panel",
+			"\"",
+			"download",
+			".btn",
+			"(^\\s+)([.^/]*)(color: #)(e95420)(.*)",
+			"    color: #e95420;",
+			"(^\\s+)([.^/]*)(color: #)(e95420)(.*)",
+			"(^\\s+)(.*)(color: #)(e95420)(.*)",
+			"e95420",
+			"style",
+			"cerr",
+			"getVer",
+			"numbers",
+			"AAC",
+			"^00",
+			"00",
+			" +",
+			"input_file",
+			"lines",
+			"inFile",
+			"$zcatFileHandle",
+			"$zcat",
+			"inSeq",
+			"inFastaFile",
+			"fasta_file",
+			"# ==============================================================================$",
+			"==============================================================================$",
+			"# ===================================================================$",
+			"inArg",
+			"in_file",
+			"inArg",
+			"IN_FILE",
+			"names",
+			"amr_data/",
+			"outSeq",
+			"fields[0]",
+			"inFastaFile",
+			"scroll",
+			"about",
+			"(color: #)(999999)",
+			"(color: #)(A3A3A3)",
+			"color: \\#A3A3A3",
+			"(^ *)(background: \\#)([a-fA-F0-9]*)( url\\(\\.\\.\\/images\\/patterns\\/grey\\.png\\))(;)",
+			"(^ *)(background: \\#)([a-fA-F0-9]*) (url\\(\\.\\.\\/images\\/patterns\\/grey\\.png\\))(;)",
+			"(^ *background: \\#)([a-fA-F0-9]*) (url\\(\\.\\.\\/images\\/patterns\\/grey\\.png\\))(;)",
+			"(^background: \\#)([a-fA-F0-9]*) (url\\(\\.\\.\\/images\\/patterns\\/grey\\.png\\))(;)",
+			"(background: \\#)([a-fA-F0-9]) (url\\(\\.\\.\\/images\\/patterns\\/grey\\.png\\))(;)",
+			"(background: \\#f5f5f5) (url\\(\\.\\.\\/images\\/patterns\\/grey\\.png\\))(;)",
+			"background:*\\#f5f5f5",
+			"background:*\\#f5f5f5*grey.png",
+			"background:*\\#f5f5f5 url(../images/patterns/grey.png);",
+			"background: #f5f5f5 url(../images/patterns/grey.png);",
+			"999999",
+			"A3A3A3",
+			".new.",
+			"save",
+			"pcr_plates_generator.R",
+			"out_file",
+			"readpos.file",
+			"out_file.pre",
+			"v_order",
+			"n_cols",
+			"n_rows",
+			"beginegin",
+			"controls_b",
+			"controls_file",
+			"n_expansion",
+			"in_file",
+			"#!/",
+			"gene_",
+			"mls_",
+			"sting_",
+			"ids",
+			"total_k",
+			"genbank",
+			"$out_file",
+			"genes_vs_amr_01.blast",
+			"&& ",
+			"new",
+			"old",
+			"$ARGV[0]",
+			"\\$ARGV[0]",
+			"$ARGV[0]",
+			"qac",
+			"png",
+			"example",
+			"recursive",
+			"results",
+			"resul",
+			"Idx",
+			"profiles_idx",
+			"profiles_index",
+			"Mlst",
+			"getProfileString",
+			"profiles_idx_found",
+			"profile_idx",
+			"ProfileIdx",
+			"profile_idx",
+			"([0-9*§]+,*)+ ",
+			"typer:",
+			"typer",
+			"\" << endl;",
+			"\" << endl ",
+			"\"NA\"",
+			"\"\\t\"",
+			"TyperOptions",
+			"STyperOptions",
+			"SIndexerOptions",
+			"IndexerOptions",
+			"TyperOptions",
+			"MLSTTYPER_H",
+			"GENETYPER_H",
+			"index",
+			"\"\\t\"",
+			"\" ",
+			" \"\\t\" ",
+			"\"\\t\"",
+			" <<"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"/home/hspitia/projects/test_sting/data/genomes",
+			"Detector",
+			"DETECTOR_H",
+			"Typer",
+			"available options",
+			"inputDir",
+			"custom-panel",
+			"'",
+			"\\1\\/\\*\\2\\3\\4\\5\\*\\/\\n\\1\\2\\3ff6600\\5",
+			"\\1\\/\\* \\2\\3\\4\\5 \\*\\/\\n\\1\\2\\3ff6600\\5",
+			"\\1\\2\\/\\* \\3\\4\\5 \\*\\/\\n\\1\\2\\3ff6600\\5",
+			"\\/\\*\\1\\2\\3\\4\\5\\*\\/\\n\\1\\2\\3ff6600\\5",
+			"0\\n0",
+			"0\\n0\\n",
+			"\\n",
+			"# =================================================================================",
+			"# ==============================================================================",
+			"amr_data/genes/",
+			"line",
+			"inFile",
+			"\\1656565",
+			"\\16E6E6E",
+			"\\1/\\* \\2\\3\\4\\5 \\*/\\n\\1\\2f5f5f5;",
+			"\\1/\\* \\2\\3\\4\\5\\*/\\n\\1\\2f5f5f5;",
+			"\\1/\\*\\2\\3\\4\\5\\*/\\n\\1\\2f5f5f5;",
+			"\\1/\\*\\2\\3\\4\\5\\*/\\n   \\1\\2f5f5f5;",
+			"/\\*\\1\\2\\3\\4\\5\\*/\\n   \\1\\2f5f5f5;",
+			"/\\*\\1\\2\\3\\4\\*/\\n   \\1;",
+			"/\\*\\1\\2\\3\\4/\\*\\n   \\1f5f5f5;",
+			"/\\*\\1f5f5f5\\3\\4/\\*\\n   \\1;",
+			"/\\*\\1;/\\*\\n\\1;",
+			"\\1(;)",
+			"656565",
+			"6E6E6E",
+			".",
+			"pcr_plates_generator.new.R",
+			"out.file",
+			"out.prefix",
+			"vertical.order",
+			"n.cols",
+			"n.rows",
+			"begin",
+			"controls.begin",
+			"controls.file",
+			"n.expansions",
+			"samples.file",
+			"",
+			"&& \\n",
+			"second",
+			"first",
+			"$inputDir",
+			"\\$inputDir",
+			"$inputDir",
+			"Index",
+			"profiles_index",
+			"Mls",
+			"createInferredProfileStringRepresentation",
+			"profile_idx_found",
+			"profiles_idx",
+			"ProfilesIdx",
+			"profiles_idx",
+			"\\n",
+			"\\n\"",
+			"NA_STRING",
+			"FIELD_SEPARATOR",
+			"KmerMatcherOptions",
+			"TyperOptions",
+			"IndexerOptions",
+			"SIndexerOptions",
+			"STyperOptions",
+			"GENE_DETECTOR_H",
+			"GENEDETECTOR_H",
+			"db",
+			"processMlstConfigFile",
+			"SIndexer",
+			"GeneIndexer",
+			"classes_filename",
+			"names_filename",
+			"str <<",
+			"unsigned",
+			"setColumnNames",
+			"getColumnNames",
+			"columnNames",
+			"objOstream",
+			"DataTable",
+			"Key",
+			"Value",
+			"Key",
+			"Value",
+			"Key",
+			"",
+			"InferredProfileString",
+			"inferred_profile_string",
+			"computeMaxAlleles",
+			" STyperOptions",
+			"Typer::",
+			"STyperOptions",
+			"Typer",
+			"TyperOptions",
+			"NULL",
+			"TLociTable",
+			"TUintVector",
+			"#######################################",
+			"###########",
+			"cerr",
+			"test/mlst_data/N_meningitidis",
+			"\\$ git",
+			"^\\$ git",
+			"FILE_SEPARATOR",
+			"uint64_t",
+			"TStringVector",
+			"",
+			"uint64_t",
+			"TyperOptions",
+			"IndexerOptions",
+			"verbosity_level",
+			"index_filename",
+			"printAlleleCounts",
+			"LocusRecord",
+			"loci_table",
+			"LocusRecord",
+			"saveAlleleSequenceIds",
+			"saveLociTable",
+			"profile_string",
+			"loadLociTable",
+			"LociRecord",
+			"max_idx",
+			"processReadsByLine"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"folders":
+	[
+		{
+			"path": "/home/hspitia/projects/test_sting"
+		}
+	],
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "/home/hspitia/projects/test_sting/tools/scripts/crop_regions.pl",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4944,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1850,
+								1850
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": 1249,
+								"count": 302,
+								"modified": false,
+								"selection": false,
+								"status": -1,
+								"syntax": "plain text"
+							},
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content"
+							],
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
+							"syntax": "Packages/ModernPerl/ModernPerl.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true,
+							"word_wrap": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1617.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "/home/hspitia/projects/test_sting/detector/amr/blast/run_blast.sh",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1800,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								137,
+								137
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": 0,
+								"count": 108,
+								"modified": false,
+								"selection": false,
+								"status": -1,
+								"syntax": "plain text"
+							},
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content"
+							],
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
+							"syntax": "Packages/ShellScriptImproved/Shell-Unix-Generic.sublime-syntax",
+							"word_wrap": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "/home/hspitia/projects/test_sting/data/amr/genes/ksg.fasta",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1596,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1596,
+								1596
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": 0,
+								"count": 22,
+								"modified": false,
+								"selection": false,
+								"status": -1,
+								"syntax": "plain text"
+							},
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content"
+							],
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "/home/hspitia/projects/test_sting/detector/amr/regions_to_crop_from_genomes.tsv",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3124,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3114,
+								3114
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": 182,
+								"count": 29,
+								"modified": false,
+								"selection": false,
+								"status": -1,
+								"syntax": "plain text"
+							},
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content"
+							],
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"translate_tabs_to_spaces": false,
+							"word_wrap": false
+						},
+						"translation.x": 97.0,
+						"translation.y": 63.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 30.0
+	},
+	"input":
+	{
+		"height": 38.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.CppBuilder":
+	{
+		"height": 132.0
+	},
+	"output.exec":
+	{
+		"height": 132.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.markdown":
+	{
+		"height": 86.0
+	},
+	"output.sftp":
+	{
+		"height": 0.0
+	},
+	"output.unsaved_changes":
+	{
+		"height": 144.0
+	},
+	"pinned_build_system": "Packages/Markdown Preview/Markdown.sublime-build",
+	"project": "",
+	"replace":
+	{
+		"height": 72.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"apps/prototype/src/main.cpp"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 375.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 669.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": false,
+	"side_bar_width": 246.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
