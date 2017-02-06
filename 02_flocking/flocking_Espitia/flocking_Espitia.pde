@@ -35,10 +35,10 @@ boolean leavePath  = true;
 boolean simRunning = true;
 
 // Forces flags
-boolean flockCenteringOn = true;
-boolean velMatchingOn    = true;
+boolean flockCenteringOn = false;
+boolean velMatchingOn    = false;
 boolean colAvoidanceOn   = false;
-boolean wanderingOn      = true;
+boolean wanderingOn      = false;
 
 int lastTime             = 0;
 int interval             = 0;
@@ -47,6 +47,8 @@ float maxVel             = 1.0;
 float minWanderingFactor = 0.5;
 float maxWanderingFactor = 1.5;
 float minDistance        = 20.0;
+float maxSpeed           = 2;
+float maxSForce          = 0.03;
 float flockingWeight     = 0.001;
 float colAvoidanceWeight = 0.01;
 float velMatchingWeight  = 0.01;
@@ -89,29 +91,23 @@ class Creature {
     PVector pos;
     PVector vel;
     PVector accel;
-    float   r;
+    float   shapeRadius;
     String  id;
     
     // Methods
     // Constructor
-    Creature(PVector pos, PVector vel, float r) {
-        this.pos = pos;
-        this.vel = vel;
-        this.r   = r;
-        this.accel = new PVector(0, 0);
+    Creature(PVector pos, PVector vel) {
+        this.pos         = pos;
+        this.vel         = vel;
+        this.shapeRadius = 8;
+        this.accel       = new PVector(0, 0);
     }
     
     void display() {
         // stroke(creatureCellColor);
         stroke(strokeColor);
         fill(creatureCellColor);
-        ellipse(pos.x, pos.y, 8, 8);
-    }
-    
-    void displayLastPosition() {
-        stroke(pathColor);
-        fill(pathColor);
-        ellipse(pos.x, pos.y, 2, 2);
+        ellipse(pos.x, pos.y, shapeRadius, shapeRadius);
     }
     
     void applyForce(PVector f) {
@@ -120,12 +116,13 @@ class Creature {
     
     void update(){
         // check borders
-        float[] limits = {0.0, canvasSize};
-        if (pos.y > canvasSize || pos.y < 0.0)
-            pos.y = limits[int(pos.y < 0.0)];
+        float offset = shapeRadius/2;
+        float[] limits = {offset, (canvasSize-offset)};
+        if (pos.y > (canvasSize-offset) || pos.y < offset)
+            pos.y = limits[int(pos.y < offset)];
         
-        if (pos.x > canvasSize || pos.x < 0.0)
-            pos.x = limits[int(pos.x < 0.0)];
+        if (pos.x > (canvasSize-offset) || pos.x < offset)
+            pos.x = limits[int(pos.x < offset)];
         
         vel.add(accel);
         pos.add(vel);
@@ -155,8 +152,7 @@ class Flock {
         for (int i = 0; i < this.nCreatures; ++i) {
             // creatures[i] = new Creature(getRandomPoint(), 
             creatures[i] = new Creature(new PVector(canvasSize/2, canvasSize/2), 
-                                        getRandomVelocity(),
-                                        r);
+                                        getRandomVelocity());
         }
     }
     // -------------------------------------------------------------------------
@@ -187,8 +183,7 @@ class Flock {
     void addCreature() {
         if (nCreatures <= maxCreatures) {
             creatures[nCreatures++] = new Creature(getRandomPoint(), 
-                                                   getRandomVelocity(),
-                                                   r);
+                                                   getRandomVelocity());
         }
     }
     // -------------------------------------------------------------------------
@@ -229,7 +224,6 @@ class Flock {
         PVector center = new PVector(0,0);
         for (int i = 0; i < this.nCreatures; ++i) {
             int nNeighbors = 0;
-            // println("i: " + i);
             for (int j = 0; j < this.nCreatures; ++j) {
                 float cDistance = PVector.dist(creatures[i].pos, creatures[j].pos);
                 if (cDistance < minDistance && cDistance > 0) {

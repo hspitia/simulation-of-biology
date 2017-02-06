@@ -86,16 +86,16 @@ class Boid {
 
   // We accumulate a new acceleration each time based on three rules
   void flock(ArrayList<Boid> boids) {
-    PVector sep = separate(boids);   // Separation
-    PVector ali = align(boids);      // Alignment
+    // PVector sep = separate(boids);   // Separation
+    // PVector ali = align(boids);      // Alignment
     PVector coh = cohesion(boids);   // Cohesion
     // Arbitrarily weight these forces
-    sep.mult(1.5);
-    ali.mult(1.0);
+    // sep.mult(1.5);
+    // ali.mult(1.0);
     coh.mult(1.0);
     // Add the force vectors to acceleration
-    applyForce(sep);
-    applyForce(ali);
+    // applyForce(sep);
+    // applyForce(ali);
     applyForce(coh);
   }
 
