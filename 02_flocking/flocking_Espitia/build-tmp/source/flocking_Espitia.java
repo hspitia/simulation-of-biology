@@ -29,6 +29,7 @@ public class flocking_Espitia extends PApplet {
 // colors
 // color backgroundColor   = #444444;
 int backgroundColor   = color(68,68,68,20);
+int infoPanelColor    = 0xffB0B0B0;
 // color strokeColor    = #888888;
 int pathColor         = 0xff888888;
 int strokeColor       = 0xff333333;
@@ -38,10 +39,11 @@ int creatureCellColor = 0xffFFB115;
 PFont myFont;
 PFont myFontBold;
 
-int nCreatures   = 5;
-int maxCreatures = 100;
-int canvasSize   = 600;
-float r          = 40.0f;
+int nCreatures    = 5;
+int maxCreatures  = 100;
+int canvasSize    = 600;
+int infoPanelSize = 250;
+float r           = 40.0f;
 
 Flock flock;
 
@@ -51,8 +53,8 @@ boolean simRunning = true;
 // Forces flags
 boolean flockCenteringOn = true;
 boolean velMatchingOn    = true;
-boolean collisionAvoidOn = true;
-boolean wanderingForceOn = true;
+boolean colAvoidanceOn   = false;
+boolean wanderingOn      = true;
 
 int lastTime             = 0;
 int interval             = 0;
@@ -61,21 +63,24 @@ float maxVel             = 1.0f;
 float minWanderingFactor = 0.5f;
 float maxWanderingFactor = 1.5f;
 float minDistance        = 20.0f;
-float weight             = 0.01f;
+float flockingWeight     = 0.001f;
+float colAvoidanceWeight = 0.01f;
+float velMatchingWeight  = 0.01f;
 // =============================================================================
 public void setup() {
     
     background(backgroundColor);
         
     // printArray(PFont.list());
-    myFont     = createFont("Ubuntu", 20);
-    myFontBold = createFont("Ubuntu Bold", 20);
+    myFont     = createFont("Ubuntu Mono", 14);
+    myFontBold = createFont("Ubuntu Bold", 14);
     
     flock = new Flock(nCreatures, maxCreatures);
 }
 // =============================================================================
 public void draw() {
-    displayBackground();
+    displaySimPanel();
+    displayInfoPanel();
     flock.display();
     
     if (millis() - lastTime > interval && simRunning){
@@ -131,21 +136,14 @@ class Creature {
     
     public void update(){
         // check borders
-        // PVector newPos = new PVector(pos.x, pos.y);
-        
         float[] limits = {0.0f, canvasSize};
         if (pos.y > canvasSize || pos.y < 0.0f)
             pos.y = limits[PApplet.parseInt(pos.y < 0.0f)];
-            // newPos.y = limits[int(pos.y < 0.0)];
         
         if (pos.x > canvasSize || pos.x < 0.0f)
             pos.x = limits[PApplet.parseInt(pos.x < 0.0f)];
         
-        // add acceleration
         vel.add(accel);
-        // add wandering
-        // pos.add(new PVector(getWandering(), getWandering()));
-        // add velocity
         pos.add(vel);
         accel.mult(0);
     }
@@ -171,7 +169,8 @@ class Flock {
         this.maxCreatures = maxCreatures;
         this.creatures    = new Creature[this.maxCreatures];
         for (int i = 0; i < this.nCreatures; ++i) {
-            creatures[i] = new Creature(getRandomPoint(), 
+            // creatures[i] = new Creature(getRandomPoint(), 
+            creatures[i] = new Creature(new PVector(canvasSize/2, canvasSize/2), 
                                         getRandomVelocity(),
                                         r);
         }
@@ -184,8 +183,12 @@ class Flock {
     }
     // -------------------------------------------------------------------------
     public void update(){
-        if(collisionAvoidOn) collisionAvoidance();
+        
+        if(colAvoidanceOn) collisionAvoidance();
         if(flockCenteringOn) flockCentering();
+        if(velMatchingOn) velocityMatching();
+        if(wanderingOn) wandering();
+        
         for (int i = 0; i < this.nCreatures; ++i) {
             creatures[i].update();
         }
@@ -215,11 +218,11 @@ class Flock {
         for (int i = 0; i < this.nCreatures; ++i) {
             PVector force = new PVector(0,0);
             int nNeighbors = 0;
-            println("i: " + i);
+            // println("i: " + i);
             for (int j = 0; j < this.nCreatures; ++j) {
                 float cDistance = PVector.dist(creatures[i].pos, creatures[j].pos);
                 if (cDistance < minDistance && cDistance > 0) {
-                    println(" cDistance: " + cDistance);
+                    // println(" cDistance: " + cDistance);
                     PVector difference = PVector.sub(creatures[i].pos, creatures[j].pos);
                     force.add(difference);
                     ++nNeighbors;
@@ -227,9 +230,9 @@ class Flock {
             }
             
             if (force.mag() > 0) {
-                force.mult(weight);
-                force.div(weight * nNeighbors);
-                force.normalize();
+                force.mult(colAvoidanceWeight);
+                force.div(colAvoidanceWeight * nNeighbors);
+                // force.normalize();
                 creatures[i].applyForce(force);
             } else {
                 creatures[i].applyForce(new PVector(0,0));
@@ -256,6 +259,40 @@ class Flock {
                 center.div(nNeighbors);
                 force = center.sub(creatures[i].pos);
             }
+            creatures[i].applyForce(force);
+        }
+    }
+    // -------------------------------------------------------------------------
+    public void velocityMatching() {
+        for (int i = 0; i < this.nCreatures; ++i) {
+            PVector force = new PVector(0,0);
+            int nNeighbors = 0;
+            // println("i: " + i);
+            for (int j = 0; j < this.nCreatures; ++j) {
+                float cDistance = PVector.dist(creatures[i].pos, creatures[j].pos);
+                if (cDistance < minDistance && cDistance > 0) {
+                    // println(" cDistance: " + cDistance);
+                    PVector difference = PVector.sub(creatures[i].vel, creatures[j].vel);
+                    force.add(difference);
+                    ++nNeighbors;
+                }
+            }
+            
+            if (force.mag() > 0) {
+                force.mult(velMatchingWeight);
+                force.div(velMatchingWeight * nNeighbors);
+                // force.normalize();
+                creatures[i].applyForce(force);
+            } else {
+                creatures[i].applyForce(new PVector(0,0));
+            }
+            
+        }
+    }
+    // -------------------------------------------------------------------------
+    public void wandering(){
+        for (int i = 0; i < this.nCreatures; ++i) {
+            PVector force = new PVector(random(-1.0f, 1),random(-1.0f, 1));
             creatures[i].applyForce(force);
         }
     }
@@ -292,10 +329,10 @@ public int getRandomSign(){
     return signs[PApplet.parseInt(random(signs.length))];
 }
 // =============================================================================
-public void displayBackground() {
+public void displaySimPanel() {
     // Background for creatures path
     if (leavePath) {
-        noStroke();
+        // noStroke();
         fill(backgroundColor);
         rect(0, 0, canvasSize, canvasSize);
     }
@@ -303,30 +340,75 @@ public void displayBackground() {
     else {
         background(backgroundColor);
     }
+    // displayInfoPanel();
+}
+// =============================================================================
+public void displayInfoPanel(){
+    noStroke();
+    fill(infoPanelColor);
+    rect(canvasSize, 0, infoPanelSize, canvasSize);
+    displayHelp();
 }
 // =============================================================================
 public void clear() {
     background(backgroundColor);
+    displayInfoPanel();
 }
 // =========================================================
 public void displayHelp() {
-    textFont(myFont);
+    
     String[] labels = new String[4];
     String[] values = new String[4];
+    String[] controlText = new String[11];
     
-    labels[0] = "Centering: ";
-    labels[1] = "Collisions: ";
-    labels[2] = "Vel. matching: ";
-    labels[3] = "Wandering: ";
+    labels[0] = "Centering: " + getOnOffStr(flockCenteringOn);
+    labels[1] = "Vel. matching: " + getOnOffStr(velMatchingOn);
+    labels[2] = "Collisions: " + getOnOffStr(colAvoidanceOn);
+    labels[3] = "Wandering: " + getOnOffStr(wanderingOn);
     
-    values[0] = getOnOffStr(flockCenteringOn);
-    values[1] = getOnOffStr(velMatchingOn);
-    values[2] = getOnOffStr(collisionAvoidOn);
-    values[3] = getOnOffStr(wanderingForceOn);
+    controlText[0]  = "A:   Toggle Attraction Mode";
+    controlText[1]  = "R:   Toggle Repulsion Mode";
+    controlText[2]  = "S:   Randomize creatures";
+    controlText[3]  = "C:   Clear window";
+    controlText[4]  = "1:   Toggle Flock Centering";
+    controlText[5]  = "2:   Toggle Velocity Matching";
+    controlText[6]  = "3:   Toggle Collision Avoidance";
+    controlText[7]  = "4:   Toggle Wandering";
+    controlText[8]  = "=,+: Add a new creature";
+    controlText[9]  = "-:   Remove a creature";
+    controlText[10] = "Space:   Run a single step";
     
-    fill(255);
-    text("Forces:", 10, 618);
-    // text("Keyboard Controls:", 10, 618);
+    // values[0] = getOnOffStr(flockCenteringOn);
+    // values[1] = getOnOffStr(velMatchingOn);
+    // values[2] = getOnOffStr(colAvoidanceOn);
+    // values[3] = getOnOffStr(wanderingOn);
+    
+    fill(0);
+    int marginX = canvasSize + 15;
+    int marginY = 30;
+    textFont(myFontBold);
+    textFont(myFontBold);
+    text("Forces:", marginX, marginY);
+    
+    int textX   = marginX;
+    int textY   = marginY + 3;
+    int offsetY = 16;
+    textFont(myFont);
+    for (int i = 0; i < labels.length; ++i) {
+        textY += offsetY;
+        text(labels[i], textX, textY);
+    }
+    
+    // textX = marginX;
+    textY += 30;
+    textFont(myFontBold);
+    text("Controls:", textX, textY);
+    textY += 3;
+    textFont(myFont);
+    for (int i = 0; i < controlText.length; ++i) {
+        textY += offsetY;
+        text(controlText[i], textX, textY);
+    }
 }
 // =============================================================================
 public void keyPressed() {
@@ -350,12 +432,14 @@ public void keyPressed() {
             flock.randomize();
             break;
         }
+        
         case 'p':
         case 'P': {
             // Toggle display path mode
             leavePath = !leavePath;
             break;
         }
+        
         case 'c':
         case 'C': {
             // Clear background
@@ -363,16 +447,19 @@ public void keyPressed() {
             break;
         }
         case '1': {
+            flockCenteringOn = !flockCenteringOn;
             break;
         }
         case '2': {
+            velMatchingOn = !velMatchingOn;
             break;
         }
         case '3': {
-            collisionAvoidOn = !collisionAvoidOn;
+            colAvoidanceOn = !colAvoidanceOn;
             break;
         }
         case '4': {
+            wanderingOn = !wanderingOn;
             break;
         }
         case '=': 
@@ -395,7 +482,7 @@ public void keyPressed() {
         
     }
 }
-  public void settings() {  size(600, 600); }
+  public void settings() {  size(850, 600); }
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "flocking_Espitia" };
     if (passedArgs != null) {

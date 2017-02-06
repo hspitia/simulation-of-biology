@@ -13,6 +13,7 @@
 // colors
 // color backgroundColor   = #444444;
 color backgroundColor   = color(68,68,68,20);
+color infoPanelColor    = #B0B0B0;
 // color strokeColor    = #888888;
 color pathColor         = #888888;
 color strokeColor       = #333333;
@@ -22,10 +23,11 @@ color creatureCellColor = #FFB115;
 PFont myFont;
 PFont myFontBold;
 
-int nCreatures   = 5;
-int maxCreatures = 100;
-int canvasSize   = 600;
-float r          = 40.0;
+int nCreatures    = 5;
+int maxCreatures  = 100;
+int canvasSize    = 600;
+int infoPanelSize = 250;
+float r           = 40.0;
 
 Flock flock;
 
@@ -35,8 +37,8 @@ boolean simRunning = true;
 // Forces flags
 boolean flockCenteringOn = true;
 boolean velMatchingOn    = true;
-boolean collisionAvoidOn = true;
-boolean wanderingForceOn = true;
+boolean colAvoidanceOn   = false;
+boolean wanderingOn      = true;
 
 int lastTime             = 0;
 int interval             = 0;
@@ -45,21 +47,24 @@ float maxVel             = 1.0;
 float minWanderingFactor = 0.5;
 float maxWanderingFactor = 1.5;
 float minDistance        = 20.0;
-float weight             = 0.01;
+float flockingWeight     = 0.001;
+float colAvoidanceWeight = 0.01;
+float velMatchingWeight  = 0.01;
 // =============================================================================
 void setup() {
-    size(600, 600);
+    size(850, 600);
     background(backgroundColor);
         
     // printArray(PFont.list());
-    myFont     = createFont("Ubuntu", 20);
-    myFontBold = createFont("Ubuntu Bold", 20);
+    myFont     = createFont("Ubuntu Mono", 14);
+    myFontBold = createFont("Ubuntu Bold", 14);
     
     flock = new Flock(nCreatures, maxCreatures);
 }
 // =============================================================================
 void draw() {
-    displayBackground();
+    displaySimPanel();
+    displayInfoPanel();
     flock.display();
     
     if (millis() - lastTime > interval && simRunning){
@@ -115,21 +120,14 @@ class Creature {
     
     void update(){
         // check borders
-        // PVector newPos = new PVector(pos.x, pos.y);
-        
         float[] limits = {0.0, canvasSize};
         if (pos.y > canvasSize || pos.y < 0.0)
             pos.y = limits[int(pos.y < 0.0)];
-            // newPos.y = limits[int(pos.y < 0.0)];
         
         if (pos.x > canvasSize || pos.x < 0.0)
             pos.x = limits[int(pos.x < 0.0)];
         
-        // add acceleration
         vel.add(accel);
-        // add wandering
-        // pos.add(new PVector(getWandering(), getWandering()));
-        // add velocity
         pos.add(vel);
         accel.mult(0);
     }
@@ -155,7 +153,8 @@ class Flock {
         this.maxCreatures = maxCreatures;
         this.creatures    = new Creature[this.maxCreatures];
         for (int i = 0; i < this.nCreatures; ++i) {
-            creatures[i] = new Creature(getRandomPoint(), 
+            // creatures[i] = new Creature(getRandomPoint(), 
+            creatures[i] = new Creature(new PVector(canvasSize/2, canvasSize/2), 
                                         getRandomVelocity(),
                                         r);
         }
@@ -168,8 +167,12 @@ class Flock {
     }
     // -------------------------------------------------------------------------
     void update(){
-        if(collisionAvoidOn) collisionAvoidance();
+        
+        if(colAvoidanceOn) collisionAvoidance();
         if(flockCenteringOn) flockCentering();
+        if(velMatchingOn) velocityMatching();
+        if(wanderingOn) wandering();
+        
         for (int i = 0; i < this.nCreatures; ++i) {
             creatures[i].update();
         }
@@ -211,9 +214,9 @@ class Flock {
             }
             
             if (force.mag() > 0) {
-                force.mult(weight);
-                force.div(weight * nNeighbors);
-                force.normalize();
+                force.mult(colAvoidanceWeight);
+                force.div(colAvoidanceWeight * nNeighbors);
+                // force.normalize();
                 creatures[i].applyForce(force);
             } else {
                 creatures[i].applyForce(new PVector(0,0));
@@ -243,7 +246,40 @@ class Flock {
             creatures[i].applyForce(force);
         }
     }
-    
+    // -------------------------------------------------------------------------
+    void velocityMatching() {
+        for (int i = 0; i < this.nCreatures; ++i) {
+            PVector force = new PVector(0,0);
+            int nNeighbors = 0;
+            // println("i: " + i);
+            for (int j = 0; j < this.nCreatures; ++j) {
+                float cDistance = PVector.dist(creatures[i].pos, creatures[j].pos);
+                if (cDistance < minDistance && cDistance > 0) {
+                    // println(" cDistance: " + cDistance);
+                    PVector difference = PVector.sub(creatures[i].vel, creatures[j].vel);
+                    force.add(difference);
+                    ++nNeighbors;
+                }
+            }
+            
+            if (force.mag() > 0) {
+                force.mult(velMatchingWeight);
+                force.div(velMatchingWeight * nNeighbors);
+                // force.normalize();
+                creatures[i].applyForce(force);
+            } else {
+                creatures[i].applyForce(new PVector(0,0));
+            }
+            
+        }
+    }
+    // -------------------------------------------------------------------------
+    void wandering(){
+        for (int i = 0; i < this.nCreatures; ++i) {
+            PVector force = new PVector(random(-1.0, 1),random(-1.0, 1));
+            creatures[i].applyForce(force);
+        }
+    }
     // -------------------------------------------------------------------------
     // ArrayList<int> getNeighbors(int creatureIdx) {
     //     ArrayList<int> neighbors = new ArrayList<int>();
@@ -277,10 +313,10 @@ int getRandomSign(){
     return signs[int(random(signs.length))];
 }
 // =============================================================================
-void displayBackground() {
+void displaySimPanel() {
     // Background for creatures path
     if (leavePath) {
-        noStroke();
+        // noStroke();
         fill(backgroundColor);
         rect(0, 0, canvasSize, canvasSize);
     }
@@ -288,30 +324,75 @@ void displayBackground() {
     else {
         background(backgroundColor);
     }
+    // displayInfoPanel();
+}
+// =============================================================================
+void displayInfoPanel(){
+    noStroke();
+    fill(infoPanelColor);
+    rect(canvasSize, 0, infoPanelSize, canvasSize);
+    displayHelp();
 }
 // =============================================================================
 void clear() {
     background(backgroundColor);
+    displayInfoPanel();
 }
 // =========================================================
 void displayHelp() {
-    textFont(myFont);
+    
     String[] labels = new String[4];
     String[] values = new String[4];
+    String[] controlText = new String[11];
     
-    labels[0] = "Centering: ";
-    labels[1] = "Collisions: ";
-    labels[2] = "Vel. matching: ";
-    labels[3] = "Wandering: ";
+    labels[0] = "Centering: " + getOnOffStr(flockCenteringOn);
+    labels[1] = "Vel. matching: " + getOnOffStr(velMatchingOn);
+    labels[2] = "Collisions: " + getOnOffStr(colAvoidanceOn);
+    labels[3] = "Wandering: " + getOnOffStr(wanderingOn);
     
-    values[0] = getOnOffStr(flockCenteringOn);
-    values[1] = getOnOffStr(velMatchingOn);
-    values[2] = getOnOffStr(collisionAvoidOn);
-    values[3] = getOnOffStr(wanderingForceOn);
+    controlText[0]  = "A:   Toggle Attraction Mode";
+    controlText[1]  = "R:   Toggle Repulsion Mode";
+    controlText[2]  = "S:   Randomize creatures";
+    controlText[3]  = "C:   Clear window";
+    controlText[4]  = "1:   Toggle Flock Centering";
+    controlText[5]  = "2:   Toggle Velocity Matching";
+    controlText[6]  = "3:   Toggle Collision Avoidance";
+    controlText[7]  = "4:   Toggle Wandering";
+    controlText[8]  = "=,+: Add a new creature";
+    controlText[9]  = "-:   Remove a creature";
+    controlText[10] = "Space:   Run a single step";
     
-    fill(255);
-    text("Forces:", 10, 618);
-    // text("Keyboard Controls:", 10, 618);
+    // values[0] = getOnOffStr(flockCenteringOn);
+    // values[1] = getOnOffStr(velMatchingOn);
+    // values[2] = getOnOffStr(colAvoidanceOn);
+    // values[3] = getOnOffStr(wanderingOn);
+    
+    fill(0);
+    int marginX = canvasSize + 15;
+    int marginY = 30;
+    textFont(myFontBold);
+    textFont(myFontBold);
+    text("Forces:", marginX, marginY);
+    
+    int textX   = marginX;
+    int textY   = marginY + 3;
+    int offsetY = 16;
+    textFont(myFont);
+    for (int i = 0; i < labels.length; ++i) {
+        textY += offsetY;
+        text(labels[i], textX, textY);
+    }
+    
+    // textX = marginX;
+    textY += 30;
+    textFont(myFontBold);
+    text("Controls:", textX, textY);
+    textY += 3;
+    textFont(myFont);
+    for (int i = 0; i < controlText.length; ++i) {
+        textY += offsetY;
+        text(controlText[i], textX, textY);
+    }
 }
 // =============================================================================
 void keyPressed() {
@@ -335,12 +416,14 @@ void keyPressed() {
             flock.randomize();
             break;
         }
+        
         case 'p':
         case 'P': {
             // Toggle display path mode
             leavePath = !leavePath;
             break;
         }
+        
         case 'c':
         case 'C': {
             // Clear background
@@ -348,16 +431,19 @@ void keyPressed() {
             break;
         }
         case '1': {
+            flockCenteringOn = !flockCenteringOn;
             break;
         }
         case '2': {
+            velMatchingOn = !velMatchingOn;
             break;
         }
         case '3': {
-            collisionAvoidOn = !collisionAvoidOn;
+            colAvoidanceOn = !colAvoidanceOn;
             break;
         }
         case '4': {
+            wanderingOn = !wanderingOn;
             break;
         }
         case '=': 
