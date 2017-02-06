@@ -1,3 +1,19 @@
+import processing.core.*; 
+import processing.data.*; 
+import processing.event.*; 
+import processing.opengl.*; 
+
+import java.util.HashMap; 
+import java.util.ArrayList; 
+import java.io.File; 
+import java.io.BufferedReader; 
+import java.io.PrintWriter; 
+import java.io.InputStream; 
+import java.io.OutputStream; 
+import java.io.IOException; 
+
+public class flocking_Espitia extends PApplet {
+
 // ==========================================================
 // Decription:  This program recreates Flocking
 //              Project 2
@@ -12,11 +28,11 @@
 // Global variables
 // colors
 // color backgroundColor   = #444444;
-color backgroundColor   = color(68,68,68,20);
+int backgroundColor   = color(68,68,68,20);
 // color strokeColor    = #888888;
-color pathColor         = #888888;
-color strokeColor       = #333333;
-color creatureCellColor = #FFB115;
+int pathColor         = 0xff888888;
+int strokeColor       = 0xff333333;
+int creatureCellColor = 0xffFFB115;
 // color strokeColor    = #FFB115;
 
 PFont myFont;
@@ -25,7 +41,7 @@ PFont myFontBold;
 int nCreatures   = 5;
 int maxCreatures = 100;
 int canvasSize   = 600;
-float r          = 40.0;
+float r          = 40.0f;
 
 Flock flock;
 
@@ -40,15 +56,15 @@ boolean wanderingForceOn = true;
 
 int lastTime             = 0;
 int interval             = 0;
-float minVel             = 0.02;
-float maxVel             = 1.0;
-float minWanderingFactor = 0.5;
-float maxWanderingFactor = 1.5;
-float minDistance        = 20.0;
-float weight             = 0.01;
+float minVel             = 0.02f;
+float maxVel             = 1.0f;
+float minWanderingFactor = 0.5f;
+float maxWanderingFactor = 1.5f;
+float minDistance        = 20.0f;
+float weight             = 0.01f;
 // =============================================================================
-void setup() {
-    size(600, 600);
+public void setup() {
+    
     background(backgroundColor);
         
     // printArray(PFont.list());
@@ -58,7 +74,7 @@ void setup() {
     flock = new Flock(nCreatures, maxCreatures);
 }
 // =============================================================================
-void draw() {
+public void draw() {
     displayBackground();
     flock.display();
     
@@ -68,12 +84,12 @@ void draw() {
     // displayHelp();
 }
 // =============================================================================
-void runSimulationStep(){
+public void runSimulationStep(){
     flock.update();
     lastTime = millis();
 }
 // =========================================================
-String getOnOffStr(boolean state){
+public String getOnOffStr(boolean state){
     if(state) 
         return "On";
     return "Off";
@@ -96,34 +112,34 @@ class Creature {
         this.accel = new PVector(0, 0);
     }
     
-    void display() {
+    public void display() {
         // stroke(creatureCellColor);
         stroke(strokeColor);
         fill(creatureCellColor);
         ellipse(pos.x, pos.y, 8, 8);
     }
     
-    void displayLastPosition() {
+    public void displayLastPosition() {
         stroke(pathColor);
         fill(pathColor);
         ellipse(pos.x, pos.y, 2, 2);
     }
     
-    void applyForce(PVector f) {
+    public void applyForce(PVector f) {
         accel.add(f);
     }
     
-    void update(){
+    public void update(){
         // check borders
         // PVector newPos = new PVector(pos.x, pos.y);
         
-        float[] limits = {0.0, canvasSize};
-        if (pos.y > canvasSize || pos.y < 0.0)
-            pos.y = limits[int(pos.y < 0.0)];
+        float[] limits = {0.0f, canvasSize};
+        if (pos.y > canvasSize || pos.y < 0.0f)
+            pos.y = limits[PApplet.parseInt(pos.y < 0.0f)];
             // newPos.y = limits[int(pos.y < 0.0)];
         
-        if (pos.x > canvasSize || pos.x < 0.0)
-            pos.x = limits[int(pos.x < 0.0)];
+        if (pos.x > canvasSize || pos.x < 0.0f)
+            pos.x = limits[PApplet.parseInt(pos.x < 0.0f)];
         
         // add acceleration
         vel.add(accel);
@@ -138,7 +154,7 @@ class Creature {
         return random(minWanderingFactor, maxWanderingFactor) * getRandomSign();
     }
     
-    String toString(){
+    public String toString(){
         return pos.toString();
     }
 }
@@ -161,13 +177,13 @@ class Flock {
         }
     }
     // -------------------------------------------------------------------------
-    void display(){
+    public void display(){
         for (int i = 0; i < this.nCreatures; ++i) {
             creatures[i].display();
         }
     }
     // -------------------------------------------------------------------------
-    void update(){
+    public void update(){
         if(collisionAvoidOn) collisionAvoidance();
         if(flockCenteringOn) flockCentering();
         for (int i = 0; i < this.nCreatures; ++i) {
@@ -175,13 +191,13 @@ class Flock {
         }
     }
     // -------------------------------------------------------------------------
-    void randomize() {
+    public void randomize() {
         for (int i = 0; i < this.nCreatures; ++i) {
             creatures[i].pos = getRandomPoint();
         }
     }
     // -------------------------------------------------------------------------
-    void addCreature() {
+    public void addCreature() {
         if (nCreatures <= maxCreatures) {
             creatures[nCreatures++] = new Creature(getRandomPoint(), 
                                                    getRandomVelocity(),
@@ -189,21 +205,21 @@ class Flock {
         }
     }
     // -------------------------------------------------------------------------
-    void removeCreature() {
+    public void removeCreature() {
         if (nCreatures > 1) {
             creatures[nCreatures--] = null;
         }
     }
     // -------------------------------------------------------------------------
-    void collisionAvoidance() {
+    public void collisionAvoidance() {
         for (int i = 0; i < this.nCreatures; ++i) {
             PVector force = new PVector(0,0);
             int nNeighbors = 0;
-            // println("i: " + i);
+            println("i: " + i);
             for (int j = 0; j < this.nCreatures; ++j) {
                 float cDistance = PVector.dist(creatures[i].pos, creatures[j].pos);
                 if (cDistance < minDistance && cDistance > 0) {
-                    // println(" cDistance: " + cDistance);
+                    println(" cDistance: " + cDistance);
                     PVector difference = PVector.sub(creatures[i].pos, creatures[j].pos);
                     force.add(difference);
                     ++nNeighbors;
@@ -222,7 +238,7 @@ class Flock {
         }
     }
     // -------------------------------------------------------------------------
-    void  flockCentering(){
+    public void  flockCentering(){
         PVector center = new PVector(0,0);
         for (int i = 0; i < this.nCreatures; ++i) {
             int nNeighbors = 0;
@@ -243,7 +259,6 @@ class Flock {
             creatures[i].applyForce(force);
         }
     }
-    
     // -------------------------------------------------------------------------
     // ArrayList<int> getNeighbors(int creatureIdx) {
     //     ArrayList<int> neighbors = new ArrayList<int>();
@@ -258,26 +273,26 @@ class Flock {
 }
 
 // =============================================================================
-PVector getRandomPoint() {
+public PVector getRandomPoint() {
     float x = map(random(1), 0, 1, 0, canvasSize);
     float y = map(random(1), 0, 1, 0, canvasSize);
     PVector v = new PVector(x, y);
     return v;
 }
 // =============================================================================
-PVector getRandomVelocity() {
+public PVector getRandomVelocity() {
     PVector v = new PVector(getRandomSign() * (random(minVel, maxVel)), 
                             getRandomSign() * (random(minVel, maxVel)));
     
     return v;
 }
 // =============================================================================
-int getRandomSign(){
+public int getRandomSign(){
     int[] signs = {1,-1};
-    return signs[int(random(signs.length))];
+    return signs[PApplet.parseInt(random(signs.length))];
 }
 // =============================================================================
-void displayBackground() {
+public void displayBackground() {
     // Background for creatures path
     if (leavePath) {
         noStroke();
@@ -290,11 +305,11 @@ void displayBackground() {
     }
 }
 // =============================================================================
-void clear() {
+public void clear() {
     background(backgroundColor);
 }
 // =========================================================
-void displayHelp() {
+public void displayHelp() {
     textFont(myFont);
     String[] labels = new String[4];
     String[] values = new String[4];
@@ -314,7 +329,7 @@ void displayHelp() {
     // text("Keyboard Controls:", 10, 618);
 }
 // =============================================================================
-void keyPressed() {
+public void keyPressed() {
     switch (key) {
         case 'a':
         case 'A': {
@@ -379,4 +394,14 @@ void keyPressed() {
         
         
     }
+}
+  public void settings() {  size(600, 600); }
+  static public void main(String[] passedArgs) {
+    String[] appletArgs = new String[] { "flocking_Espitia" };
+    if (passedArgs != null) {
+      PApplet.main(concat(appletArgs, passedArgs));
+    } else {
+      PApplet.main(appletArgs);
+    }
+  }
 }
