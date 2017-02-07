@@ -7,59 +7,65 @@
 // Institution: Georgia Intitute of Technology
 //              Simulation of Biology - Spring 2017
 // ==========================================================
-// import java.util.Map;
-// ==========================================================
 // Global variables
 // colors
-// color backgroundColor   = #444444;
-color backgroundColor   = color(68,68,68,20);
+color backgroundColor   = color(68,68,68,30);
 color infoPanelColor    = #B0B0B0;
-// color strokeColor    = #888888;
 color pathColor         = #888888;
 color strokeColor       = #333333;
 color creatureCellColor = #FFB115;
-// color strokeColor    = #FFB115;
 
 PFont myFont;
 PFont myFontBold;
+PFont myTitleFont;
 
-int nCreatures    = 5;
+int nCreatures    = 98;
 int maxCreatures  = 100;
 int canvasSize    = 600;
 int infoPanelSize = 250;
-float r           = 40.0;
 
 Flock flock;
 
-boolean leavePath  = true;
-boolean simRunning = true;
+// Flags
+boolean simRunning       = true;
+boolean leavePath        = false;
+boolean attractionModeOn = true;
+boolean repulsionModeOn  = !attractionModeOn;
+boolean flockCenteringOn = true;
+boolean velMatchingOn    = true;
+boolean colAvoidanceOn   = true;
+boolean wanderingOn      = true;
 
-// Forces flags
-boolean flockCenteringOn = false;
-boolean velMatchingOn    = false;
-boolean colAvoidanceOn   = false;
-boolean wanderingOn      = false;
+// Time
+int lastTime          = 0;
+int interval          = 0;
 
-int lastTime             = 0;
-int interval             = 0;
-float minVel             = 0.02;
-float maxVel             = 1.0;
-float minWanderingFactor = 0.5;
-float maxWanderingFactor = 1.5;
-float minDistance        = 20.0;
-float maxSpeed           = 2;
-float maxSForce          = 0.03;
-float flockingWeight     = 0.001;
-float colAvoidanceWeight = 0.01;
-float velMatchingWeight  = 0.01;
+// Distances and limits
+float attractionR     = 80.0;
+float repulsionR      = 90.0;
+float minVel          = 0.0;
+float maxVel          = 2.0;   // *
+float r               = 50.0;  // *
+float minNeighborDist = 25.0;  // *
+float forceLim        = 0.1;   // *
+
+// Weights
+float attractionWeight   = 1.5;
+float repulsionWeight    = 1.8;
+float flockingWeight     = 1.1;
+float colAvoidanceWeight = 1.5;
+float velMatchingWeight  = 1.0;
+float wanderWeight       = 0.4;
+
 // =============================================================================
 void setup() {
     size(850, 600);
     background(backgroundColor);
         
     // printArray(PFont.list());
-    myFont     = createFont("Ubuntu Mono", 14);
-    myFontBold = createFont("Ubuntu Bold", 14);
+    myFont      = createFont("Ubuntu Mono", 14);
+    myFontBold  = createFont("Ubuntu Bold", 14);
+    myTitleFont = createFont("Ubuntu Bold", 18);
     
     flock = new Flock(nCreatures, maxCreatures);
 }
@@ -72,7 +78,6 @@ void draw() {
     if (millis() - lastTime > interval && simRunning){
         runSimulationStep();
     }
-    // displayHelp();
 }
 // =============================================================================
 void runSimulationStep(){
@@ -99,7 +104,7 @@ class Creature {
     Creature(PVector pos, PVector vel) {
         this.pos         = pos;
         this.vel         = vel;
-        this.shapeRadius = 8;
+        this.shapeRadius = 7;
         this.accel       = new PVector(0, 0);
     }
     
@@ -125,13 +130,15 @@ class Creature {
             pos.x = limits[int(pos.x < offset)];
         
         vel.add(accel);
+        vel.limit(maxVel);
         pos.add(vel);
+        
         accel.mult(0);
     }
     
-    private float getWandering() {
-        return random(minWanderingFactor, maxWanderingFactor) * getRandomSign();
-    }
+    // private float getWandering() {
+    //     return random(minWanderFactor, maxWanderFactor) * getRandomSign();
+    // }
     
     String toString(){
         return pos.toString();
@@ -150,8 +157,10 @@ class Flock {
         this.maxCreatures = maxCreatures;
         this.creatures    = new Creature[this.maxCreatures];
         for (int i = 0; i < this.nCreatures; ++i) {
-            // creatures[i] = new Creature(getRandomPoint(), 
-            creatures[i] = new Creature(new PVector(canvasSize/2, canvasSize/2), 
+            // creatures[i] = new Creature(getRandomPoint(),
+            PVector newPos = new PVector(canvasSize/int(random(2,4)),
+                                         canvasSize/int(random(2,4))); 
+            creatures[i] = new Creature(newPos, 
                                         getRandomVelocity());
         }
     }
@@ -163,7 +172,8 @@ class Flock {
     }
     // -------------------------------------------------------------------------
     void update(){
-        
+        if(attractionModeOn) attractionMode();
+        if(repulsionModeOn) repulsionMode();
         if(colAvoidanceOn) collisionAvoidance();
         if(flockCenteringOn) flockCentering();
         if(velMatchingOn) velocityMatching();
@@ -181,109 +191,190 @@ class Flock {
     }
     // -------------------------------------------------------------------------
     void addCreature() {
-        if (nCreatures <= maxCreatures) {
+        if (nCreatures < maxCreatures) {
             creatures[nCreatures++] = new Creature(getRandomPoint(), 
-                                                   getRandomVelocity());
+                                                 getRandomVelocity());
+            // nCreatures++;
         }
     }
     // -------------------------------------------------------------------------
     void removeCreature() {
         if (nCreatures > 1) {
-            creatures[nCreatures--] = null;
+            creatures[--nCreatures] = null;
         }
     }
     // -------------------------------------------------------------------------
-    void collisionAvoidance() {
-        for (int i = 0; i < this.nCreatures; ++i) {
-            PVector force = new PVector(0,0);
-            int nNeighbors = 0;
-            // println("i: " + i);
-            for (int j = 0; j < this.nCreatures; ++j) {
-                float cDistance = PVector.dist(creatures[i].pos, creatures[j].pos);
-                if (cDistance < minDistance && cDistance > 0) {
-                    // println(" cDistance: " + cDistance);
-                    PVector difference = PVector.sub(creatures[i].pos, creatures[j].pos);
-                    force.add(difference);
+    // key A
+    void attractionMode(){
+        if (mousePressed) {
+            PVector pointerPos = new PVector(mouseX, mouseY);
+            
+            for (int i = 0; i < this.nCreatures; ++i) {
+                PVector sumPos = new PVector(0,0);
+                int nNeighbors = 0;
+                // for (int j = 0; j < this.nCreatures; ++j) {
+                float cDistance = PVector.dist(creatures[i].pos, pointerPos);
+                if (cDistance < attractionR) {
                     ++nNeighbors;
+                    sumPos.add(pointerPos);
                 }
-            }
-            
-            if (force.mag() > 0) {
-                force.mult(colAvoidanceWeight);
-                force.div(colAvoidanceWeight * nNeighbors);
-                // force.normalize();
+                // }
+                
+                PVector force = new PVector(0,0);
+                if (nNeighbors > 0) {
+                    sumPos.div(nNeighbors);
+                    sumPos.sub(creatures[i].pos);
+                    sumPos.normalize();
+                    sumPos.mult(maxVel);
+                    force = PVector.sub(sumPos, creatures[i].vel);
+                    force.limit(forceLim);
+                    force.mult(attractionWeight);
+                }
                 creatures[i].applyForce(force);
-            } else {
-                creatures[i].applyForce(new PVector(0,0));
             }
-            
         }
     }
     // -------------------------------------------------------------------------
-    void  flockCentering(){
-        PVector center = new PVector(0,0);
+    // key R
+    void repulsionMode(){
+        if (mousePressed) {
+            PVector pointerPos = new PVector(mouseX, mouseY);
+            
+            for (int i = 0; i < this.nCreatures; ++i) {
+                PVector tmpForce = new PVector(0,0);
+                int nNeighbors = 0;
+                // println("i: " + i);
+                // for (int j = 0; j < this.nCreatures; ++j) {
+                float cDistance = PVector.dist(creatures[i].pos, pointerPos);
+                // Neighbor in radius and not the same creature (cDistance = 0)
+                if (cDistance < repulsionR && cDistance > 0) {
+                    ++nNeighbors;
+                    PVector difference = PVector.sub(creatures[i].pos, pointerPos);
+                    difference.normalize();
+                    difference.div(cDistance);
+                    tmpForce.add(difference);
+                }
+                // }
+                
+                if(nNeighbors > 0)
+                    tmpForce.div(float(nNeighbors));
+                
+                PVector force = new PVector(0,0);
+                if (tmpForce.mag() > 0) {
+                    tmpForce.normalize();
+                    tmpForce.mult(maxVel);
+                    tmpForce.sub(creatures[i].vel);
+                    tmpForce.limit(forceLim);
+                    force = tmpForce;
+                    force.mult(repulsionWeight);
+                } 
+                creatures[i].applyForce(force);
+            }
+        }
+    }
+    // -------------------------------------------------------------------------
+    // key 1
+    void flockCentering() {
         for (int i = 0; i < this.nCreatures; ++i) {
+            PVector sumPos = new PVector(0,0);
             int nNeighbors = 0;
             for (int j = 0; j < this.nCreatures; ++j) {
                 float cDistance = PVector.dist(creatures[i].pos, creatures[j].pos);
-                if (cDistance < minDistance && cDistance > 0) {
-                    center.add(creatures[j].pos);
+                if (cDistance < r && cDistance > 0) {
                     ++nNeighbors;
+                    sumPos.add(creatures[j].pos);
                 }
             }
             
             PVector force = new PVector(0,0);
             if (nNeighbors > 0) {
-                center.div(nNeighbors);
-                force = center.sub(creatures[i].pos);
+                sumPos.div(nNeighbors);
+                sumPos.sub(creatures[i].pos);
+                sumPos.normalize();
+                sumPos.mult(maxVel);
+                force = PVector.sub(sumPos, creatures[i].vel);
+                force.limit(forceLim);
+                force.mult(flockingWeight);
+            }
+            creatures[i].applyForce(force);
+        }
+    }
+    
+    // -------------------------------------------------------------------------
+    // key 2
+    void velocityMatching() {
+        for (int i = 0; i < this.nCreatures; ++i) {
+            PVector sumVel = new PVector(0,0);
+            int nNeighbors = 0;
+            // println("i: " + i);
+            for (int j = 0; j < this.nCreatures; ++j) {
+                float cDistance = PVector.dist(creatures[i].pos, creatures[j].pos);
+                if (cDistance < r && cDistance > 0) {
+                    // println(" cDistance: " + cDistance);
+                    ++nNeighbors;
+                    sumVel.add(creatures[j].vel);
+                }
+            }
+            
+            PVector force = new PVector(0, 0);
+            if (nNeighbors > 0) {
+                sumVel.div(nNeighbors);
+                sumVel.normalize();
+                sumVel.mult(maxVel);
+                force = PVector.sub(sumVel, creatures[i].vel);
+                force.limit(forceLim);
+                force.mult(velMatchingWeight);
             }
             creatures[i].applyForce(force);
         }
     }
     // -------------------------------------------------------------------------
-    void velocityMatching() {
+    // key 3
+    void collisionAvoidance() {
         for (int i = 0; i < this.nCreatures; ++i) {
-            PVector force = new PVector(0,0);
+            PVector tmpForce = new PVector(0,0);
             int nNeighbors = 0;
             // println("i: " + i);
             for (int j = 0; j < this.nCreatures; ++j) {
                 float cDistance = PVector.dist(creatures[i].pos, creatures[j].pos);
-                if (cDistance < minDistance && cDistance > 0) {
-                    // println(" cDistance: " + cDistance);
-                    PVector difference = PVector.sub(creatures[i].vel, creatures[j].vel);
-                    force.add(difference);
+                // Neighbor in radius and not the same creature (cDistance = 0)
+                if (cDistance < minNeighborDist && cDistance > 0) {
                     ++nNeighbors;
+                    // println(" cDistance: " + cDistance);
+                    PVector difference = PVector.sub(creatures[i].pos, creatures[j].pos);
+                    difference.normalize();
+                    difference.div(cDistance);
+                    tmpForce.add(difference);
                 }
             }
             
-            if (force.mag() > 0) {
-                force.mult(velMatchingWeight);
-                force.div(velMatchingWeight * nNeighbors);
-                // force.normalize();
-                creatures[i].applyForce(force);
-            } else {
-                creatures[i].applyForce(new PVector(0,0));
-            }
+            if(nNeighbors > 0)
+                tmpForce.div(float(nNeighbors));
             
+            PVector force = new PVector(0,0);
+            if (tmpForce.mag() > 0) {
+                tmpForce.normalize();
+                tmpForce.mult(maxVel);
+                tmpForce.sub(creatures[i].vel);
+                tmpForce.limit(forceLim);
+                force = tmpForce;
+                force.mult(colAvoidanceWeight);
+            } 
+            creatures[i].applyForce(force);
         }
     }
     // -------------------------------------------------------------------------
     void wandering(){
         for (int i = 0; i < this.nCreatures; ++i) {
             PVector force = new PVector(random(-1.0, 1),random(-1.0, 1));
+            force.normalize();
+            force.mult(maxVel);
+            force.normalize();
+            force.mult(forceLim);
+            force.mult(wanderWeight);
             creatures[i].applyForce(force);
         }
     }
-    // -------------------------------------------------------------------------
-    // ArrayList<int> getNeighbors(int creatureIdx) {
-    //     ArrayList<int> neighbors = new ArrayList<int>();
-    //     for (int i = 0; i < this.nCreatures; ++i) {
-    //         PVector cDistance = PVector.dist(creatures[creatureIdx], creatures[i]);
-    //         if (cDistance < minDistance && cDistance > 0) {
-                
-    //         }
-    //     }
-    // }
     // -------------------------------------------------------------------------
 }
 
@@ -296,8 +387,8 @@ PVector getRandomPoint() {
 }
 // =============================================================================
 PVector getRandomVelocity() {
-    PVector v = new PVector(getRandomSign() * (random(minVel, maxVel)), 
-                            getRandomSign() * (random(minVel, maxVel)));
+    PVector v = new PVector(getRandomSign() * (random(0, maxVel)), 
+                            getRandomSign() * (random(0, maxVel)));
     
     return v;
 }
@@ -335,26 +426,30 @@ void clear() {
 // =========================================================
 void displayHelp() {
     
-    String[] labels = new String[4];
-    String[] values = new String[4];
+    String[] labels = new String[7];
+    String[] values = new String[7];
     String[] controlText = new String[11];
     
-    labels[0] = "Centering: " + getOnOffStr(flockCenteringOn);
+    labels[0] = "Centering:     " + getOnOffStr(flockCenteringOn);
     labels[1] = "Vel. matching: " + getOnOffStr(velMatchingOn);
-    labels[2] = "Collisions: " + getOnOffStr(colAvoidanceOn);
-    labels[3] = "Wandering: " + getOnOffStr(wanderingOn);
+    labels[2] = "Collisions:    " + getOnOffStr(colAvoidanceOn);
+    labels[3] = "Wandering:     " + getOnOffStr(wanderingOn);
+    labels[4] = "Attraction:    " + getOnOffStr(attractionModeOn);
+    labels[5] = "Repulsion:     " + getOnOffStr(repulsionModeOn);
+    labels[6] = "# Creatures:   " + flock.nCreatures;
     
-    controlText[0]  = "A:   Toggle Attraction Mode";
-    controlText[1]  = "R:   Toggle Repulsion Mode";
-    controlText[2]  = "S:   Randomize creatures";
-    controlText[3]  = "C:   Clear window";
-    controlText[4]  = "1:   Toggle Flock Centering";
-    controlText[5]  = "2:   Toggle Velocity Matching";
-    controlText[6]  = "3:   Toggle Collision Avoidance";
-    controlText[7]  = "4:   Toggle Wandering";
-    controlText[8]  = "=,+: Add a new creature";
-    controlText[9]  = "-:   Remove a creature";
-    controlText[10] = "Space:   Run a single step";
+    controlText[0]  = "A:     Toggle Attraction Mode";
+    controlText[1]  = "R:     Toggle Repulsion Mode";
+    controlText[2]  = "S:     Randomize creatures";
+    controlText[3]  = "C:     Clear window";
+    controlText[4]  = "1:     Toggle Flock Centering";
+    controlText[5]  = "2:     Toggle Velocity Matching";
+    controlText[6]  = "3:     Toggle Collision Avoidance";
+    controlText[7]  = "4:     Toggle Wandering";
+    controlText[8]  = "=,+:   Add a new creature";
+    controlText[9]  = "-:     Remove a creature";
+    controlText[10] = "Space: Stop/Resume simulation";
+    
     
     // values[0] = getOnOffStr(flockCenteringOn);
     // values[1] = getOnOffStr(velMatchingOn);
@@ -364,21 +459,25 @@ void displayHelp() {
     fill(0);
     int marginX = canvasSize + 15;
     int marginY = 30;
-    textFont(myFontBold);
-    textFont(myFontBold);
-    text("Forces:", marginX, marginY);
+    textFont(myTitleFont);
+    text("Flocking Simulation", marginX, marginY);
     
     int textX   = marginX;
-    int textY   = marginY + 3;
+    int textY   = marginY + 40;
+    textFont(myFontBold);
+    text("Info:", textX, textY);
+    
+    // textY += marginY + 10;
     int offsetY = 16;
     textFont(myFont);
     for (int i = 0; i < labels.length; ++i) {
         textY += offsetY;
+        if (i == labels.length - 1) textY += 5;
         text(labels[i], textX, textY);
     }
     
     // textX = marginX;
-    textY += 30;
+    textY += 40;
     textFont(myFontBold);
     text("Controls:", textX, textY);
     textY += 3;
@@ -394,15 +493,17 @@ void keyPressed() {
         case 'a':
         case 'A': {
             // Toggle attraction mode
+            attractionModeOn = repulsionModeOn;
+            repulsionModeOn = !attractionModeOn;
             break;
         }
-        
         case 'r':
         case 'R': {
             // Toggle repulsion mode
+            repulsionModeOn  = attractionModeOn;
+            attractionModeOn = !repulsionModeOn;
             break;
         }
-        
         case 's':
         case 'S': {
             // Creatures at random positions
@@ -410,14 +511,12 @@ void keyPressed() {
             flock.randomize();
             break;
         }
-        
         case 'p':
         case 'P': {
             // Toggle display path mode
             leavePath = !leavePath;
             break;
         }
-        
         case 'c':
         case 'C': {
             // Clear background
