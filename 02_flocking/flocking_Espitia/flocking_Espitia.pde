@@ -19,7 +19,7 @@ PFont myFont;
 PFont myFontBold;
 PFont myTitleFont;
 
-int nCreatures    = 98;
+int nCreatures    = 40;
 int maxCreatures  = 100;
 int canvasSize    = 600;
 int infoPanelSize = 250;
@@ -42,20 +42,20 @@ int interval          = 0;
 
 // Distances and limits
 float attractionR     = 80.0;
-float repulsionR      = 90.0;
+float repulsionR      = 40.0;
 float minVel          = 0.0;
 float maxVel          = 2.0;   // *
-float r               = 50.0;  // *
+float r               = 70.0;  // *
 float minNeighborDist = 25.0;  // *
-float forceLim        = 0.1;   // *
+float forceLim        = 0.5;   // *
 
 // Weights
 float attractionWeight   = 1.5;
-float repulsionWeight    = 1.8;
+float repulsionWeight    = 2.0;
 float flockingWeight     = 1.1;
 float colAvoidanceWeight = 1.5;
 float velMatchingWeight  = 1.0;
-float wanderWeight       = 0.4;
+float wanderWeight       = 0.2;
 
 // =============================================================================
 void setup() {
@@ -150,6 +150,7 @@ class Flock {
     Creature[] creatures;
     int nCreatures    = 0;
     int maxCreatures  = 0;
+    
     // -------------------------------------------------------------------------
     // Methods
     Flock(int nCreatures, int maxCreatures){
@@ -194,7 +195,6 @@ class Flock {
         if (nCreatures < maxCreatures) {
             creatures[nCreatures++] = new Creature(getRandomPoint(), 
                                                  getRandomVelocity());
-            // nCreatures++;
         }
     }
     // -------------------------------------------------------------------------
