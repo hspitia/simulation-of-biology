@@ -10,7 +10,7 @@
 // ==========================================================
 // Global variables
 Grid grid;
-Grid tmpGrid;
+Grid gridPrime;
 
 int nCols             = 100;
 int nRows             = 100;
@@ -25,16 +25,21 @@ PFont myFont;
 PFont myFontBold;
 
 int lastTime       = 0;
-int interval       = 100;
+int interval       = 200;
 
 // Flags
 boolean simRunning = true;
 boolean reactDiff  = true;
 
+// Simulation values
+float rU = 0.082;
+float rV = 0.041;
+
 // =========================================================
 void setup() {
     size(600, 600);
     grid = new Grid(nRows, nCols, cellSize);
+    grid.init();
     
     // printArray(PFont.list());
     myFont     = createFont("Ubuntu", 20);
@@ -44,6 +49,7 @@ void setup() {
 // =========================================================
 void draw() {
     // displayHelp();
+    
     if (millis() - lastTime > interval && simRunning){
         runSimulationStep();
     }
@@ -51,15 +57,17 @@ void draw() {
 
 // =========================================================
 void runSimulationStep() {
-    tmpGrid = new Grid(grid);
-    lastTime = millis();
+    gridPrime = new Grid(grid);
+    grid.update(gridPrime);
+    grid.display();
+    lastTime  = millis();
 }
 // =========================================================
 void keyPressed() {
     switch (key) {
         case 'i':
         case 'I': {
-            // 
+            grid.init();
             break;
         }
         case ' ': {
@@ -118,7 +126,7 @@ class Cell {
     }
     // --------------------------------------------------------
     void fillCell() {
-        color currentColor = color(compU * 255, compV * 255, 128);
+        color currentColor = color(255, compU * 255, compV * 255);
         fill(currentColor);
     }
     // --------------------------------------------------------
@@ -149,7 +157,7 @@ class Grid {
             for (int j = 0; j < this.cols; ++j) {
                 grid[i][j] = new Cell(j * this.cellSize, i * this.cellSize,
                                       this.cellSize, this.cellSize,
-                                      0, 0);
+                                      1, 0);
                                       // random(1), random(1));
             }
         }
@@ -179,8 +187,43 @@ class Grid {
         }
     }
     // --------------------------------------------------------
-    void drawFixedRegion() {
+    void update(Grid previousGrid) {
+        for (int i = 0; i < previousGrid.rows; ++i) {
+            for (int j = 0; j < previousGrid.cols; ++j) {
+                grid[i][j].compU = previousGrid.grid[i][j].compU * 0.2;
+                grid[i][j].compV = previousGrid.grid[i][j].compV * 0.1;
+            }
+        }
+    }
+    // --------------------------------------------------------
+    void init() {
+        clear();
+        initSeedRegion();
+    }
+    // --------------------------------------------------------
+    void clear() {
+        for (int i = 0; i < rows; ++i) {
+            for (int j = 0; j < cols; ++j) {
+                grid[i][j].compU = 1;
+                grid[i][j].compV = 0;
+            }
+        }
+    }
+    // --------------------------------------------------------
+    void initSeedRegion() {
+        int r     = 5;
+        int start = (cols/2) - r;
+        int end   = (cols/2) + r;
         
+        println("start: "+start);
+        println("end: "+end);
+        
+        for (int i = start; i < end; ++i) {
+            for (int j = start; j < end; ++j) {
+                grid[i][j].compU = 0.5;
+                grid[i][j].compV = 0.25;
+            }
+        }
     }
     // --------------------------------------------------------
     // --------------------------------------------------------
