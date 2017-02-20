@@ -1,13 +1,17 @@
 // Grid variables
-int nCols    = 600;
-int nRows    = 600;
-int cellSize = 1;
+int nCols    = 150;
+int nRows    = 150;
+int cellSize = 4;
 
 // Reaction-Diffusion variables
-float rU = 1.0;
-float rV = 0.5;
-float f  = 0.055;
-float k  = 0.062;
+// float rU = 1.0;
+// float rV = 0.5;
+// float f  = 0.055;
+// float k  = 0.062;
+float rU = 0.082;
+float rV = 0.041;
+float f  = 0.035;
+float k  = 0.0625;
 
 // Grid arrays
 Cell[][] gridPrime;
@@ -21,13 +25,17 @@ int interval = 10;
 boolean simRunning = true;
 boolean reactDiff  = true;
 
+// Init region variables
+int nRegions   = 10;
+int regionSize = 10;
+
 // =============================================================================
 void setup() {
     size(600, 600);
+    colorMode(RGB, 1);
     gridPrime = new Cell[nCols][nRows];
     grid      = new Cell[nCols][nRows];
     initGrids();
-    // display();
 }
 // -----------------------------------------------------------------------------
 void draw() {
@@ -62,19 +70,30 @@ void initGrids() {
                                        u, v);
         }
     }
-    
-    // random regions
-    int nRegions   = 10;
-    int regionSize = 10;
-    
+    intiRegion(nRegions, regionSize);
+}
+// -----------------------------------------------------------------------------
+void clear() {
+    for (int i = 0; i < nRows; ++i) {
+        for (int j = 0; j < nCols; ++j) {
+            grid[i][j].compU = 1;
+            grid[i][j].compV = 0;
+        }
+    }
+}
+// -----------------------------------------------------------------------------
+void intiRegion(int nRegions, int regionSize){
+    int margin = 20;
     for (int r = 0; r < nRegions; r++) {
-        int startX = int(random(20, nCols-20));
-        int startY = int(random(20, nRows-20));
+        int rowStart = int(random(margin, nRows - margin));
+        int colStart = int(random(margin, nCols - margin));
         
-        for (int i = startX; i < startX+regionSize; i++) {
-            for (int j = startY; j < startY+regionSize; j++) {
-                float u = 1;
-                float v = 1;
+        for (int i = rowStart; i < rowStart+regionSize; i++) {
+            for (int j = colStart; j < colStart+regionSize; j++) {
+                // float u = 1;
+                // float v = 1;
+                float u = 0.5;
+                float v = 0.25;
                 gridPrime[i][j] = new Cell(j*cellSize,
                                            i*cellSize,
                                            cellSize,
@@ -119,8 +138,8 @@ void update(){
 // -----------------------------------------------------------------------------
 void swapGrids() {
     Cell[][] tmp = grid;
-    grid      = gridPrime;
-    gridPrime = tmp;
+    grid         = gridPrime;
+    gridPrime    = tmp;
 }
 // -----------------------------------------------------------------------------
 float laplaceU(int i, int j) {
@@ -177,9 +196,60 @@ class Cell {
     
     void display() {
         noStroke();
-        color currentColor = color((compU-compV)*255);
+        color currentColor = color(compU - compV);
         fill(currentColor);
         rect(x, y, w, h);
     }
 }
 // =============================================================================
+void keyPressed() {
+    switch (key) {
+        case 'i':
+        case 'I': {
+            clear();
+            intiRegion(nRegions, regionSize);
+            break;
+        }
+        case ' ': {
+            simRunning = !simRunning;
+            break;
+        }
+        case 'u':
+        case 'U': {
+            break;
+        }
+        
+        case 'v':
+        case 'V': {
+            break;
+        }
+        
+        case 'd': 
+        case 'D': {
+            reactDiff = !reactDiff;
+            break;
+        }
+        case 'p': 
+        case 'P': {
+            break;
+        }
+        case '1': {
+            f = 0.035;
+            k = 0.0625;
+            break;
+        }
+        case '2': {
+            f = 0.035;
+            k = 0.06;
+            break;
+        }
+        case '3': {
+            k = 0.06;
+            f = 0.035;
+            break;
+        }
+        case '4': {
+            break;
+        }
+    }
+}
