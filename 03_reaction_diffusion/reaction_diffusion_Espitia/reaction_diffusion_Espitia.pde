@@ -1,7 +1,7 @@
 // Grid variables
-int nCols    = 100;
-int nRows    = 100;
-int cellSize = 3;
+int nCols    = 600;
+int nRows    = 600;
+int cellSize = 1;
 
 // Reaction-Diffusion variables
 float rU = 1.0;
@@ -13,45 +13,53 @@ float k  = 0.062;
 Cell[][] gridPrime;
 Cell[][] grid;
 
+// Interval variables
+int lastTime = 0;
+int interval = 10;
+
+// Flags
+boolean simRunning = true;
+boolean reactDiff  = true;
+
 // =============================================================================
 void setup() {
-    size(300, 300);
-    gridPrime = new Cell[width][height];
-    grid      = new Cell[width][height];
+    size(600, 600);
+    gridPrime = new Cell[nCols][nRows];
+    grid      = new Cell[nCols][nRows];
     initGrids();
+    // display();
 }
 // -----------------------------------------------------------------------------
 void draw() {
-    println(frameRate);
-    for (int i = 0; i < 1; i++) {
+    // println(frameRate);
+    if (millis() - lastTime > interval && simRunning){
         update();
         swapGrids();
+        display();
+        lastTime  = millis();
     }
-    loadPixels();
-    for (int i = 1; i < width-1; i++) {
-        for (int j = 1; j < height-1; j++) {
-            Cell cell = gridPrime[i][j];
-            float u = cell.compU;
-            float v = cell.compV;
-            int pos = i + j * width;
-            pixels[pos] = color((u-v)*255);
-        }
-    }
-    updatePixels(); 
 }
 // =============================================================================
 // Functions
-// create Grids
+// Initialization of grids
 void initGrids() {
     // initial values
-    for (int i = 0; i < width; i++) {
-        for (int j = 0; j < height; j++) {
+    for (int i = 0; i < nRows; i++) {
+        for (int j = 0; j < nCols; j++) {
             float u = 1;
             float v = 0;
-            // gridPrime[i][j] = new Cell(u, v);
-            // grid[i][j]      = new Cell(u, v);
-            gridPrime[i][j] = new Cell(u, v);
-            grid[i][j]      = new Cell(u, v);
+            // float u = random(1);
+            // float v = random(1);
+            gridPrime[i][j] = new Cell(j*cellSize,
+                                       i*cellSize,
+                                       cellSize,
+                                       cellSize,
+                                       u, v);
+            grid[i][j]      = new Cell(j*cellSize,
+                                       i*cellSize,
+                                       cellSize,
+                                       cellSize,
+                                       u, v);
         }
     }
     
@@ -60,30 +68,45 @@ void initGrids() {
     int regionSize = 10;
     
     for (int r = 0; r < nRegions; r++) {
-        int startX = int(random(20, width-20));
-        int startY = int(random(20, height-20));
+        int startX = int(random(20, nCols-20));
+        int startY = int(random(20, nRows-20));
         
         for (int i = startX; i < startX+regionSize; i++) {
             for (int j = startY; j < startY+regionSize; j++) {
                 float u = 1;
                 float v = 1;
-                gridPrime[i][j] = new Cell(u, v);
-                grid[i][j]      = new Cell(u, v);
+                gridPrime[i][j] = new Cell(j*cellSize,
+                                           i*cellSize,
+                                           cellSize,
+                                           cellSize,
+                                           u, v);
+                
+                grid[i][j]      = new Cell(j*cellSize,
+                                           i*cellSize,
+                                           cellSize,
+                                           cellSize,
+                                           u, v);
             }
         }
     }
 }
 // -----------------------------------------------------------------------------
+void display() {
+    for (int i = 0; i < nRows; ++i) {
+        for (int j = 0; j < nCols; ++j) {
+            gridPrime[i][j].display();
+        }
+    }
+}
+// -----------------------------------------------------------------------------
 void update(){
-    for (int i = 1; i < width-1; i++) {
-        for (int j = 1; j < height-1; j++) {
+    for (int i = 1; i < nRows-1; i++) {
+        for (int j = 1; j < nCols-1; j++) {
             Cell cell      = grid[i][j];
             Cell cellPrime = gridPrime[i][j];
             
             float u = cell.compU;
             float v = cell.compV;
-            
-            float laplaceU = 0;
             
             cellPrime.compU = u + (rU * laplaceU(i,j) - u*v*v + f*(1-u)) * 1;
             cellPrime.compV = v + (rV * laplaceV(i,j) + u*v*v + (k+f)*v) * 1;
@@ -150,6 +173,13 @@ class Cell {
     Cell(float u, float v) {
         compU = u;
         compV = v;
+    }
+    
+    void display() {
+        noStroke();
+        color currentColor = color((compU-compV)*255);
+        fill(currentColor);
+        rect(x, y, w, h);
     }
 }
 // =============================================================================
