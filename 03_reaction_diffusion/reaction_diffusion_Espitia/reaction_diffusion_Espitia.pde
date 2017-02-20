@@ -4,14 +4,14 @@ int nRows    = 150;
 int cellSize = 4;
 
 // Reaction-Diffusion variables
-// float rU = 1.0;
-// float rV = 0.5;
-// float f  = 0.055;
-// float k  = 0.062;
-float rU = 0.082;
-float rV = 0.041;
-float f  = 0.035;
-float k  = 0.0625;
+float rU = 1.0;
+float rV = 0.5;
+float f  = 0.055;
+float k  = 0.062;
+// float rU = 0.082;
+// float rV = 0.041;
+// float f  = 0.035;
+// float k  = 0.0625;
 
 // Grid arrays
 Cell[][] gridPrime;
@@ -19,7 +19,7 @@ Cell[][] grid;
 
 // Interval variables
 int lastTime = 0;
-int interval = 10;
+int interval = 100;
 
 // Flags
 boolean simRunning = true;
@@ -129,6 +129,8 @@ void update(){
             
             cellPrime.compU = u + (rU * laplaceU(i,j) - u*v*v + f*(1-u)) * 1;
             cellPrime.compV = v + (rV * laplaceV(i,j) + u*v*v + (k+f)*v) * 1;
+            // cellPrime.compU = (rU * laplaceU(i,j) - u*v*v + f*(1-u)) * 1;
+            // cellPrime.compV = (rV * laplaceV(i,j) + u*v*v + (f+k)*v) * 1;
             
             cellPrime.compU = constrain(cellPrime.compU, 0, 1);
             cellPrime.compV = constrain(cellPrime.compV, 0, 1);
@@ -155,6 +157,12 @@ float laplaceU(int i, int j) {
     sum += grid[i+1][j+1].compU * 0.05;
     sum += grid[i-1][j+1].compU * 0.05;
     
+    // sum += grid[i][j].compU * -4;
+    // sum += grid[i-1][j].compU * 1;
+    // sum += grid[i+1][j].compU * 1;
+    // sum += grid[i][j+1].compU * 1;
+    // sum += grid[i][j-1].compU * 1;
+    
     return sum;
 }
 // -----------------------------------------------------------------------------
@@ -171,9 +179,144 @@ float laplaceV(int i, int j) {
     sum += grid[i+1][j+1].compV * 0.05;
     sum += grid[i-1][j+1].compV * 0.05;
     
+    // sum += grid[i][j].compU * -4;
+    // sum += grid[i-1][j].compU * 1;
+    // sum += grid[i+1][j].compU * 1;
+    // sum += grid[i][j+1].compU * 1;
+    // sum += grid[i][j-1].compU * 1;
+    
     return sum;
 }
 // -----------------------------------------------------------------------------
+
+// =============================================================================
+class Grid {
+    Cell[][] myGrid;
+    Cell[][] myGridPrime;
+    
+    int nRows;
+    int nCols;
+    int cellSize;
+    
+    Grid(int nRows, int nCols, int cellSize) {
+        this.nRows    = nRows;
+        this.nCols    = nCols;
+        this.cellSize = cellSize;
+        
+        // build grids
+        initGrids();
+    }
+    // -----------------------------------------------------------------------------
+    void initGrids() {
+        for (int i = 0; i < nRows; i++) {
+            for (int j = 0; j < nCols; j++) {
+                float u = 1;
+                float v = 0;
+                // float u = random(1);
+                // float v = random(1);
+                myGridPrime[i][j] = new Cell(j*cellSize,
+                                           i*cellSize,
+                                           cellSize,
+                                           cellSize,
+                                           u, v);
+                myGrid[i][j]      = new Cell(j*cellSize,
+                                           i*cellSize,
+                                           cellSize,
+                                           cellSize,
+                                           u, v);
+            }
+        }
+        intiRegion(nRegions, regionSize);
+    }
+    // -----------------------------------------------------------------------------
+    void intiRegion(int nRegions, int regionSize){
+        int margin = 20;
+        for (int r = 0; r < nRegions; r++) {
+            int rowStart = int(random(margin, nRows - margin));
+            int colStart = int(random(margin, nCols - margin));
+            
+            for (int i = rowStart; i < rowStart+regionSize; i++) {
+                for (int j = colStart; j < colStart+regionSize; j++) {
+                    float u = 1;
+                    float v = 1;
+                    // float u = 0.5;
+                    // float v = 0.25;
+                    myGridPrime[i][j] = new Cell(j*cellSize,
+                                                 i*cellSize,
+                                                 cellSize,
+                                                 cellSize,
+                                                 u, v);
+                    
+                    myGrid[i][j]      = new Cell(j*cellSize,
+                                                 i*cellSize,
+                                                 cellSize,
+                                                 cellSize,
+                                                 u, v);
+                }
+            }
+        }
+    }
+    // -----------------------------------------------------------------------------
+    void display() {
+        for (int i = 0; i < nRows; ++i) {
+            for (int j = 0; j < nCols; ++j) {
+                myGridPrime[i][j].display();
+            }
+        }
+    }
+    // -----------------------------------------------------------------------------
+    void swapGrids() {
+        Cell[][] tmp = grid;
+        grid         = myGridPrime;
+        myGridPrime  = tmp;
+    }
+    // -----------------------------------------------------------------------------
+    float laplaceU(int i, int j) {
+        float sum = 0;
+        
+        sum += grid[i][j].compU * -1;
+        sum += grid[i-1][j].compU * 0.2;
+        sum += grid[i+1][j].compU * 0.2;
+        sum += grid[i][j+1].compU * 0.2;
+        sum += grid[i][j-1].compU * 0.2;
+        sum += grid[i-1][j-1].compU * 0.05;
+        sum += grid[i+1][j-1].compU * 0.05;
+        sum += grid[i+1][j+1].compU * 0.05;
+        sum += grid[i-1][j+1].compU * 0.05;
+        
+        // sum += grid[i][j].compU * -4;
+        // sum += grid[i-1][j].compU * 1;
+        // sum += grid[i+1][j].compU * 1;
+        // sum += grid[i][j+1].compU * 1;
+        // sum += grid[i][j-1].compU * 1;
+        
+        return sum;
+    }
+    // -----------------------------------------------------------------------------
+    float laplaceV(int i, int j) {
+        float sum = 0;
+        
+        sum += grid[i][j].compV * -1;
+        sum += grid[i-1][j].compV * 0.2;
+        sum += grid[i+1][j].compV * 0.2;
+        sum += grid[i][j+1].compV * 0.2;
+        sum += grid[i][j-1].compV * 0.2;
+        sum += grid[i-1][j-1].compV * 0.05;
+        sum += grid[i+1][j-1].compV * 0.05;
+        sum += grid[i+1][j+1].compV * 0.05;
+        sum += grid[i-1][j+1].compV * 0.05;
+        
+        // sum += grid[i][j].compU * -4;
+        // sum += grid[i-1][j].compU * 1;
+        // sum += grid[i+1][j].compU * 1;
+        // sum += grid[i][j+1].compU * 1;
+        // sum += grid[i][j-1].compU * 1;
+        
+        return sum;
+    }
+    // -----------------------------------------------------------------------------
+
+}
 // =============================================================================
 class Cell {
     float x, y;
