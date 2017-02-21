@@ -19,7 +19,7 @@ Cell[][] grid;
 
 // Interval variables
 int lastTime = 0;
-int interval = 100;
+int interval = 1;
 
 // Flags
 boolean simRunning = true;
@@ -87,18 +87,15 @@ void intiRegion(int nRegions, int regionSize){
     for (int r = 0; r < nRegions; r++) {
         int rowStart = int(random(margin, nRows - margin));
         int colStart = int(random(margin, nCols - margin));
+        // int rowStart = 75;
+        // int colStart = 75;
         
         for (int i = rowStart; i < rowStart+regionSize; i++) {
             for (int j = colStart; j < colStart+regionSize; j++) {
-                // float u = 1;
-                // float v = 1;
-                float u = 0.5;
-                float v = 0.25;
-                gridPrime[i][j] = new Cell(j*cellSize,
-                                           i*cellSize,
-                                           cellSize,
-                                           cellSize,
-                                           u, v);
+                float u = 1;
+                float v = 1;
+                // float u = 0.5;
+                // float v = 0.25;
                 
                 grid[i][j]      = new Cell(j*cellSize,
                                            i*cellSize,
@@ -128,12 +125,23 @@ void update(){
             float v = cell.compV;
             
             cellPrime.compU = u + (rU * laplaceU(i,j) - u*v*v + f*(1-u)) * 1;
-            cellPrime.compV = v + (rV * laplaceV(i,j) + u*v*v + (k+f)*v) * 1;
+            cellPrime.compV = v + (rV * laplaceV(i,j) + u*v*v - (k+f)*v) * 1;
             // cellPrime.compU = (rU * laplaceU(i,j) - u*v*v + f*(1-u)) * 1;
             // cellPrime.compV = (rV * laplaceV(i,j) + u*v*v + (f+k)*v) * 1;
             
             cellPrime.compU = constrain(cellPrime.compU, 0, 1);
             cellPrime.compV = constrain(cellPrime.compV, 0, 1);
+            
+            // float u = grid[i][j].compU;
+            // float v = grid[i][j].compV;
+            
+            // gridPrime[i][j].compU = u + (rU * laplaceU(i,j) - (u*v*v) + (f*(1-u)));
+            // gridPrime[i][j].compV = v + (rV * laplaceV(i,j) + (u*v*v) - ((k+f)*v));
+            // // cellPrime.compU = (rU * laplaceU(i,j) - u*v*v + f*(1-u)) * 1;
+            // // cellPrime.compV = (rV * laplaceV(i,j) + u*v*v + (f+k)*v) * 1;
+            
+            // gridPrime[i][j].compU = constrain(gridPrime[i][j].compU, 0, 1);
+            // gridPrime[i][j].compV = constrain(gridPrime[i][j].compV, 0, 1);
         }
     }
 }

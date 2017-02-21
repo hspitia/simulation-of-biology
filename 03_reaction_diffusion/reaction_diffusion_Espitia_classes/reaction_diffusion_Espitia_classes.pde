@@ -42,7 +42,6 @@ void setup() {
 }
 // -----------------------------------------------------------------------------
 void draw() {
-    // println(frameRate);
     if (millis() - lastTime > interval && simRunning){
         gridPrime.update(grid);
         gridPrime.display();
@@ -73,7 +72,7 @@ class Grid {
         
         // build grids
         // gridPrime = new Cell[nCols][nRows];
-        grid      = new Cell[nCols][nRows];
+        grid = new Cell[nCols][nRows];
         this.initGrids();
     }
     // -----------------------------------------------------------------------------
@@ -170,10 +169,8 @@ class Grid {
                 float u = cell.compU;
                 float v = cell.compV;
                 
-                cellPrime.compU = u + (rU * laplaceU(i,j) - u*v*v + f*(1-u)) * 1;
-                cellPrime.compV = v + (rV * laplaceV(i,j) + u*v*v + (k+f)*v) * 1;
-                // cellPrime.compU = (rU * laplaceU(i,j) - u*v*v + f*(1-u)) * 1;
-                // cellPrime.compV = (rV * laplaceV(i,j) + u*v*v + (f+k)*v) * 1;
+                cellPrime.compU = u + (rU * laplaceU(obj, i, j) - u*v*v + (f*(1-u))) * 1;
+                cellPrime.compV = v + (rV * laplaceV(obj, i, j) + u*v*v - ((k+f)*v)) * 1;
                 
                 cellPrime.compU = constrain(cellPrime.compU, 0, 1);
                 cellPrime.compV = constrain(cellPrime.compV, 0, 1);
@@ -181,18 +178,18 @@ class Grid {
         }
     }
     // -----------------------------------------------------------------------------
-    float laplaceU(int i, int j) {
+    float laplaceU(Grid obj, int i, int j) {
         float sum = 0;
         
-        sum += this.grid[i][j].compU * -1;
-        sum += this.grid[i-1][j].compU * 0.2;
-        sum += this.grid[i+1][j].compU * 0.2;
-        sum += this.grid[i][j+1].compU * 0.2;
-        sum += this.grid[i][j-1].compU * 0.2;
-        sum += this.grid[i-1][j-1].compU * 0.05;
-        sum += this.grid[i+1][j-1].compU * 0.05;
-        sum += this.grid[i+1][j+1].compU * 0.05;
-        sum += this.grid[i-1][j+1].compU * 0.05;
+        sum += obj.grid[i][j].compU * -1;
+        sum += obj.grid[i-1][j].compU * 0.2;
+        sum += obj.grid[i+1][j].compU * 0.2;
+        sum += obj.grid[i][j+1].compU * 0.2;
+        sum += obj.grid[i][j-1].compU * 0.2;
+        sum += obj.grid[i-1][j-1].compU * 0.05;
+        sum += obj.grid[i+1][j-1].compU * 0.05;
+        sum += obj.grid[i+1][j+1].compU * 0.05;
+        sum += obj.grid[i-1][j+1].compU * 0.05;
         
         // sum += this.grid[i][j].compU * -4;
         // sum += this.grid[i-1][j].compU * 1;
@@ -203,18 +200,18 @@ class Grid {
         return sum;
     }
     // -----------------------------------------------------------------------------
-    float laplaceV(int i, int j) {
+    float laplaceV(Grid obj, int i, int j) {
         float sum = 0;
         
-        sum += this.grid[i][j].compV * -1;
-        sum += this.grid[i-1][j].compV * 0.2;
-        sum += this.grid[i+1][j].compV * 0.2;
-        sum += this.grid[i][j+1].compV * 0.2;
-        sum += this.grid[i][j-1].compV * 0.2;
-        sum += this.grid[i-1][j-1].compV * 0.05;
-        sum += this.grid[i+1][j-1].compV * 0.05;
-        sum += this.grid[i+1][j+1].compV * 0.05;
-        sum += this.grid[i-1][j+1].compV * 0.05;
+        sum += obj.grid[i][j].compV * -1;
+        sum += obj.grid[i-1][j].compV * 0.2;
+        sum += obj.grid[i+1][j].compV * 0.2;
+        sum += obj.grid[i][j+1].compV * 0.2;
+        sum += obj.grid[i][j-1].compV * 0.2;
+        sum += obj.grid[i-1][j-1].compV * 0.05;
+        sum += obj.grid[i+1][j-1].compV * 0.05;
+        sum += obj.grid[i+1][j+1].compV * 0.05;
+        sum += obj.grid[i-1][j+1].compV * 0.05;
         
         // sum += this.grid[i][j].compU * -4;
         // sum += this.grid[i-1][j].compU * 1;
