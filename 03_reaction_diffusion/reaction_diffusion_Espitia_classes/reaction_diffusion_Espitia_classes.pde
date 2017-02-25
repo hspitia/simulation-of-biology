@@ -259,8 +259,10 @@ class Grid {
                 float u = cell.compU;
                 float v = cell.compV;
                 //                                              Reaction
-                cellPrime.compU = u + (rU * laplaceU(obj, i, j) - u*v*v + (f*(1-u))) * 2.7;
-                cellPrime.compV = v + (rV * laplaceV(obj, i, j) + u*v*v - ((k+f)*v)) * 2.7;
+                // cellPrime.compU = u + (rU * laplaceU(obj, i, j) - u*v*v + (f*(1-u))) * 2.7;
+                // cellPrime.compV = v + (rV * laplaceV(obj, i, j) + u*v*v - ((k+f)*v)) * 2.7;
+                cellPrime.compU = u + (rU * laplace(obj, i, j, true) - u*v*v + (f*(1-u))) * 1.0;
+                cellPrime.compV = v + (rV * laplace(obj, i, j, false) + u*v*v - ((k+f)*v)) * 1.0;
                 // cellPrime.compU = (rU * laplaceU(obj, i, j) - u*v*v + (f*(1-u)));b
                 // cellPrime.compV = (rV * laplaceV(obj, i, j) + u*v*v - ((k+f)*v));
                 
@@ -268,6 +270,35 @@ class Grid {
                 cellPrime.compV = constrain(cellPrime.compV, 0, 1);
             }
         }
+    }
+    // -----------------------------------------------------------------------------
+    float laplace(Grid obj, int i, int j, boolean isU) {
+        float sum            = 0;
+        float centerFactor   = -4.0;
+        float neighborFactor = 1.0;
+        int borders          = 0;
+        
+        if (i == 1 || i == nRows-2) ++borders;
+        if (j == 1 || j == nRows-2) ++borders;
+        
+        centerFactor += borders;
+        
+        if (isU) {
+            sum += obj.grid[i][j].compU * centerFactor;
+            sum += obj.grid[i-1][j].compU * neighborFactor;
+            sum += obj.grid[i+1][j].compU * neighborFactor;
+            sum += obj.grid[i][j+1].compU * neighborFactor;
+            sum += obj.grid[i][j-1].compU * neighborFactor;
+        } 
+        else {
+            sum += obj.grid[i][j].compV * centerFactor;
+            sum += obj.grid[i-1][j].compV * neighborFactor;
+            sum += obj.grid[i+1][j].compV * neighborFactor;
+            sum += obj.grid[i][j+1].compV * neighborFactor;
+            sum += obj.grid[i][j-1].compV * neighborFactor;
+        }
+        
+        return sum;
     }
     // -----------------------------------------------------------------------------
     float laplaceU(Grid obj, int i, int j) {
@@ -285,7 +316,7 @@ class Grid {
         sum += obj.grid[i-1][j].compU * neighborFactor;
         sum += obj.grid[i+1][j].compU * neighborFactor;
         sum += obj.grid[i][j+1].compU * neighborFactor;
-        sum += obj.grid[i][j-1].compU * neighborFactor;   
+        sum += obj.grid[i][j-1].compU * neighborFactor;
         
         // sum = 0;
         // sum += obj.grid[i][j].compU * -1;
