@@ -1,4 +1,9 @@
 color backgroundColor = #ffffff;
+color infoPanelColor  = #001A31;
+color titleColor      = #FF9D00;
+// color textColor       = #ffffff;
+color textColor       = #E2E2E2;
+
 int canvasSize        = 600;
 int infoPanelWidth    = 350;
 int infoPanelHeight   = 600;
@@ -283,8 +288,8 @@ class Grid {
                 //                                              Reaction
                 // cellPrime.compU = u + (rU * laplaceU(obj, i, j) - u*v*v + (f*(1-u))) * 2.7;
                 // cellPrime.compV = v + (rV * laplaceV(obj, i, j) + u*v*v - ((k+f)*v)) * 2.7;
-                cellPrime.compU = u + (rU * laplace(obj, i, j, true) - u*v*v + (f*(1-u))) * 2.0;
-                cellPrime.compV = v + (rV * laplace(obj, i, j, false) + u*v*v - ((k+f)*v)) * 2.0;
+                cellPrime.compU = u + (rU * laplace(obj, i, j, true) - u*v*v + (f*(1-u))) * 1.0;
+                cellPrime.compV = v + (rV * laplace(obj, i, j, false) + u*v*v - ((k+f)*v)) * 1.0;
                 
                 cellPrime.compU = constrain(cellPrime.compU, 0, 1);
                 cellPrime.compV = constrain(cellPrime.compV, 0, 1);
@@ -419,11 +424,13 @@ class Cell {
     
     void display(boolean drawU) {
         color strokeColor = #888888;
-        stroke(strokeColor );
+        stroke(strokeColor);
         noStroke();
         color currentColor = color(compU - compV);
+        // color currentColor = color(0.2, 0.3, compU - compV);
         // color currentColor = color(compU);
         if(!drawU) currentColor = color(compV);
+        // if(!drawU) currentColor = color(0.2, 0.1, compV);
         fill(currentColor);
         rect(x, y, w, h);
     }
@@ -530,8 +537,8 @@ void updateCellCoordInfo() {
         int col = (int)pos.y;
         // xPos = "" + grid.grid[row][col].x;
         // yPos = "" + grid.grid[row][col].y;
-        xPos = "" + row;
-        yPos = "" + col;
+        xPos = "" + col;
+        yPos = "" + row;
         // xPos = "" + mouseX;
         // yPos = "" + mouseY;
     }
@@ -559,16 +566,27 @@ void updateCurrentCellInfo(Grid obj) {
     }
 }
 // =========================================================
+void setupTitle(){
+    fill(titleColor);
+    textFont(myTitleFont);
+}
+// =========================================================
+void setupText(){
+    fill(textColor);
+    textFont(myFont);
+}
+// =========================================================
 void displayInfo() {
     // int canvasSize = 600; //temporal
     
-    color infoPanelColor = #B0B0B0;
+    // color infoPanelColor = #B0B0B0;
     noStroke();
     fill(infoPanelColor);
     rect(canvasSize, 0, infoPanelWidth, infoPanelHeight);
     
     updateCellCoordInfo();
     updateCurrentCellInfo(gridPrime);
+    
     
     String[] labels = new String[10];
     String[] values = new String[5];
@@ -578,7 +596,7 @@ void displayInfo() {
     controlText[1]  = "Space: Stop/Resume simulation";;
     controlText[2]  = "U:     Draw values for u (default)";
     controlText[3]  = "V:     Draw values for v";
-    controlText[4]  = "D:     Toggle Difussion/Reaction-Diffusion";
+    controlText[4]  = "D:     Toggle Reaction-Diffusion/Difussion";
     controlText[5]  = "P:     Toggle Constant/Spatially Var. params.";
     controlText[6]  = "1:     Spots        k = 0.0625, f = 0.035";
     controlText[7]  = "2:     Stripes      k = 0.06,   f = 0.035";
@@ -612,12 +630,11 @@ void displayInfo() {
     // values[2] = getOnOffStr(colAvoidanceOn);
     // values[3] = getOnOffStr(wanderingOn);
     
-    fill(0);
     int marginX = canvasSize + 15;
     int marginY = 30;
     int offsetY = 16;
     
-    textFont(myTitleFont);
+    setupTitle();
     text("Reaction-Diffusion Simulation", marginX, marginY);
     
     int textX = marginX;
@@ -626,24 +643,24 @@ void displayInfo() {
     text("Controls:", textX, textY);
     
     textY += 10;
-    textFont(myFont);
+    setupText();
     for (int i = 0; i < controlText.length; ++i) {
         textY += offsetY;
         text(controlText[i], textX, textY);
     }
     
     textY += 40;
-    textFont(myFontBold);
+    setupTitle();
     text("Info:", textX, textY);
     
     textY += 10;
-    textFont(myFont);
+    setupText();
     for (int i = 0; i < labels.length; ++i) {
         textY += offsetY;
         text(labels[i], textX, textY);
     }
     
-    String coordinates = "(x,y): (" + xPos + "," + yPos + ")";
+    String coordinates = "(row,col): (" + yPos + "," + xPos + ")";
     textY += 100;
     text(coordinates, textX, textY);
     
