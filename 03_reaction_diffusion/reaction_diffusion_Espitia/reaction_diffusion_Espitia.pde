@@ -26,7 +26,7 @@ int nRows    = floor(canvasSize/cellSize) + 2;
 // Initial values
 float rU = 0.082;
 float rV = 0.041;
-// value set 1
+// value set 1 (spots)
 float f  = 0.035;
 float k  = 0.0625;
 
@@ -487,8 +487,8 @@ void keyPressed() {
             break;
         }
         case '3': {
-            f = 0.035;
-            k = 0.06;
+            f = 0.0118;
+            k = 0.0475;
             currentPattern = "Spiral waves";
             break;
         }
