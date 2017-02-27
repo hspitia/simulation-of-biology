@@ -1,52 +1,54 @@
+// ==========================================================
+// Decription:  This program recreates the Gray-Scott
+//              Reaction-Diffusion system.
+// 
+// Author:      Hector Fabio Espitia Navarro
+// Version:     1.0
+// Institution: Georgia Intitute of Technology
+//              Simulation of Biology - Spring 2017
+// ==========================================================
+
 color backgroundColor = #ffffff;
 color infoPanelColor  = #001A31;
 color titleColor      = #FF9D00;
-// color textColor       = #ffffff;
 color textColor       = #E2E2E2;
-
-int canvasSize        = 600;
-int infoPanelWidth    = 350;
-int infoPanelHeight   = 600;
 
 PFont myFont;
 PFont myFontBold;
 PFont myTitleFont;
 
+int canvasSize        = 600;
+int infoPanelWidth    = 350;
+int infoPanelHeight   = 600;
+
 // Grid variables
-int cellSize = 3;
+int cellSize = 2;
 int nCols    = floor(canvasSize/cellSize) + 2;
 int nRows    = floor(canvasSize/cellSize) + 2;
 
 // Reaction-Diffusion variables
-// float rU = 1.0;
-// float rV = 0.5;
-// float f  = 0.055;
-// float k  = 0.062;
-
 // Initial values
 float rU = 0.082;
 float rV = 0.041;
 // value set 1 (spots)
 float f  = 0.035;
 float k  = 0.0625;
-
+// Variables for Spatially-Varying mode
 float[] variableK;
 float[] variableF;
-
 float minK = 0.03;
 float maxK = 0.07;
 float minF = 0.00;
 float maxF = 0.08;
+float dt   = 2.176;
 
 // Grid arrays
-// Cell[][] gridPrime;
-// Cell[][] grid;
 Grid grid;
 Grid gridPrime;
 
 // Interval variables
 int lastTime = 0;
-int interval = 1;
+int interval = 10;
 
 // Flags
 boolean simRunning     = true;
@@ -54,12 +56,14 @@ boolean reactDiff      = true;
 boolean constantParams = true;
 boolean drawU          = true;
 
-// Init region variables
+// Initial region variables
 int nRegions   = 10;
 int regionSize = 10;
 int margin     = 20;
+int maxRegions = 40;
+int minRegions = 1;
 
-// Info variables
+// Info text variables
 String currentPattern = "Spots";
 String xPos           = "";
 String yPos           = "";
@@ -85,9 +89,20 @@ void setup() {
 void draw() {
     if (millis() - lastTime > interval && simRunning){
         runSimulationStep();
+        gridPrime.display(drawU);
         lastTime  = millis();
     }
     displayInfo();
+    
+    // if (simRunning){
+    //     runSimulationStep();
+    // }
+    
+    // if (millis() - lastTime > interval){
+    //     gridPrime.display(drawU);
+    //     displayInfo();
+    //     lastTime  = millis();
+    // }
 }
 // =============================================================================
 void runSimulationStep() {
@@ -105,7 +120,7 @@ void runSimulationStep() {
             gridPrime.diffusion(grid, variableK, variableF);
     }
     
-    gridPrime.display(drawU);
+    // gridPrime.display(drawU);
     swapGrids();
 }
 // =============================================================================
@@ -128,32 +143,20 @@ void initVariableValues(){
     variableK = new float[rows];
     
     for (int i = 0; i < cols; ++i) {
-        // kValue += kInterval;
         float kValue = map(i, 0, cols, minK, maxK);
         variableK[i] = kValue;
     }
     
     int end = rows-1;
     for (int i = 0; i <= end ; ++i) {
-        // fValue += fInterval;
         float fValue = map(end-i, 0, cols, minF, maxF);
         variableF[i] = fValue;
     }
-    
-    // for (float value : variableK) {
-    //     println(value);
-    // }
-    // println("------");
-    // println("------");
-    // for (float value : variableF) {
-    //     println(value);
-    // }
 }
 
 // =============================================================================
 class Grid {
     Cell[][] grid;
-    // Cell[][] gridPrime;
     
     int nRows;
     int nCols;
@@ -187,19 +190,6 @@ class Grid {
                                       obj.grid[i][j].compV);
             }
         }
-    }
-    // -----------------------------------------------------------------------------
-    String toString() {
-        String outStr = "";
-        for (int i = 0; i < nRows; i++) {
-            for (int j = 0; j < nCols; j++) {
-                // outStr += "(" + grid[i][j].compU + "," + grid[i][j].compV + ")";
-                // outStr += "\t";
-                outStr += grid[i][j].toString();
-            }
-            outStr += "\n";
-        }
-        return outStr;
     }
     // -----------------------------------------------------------------------------
     void initGrid() {
@@ -274,6 +264,7 @@ class Grid {
         }
     }
     // -----------------------------------------------------------------------------
+    // Reaction-Diffusion with fixed parameters
     void reactionDiffusion(Grid obj, float k, float f){
         int start = 1;
         int end   = nRows-2;
@@ -288,8 +279,8 @@ class Grid {
                 //                                              Reaction
                 // cellPrime.compU = u + (rU * laplaceU(obj, i, j) - u*v*v + (f*(1-u))) * 2.7;
                 // cellPrime.compV = v + (rV * laplaceV(obj, i, j) + u*v*v - ((k+f)*v)) * 2.7;
-                cellPrime.compU = u + (rU * laplace(obj, i, j, true) - u*v*v + (f*(1-u))) * 1.0;
-                cellPrime.compV = v + (rV * laplace(obj, i, j, false) + u*v*v - ((k+f)*v)) * 1.0;
+                cellPrime.compU = u + (rU * laplace(obj, i, j, true) - u*v*v + (f*(1-u)))  * dt;
+                cellPrime.compV = v + (rV * laplace(obj, i, j, false) + u*v*v - ((k+f)*v)) * dt;
                 
                 cellPrime.compU = constrain(cellPrime.compU, 0, 1);
                 cellPrime.compV = constrain(cellPrime.compV, 0, 1);
@@ -297,6 +288,7 @@ class Grid {
         }
     }
     // -----------------------------------------------------------------------------
+    // Reaction-Diffusion with Spatially-Varying parameters
     void reactionDiffusion(Grid obj, float[] kValues, float[] fValues){
         int start = 1;
         int end   = nRows-2;
@@ -310,11 +302,9 @@ class Grid {
                 float k = kValues[j-1];
                 float f = fValues[i-1];
                 
-                //                                              Reaction
-                // cellPrime.compU = u + (rU * laplaceU(obj, i, j) - u*v*v + (f*(1-u))) * 2.7;
-                // cellPrime.compV = v + (rV * laplaceV(obj, i, j) + u*v*v - ((k+f)*v)) * 2.7;
-                cellPrime.compU = u + (rU * laplace(obj, i, j, true) - u*v*v + (f*(1-u))) * 1.0;
-                cellPrime.compV = v + (rV * laplace(obj, i, j, false) + u*v*v - ((k+f)*v)) * 1.0;
+                //                    Diffusion                       Reaction
+                cellPrime.compU = u + (rU * laplace(obj, i, j, true)  - u*v*v + (f*(1-u))) * dt;
+                cellPrime.compV = v + (rV * laplace(obj, i, j, false) + u*v*v - ((k+f)*v)) * dt;
                 
                 cellPrime.compU = constrain(cellPrime.compU, 0, 1);
                 cellPrime.compV = constrain(cellPrime.compV, 0, 1);
@@ -322,6 +312,7 @@ class Grid {
         }
     }
     // -----------------------------------------------------------------------------
+    // Diffusion with fixed
     void diffusion(Grid obj, float k, float f){
         int start = 1;
         int end   = nRows-2;
@@ -333,8 +324,8 @@ class Grid {
                 float u = cell.compU;
                 float v = cell.compV;
                 
-                cellPrime.compU = u + (rU * laplace(obj, i, j, true)) * 1.0;
-                cellPrime.compV = v + (rV * laplace(obj, i, j, false)) * 1.0;
+                cellPrime.compU = u + (rU * laplace(obj, i, j, true))  * dt;
+                cellPrime.compV = v + (rV * laplace(obj, i, j, false)) * dt;
                 
                 cellPrime.compU = constrain(cellPrime.compU, 0, 1);
                 cellPrime.compV = constrain(cellPrime.compV, 0, 1);
@@ -342,6 +333,7 @@ class Grid {
         }
     }
     // -----------------------------------------------------------------------------
+    // Diffusion with Spatially-Varying parameters
     void diffusion(Grid obj, float[] kValues, float[] fValues){
         int start = 1;
         int end   = nRows-2;
@@ -355,8 +347,8 @@ class Grid {
                 float k = kValues[j-1];
                 float f = fValues[i-1];
                 
-                cellPrime.compU = u + (rU * laplace(obj, i, j, true)) * 1.0;
-                cellPrime.compV = v + (rV * laplace(obj, i, j, false)) * 1.0;
+                cellPrime.compU = u + (rU * laplace(obj, i, j, true))  * dt;
+                cellPrime.compV = v + (rV * laplace(obj, i, j, false)) * dt;
                 
                 cellPrime.compU = constrain(cellPrime.compU, 0, 1);
                 cellPrime.compV = constrain(cellPrime.compV, 0, 1);
@@ -390,6 +382,7 @@ class Grid {
             sum += obj.grid[i][j-1].compV * neighborFactor;
         }
         
+        // Alternative values 
         // sum = 0;
         // sum += obj.grid[i][j].compU * -1;
         // sum += obj.grid[i-1][j].compU * 0.2;
@@ -402,6 +395,17 @@ class Grid {
         // sum += obj.grid[i-1][j+1].compU * 0.05;
         
         return sum;
+    }
+    // -----------------------------------------------------------------------------
+    String toString() {
+        String outStr = "";
+        for (int i = 0; i < nRows; i++) {
+            for (int j = 0; j < nCols; j++) {
+                outStr += grid[i][j].toString();
+            }
+            outStr += "\n";
+        }
+        return outStr;
     }
 }
 // =============================================================================
@@ -493,7 +497,7 @@ void keyPressed() {
             break;
         }
         case '4': {
-            f = 0.05;
+            f = 0.055;
             k = 0.062;
             currentPattern = "Custom";
             break;
@@ -523,11 +527,11 @@ PVector getCellUnderMouse(int x, int y) {
 }
 // =========================================================
 void increaseInitialRegions(){
-    if (nRegions < 20) ++nRegions;
+    if (nRegions < maxRegions) ++nRegions;
 }
 // =========================================================
 void decreaseInitialRegions(){
-    if (nRegions > 1) --nRegions;
+    if (nRegions > minRegions) --nRegions;
 }
 // =========================================================
 void updateCellCoordInfo() {
@@ -545,7 +549,9 @@ void updateCellCoordInfo() {
 }
 // =========================================================
 void updateCurrentCellInfo(Grid obj) {
-    if (mouseX < canvasSize && mouseY < canvasSize) {
+    if (mouseX > 0 && mouseX < canvasSize  &&
+        mouseY > 0 && mouseY < canvasSize) {
+        
         PVector pos = getCellUnderMouse(mouseX, mouseY);
         int row = (int)pos.x;
         int col = (int)pos.y;
@@ -571,6 +577,11 @@ void setupTitle(){
     textFont(myTitleFont);
 }
 // =========================================================
+void setupSubtitle(){
+    fill(titleColor);
+    textFont(myFontBold);
+}
+// =========================================================
 void setupText(){
     fill(textColor);
     textFont(myFont);
@@ -584,13 +595,13 @@ void displayInfo() {
     fill(infoPanelColor);
     rect(canvasSize, 0, infoPanelWidth, infoPanelHeight);
     
-    updateCellCoordInfo();
+    // updateCellCoordInfo();
     updateCurrentCellInfo(gridPrime);
     
     
-    String[] labels = new String[10];
-    String[] values = new String[5];
     String[] controlText = new String[12];
+    String[] infoText    = new String[13];
+    // String[] values      = new String[5];
     
     controlText[0]  = "I:     Initialize with fixed regions";
     controlText[1]  = "Space: Stop/Resume simulation";;
@@ -605,23 +616,25 @@ void displayInfo() {
     controlText[10] = "Click: Display values u, v, k, and f";
     controlText[11] = "+/-:   Increse/decrease # initial regions";
     
-    
-    labels[0] = "Mode:             " + ((reactDiff) ? "Reaction-Diffusion" : "Difussion");
-    labels[1] = "Pattern:          " + currentPattern;
-    labels[2] = "Params mode:      " + ((constantParams) ? "Constant" : "Spatially-Varying");
-    labels[3] = "Initial regions:  " + nRegions;
-    labels[4] = "Drawing:          " + ((drawU) ? "U" : "V");
+    infoText[0] = "Grid size:        " + (nRows-2) + " x " + (nCols-2) + " cells";
+    infoText[1] = "Cell size:        " + cellSize + " pixels";
+    infoText[2] = "Initial regions:  " + nRegions;
+    infoText[3] = "Mode:             " + ((reactDiff) ? "Reaction-Diffusion" : "Difussion");
+    infoText[4] = "Pattern:          " + currentPattern;
+    infoText[5] = "Params mode:      " + ((constantParams) ? "Constant" : "Spatially-Varying");
+    infoText[6] = "Drawing:          " + ((drawU) ? "U" : "V");
+    infoText[7] = "dt:               " + dt;
     
     if (mousePressed) {
-        labels[5] = "Parameter values of cell (" + yPos + "," + xPos + "): ";
-        labels[6] = "     u: " + currentU;
-        labels[7] = "     v: " + currentV;
-        labels[8] = "     k: " + currentK;
-        labels[9] = "     f: " + currentF;
+        infoText[8]  = "Parameter values of cell (" + yPos + "," + xPos + "): ";
+        infoText[9]  = "     u: " + currentU;
+        infoText[10]  = "     v: " + currentV;
+        infoText[11] = "     k: " + currentK;
+        infoText[12] = "     f: " + currentF;
     }
     else {
-        for (int i = 5; i < 10; ++i) {
-            labels[i] = "";
+        for (int i = 8; i < 13; ++i) {
+            infoText[i] = "";
         }
     }
     
@@ -635,11 +648,11 @@ void displayInfo() {
     int offsetY = 16;
     
     setupTitle();
-    text("Reaction-Diffusion Simulation", marginX, marginY);
+    text("Gray-Scott Reaction-Diffusion\nSimulation", marginX, marginY);
     
     int textX = marginX;
-    int textY = marginY + 40;
-    textFont(myFontBold);
+    int textY = marginY + 60;
+    setupSubtitle();
     text("Controls:", textX, textY);
     
     textY += 10;
@@ -650,19 +663,19 @@ void displayInfo() {
     }
     
     textY += 40;
-    setupTitle();
-    text("Info:", textX, textY);
+    setupSubtitle();
+    text("Current State Info:", textX, textY);
     
     textY += 10;
     setupText();
-    for (int i = 0; i < labels.length; ++i) {
+    for (int i = 0; i < infoText.length; ++i) {
         textY += offsetY;
-        text(labels[i], textX, textY);
+        text(infoText[i], textX, textY);
     }
     
-    String coordinates = "(row,col): (" + yPos + "," + xPos + ")";
-    textY += 100;
-    text(coordinates, textX, textY);
+    // String coordinates = "(row,col): (" + yPos + "," + xPos + ")";
+    // textY += 100;
+    // text(coordinates, textX, textY);
     
     // // textX = marginX;
     // textY += 40;
@@ -675,4 +688,3 @@ void displayInfo() {
     //     text(controlText[i], textX, textY);
     // }
 }
-
