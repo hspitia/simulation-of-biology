@@ -39,7 +39,7 @@ int interval       = 100;
 // flags
 boolean singleStep = true;
 boolean simRunning = false;
-
+boolean runningDla = true;
 // Simulation values
 float sf = 1;
 
@@ -194,32 +194,40 @@ void keyPressed() {
         }
         case '1': {
             grid.initSingleSeed();
-            sf = 1.0;
+            sf  = 1.0;
+            runningDla = true;
             break;
         }
         case '2': {
             grid.initSingleSeed();
-            sf = 0.1;
+            sf  = 0.1;
+            runningDla = true;
             break;
         }
         case '3': {
             grid.initSingleSeed();
-            sf = 0.01;
+            sf  = 0.01;
+            runningDla = true;
             break;
         }
         case '4': {
             grid.initSingleSeed();
+            runningDla = false;
             break;
         }
         case '5': {
             grid.initSingleSeed();
+            runningDla = false;
             break;
         }
         case '6': {
             grid.initSingleSeed();
+            runningDla = false;
             break;
         }
         case '0': {
+            grid.initSingleSeed();
+            runningDla = true;
             break;
         }
     }
@@ -246,7 +254,7 @@ void displayInfo() {
     rect(canvasSize, 0, infoPanelWidth, infoPanelHeight);
     
     int nControlText = 9;
-    int nInfoText    = 2;
+    int nInfoText    = 4;
     
     String[] controlText = new String[nControlText];
     String[] infoText    = new String[nInfoText];
@@ -262,10 +270,10 @@ void displayInfo() {
     controlText[7]  = "6:     DBM, eta = 6";
     controlText[8]  = "0:     Custom (seed pattern, sf = XX)";
     
-    infoText[0] = "Grid size:        " + nRows + " x " + nCols + " cells";
-    infoText[1] = "Cell size:        " + cellSize + " pixels";
-    // infoText[2] = "Initial regions:  " + nRegions;
-    // infoText[3] = "Mode:             " + ((reactDiff) ? "Reaction-Diffusion" : "Difussion");
+    infoText[0] = "Grid size:       " + nRows + " x " + nCols + " cells";
+    infoText[1] = "Cell size:       " + cellSize + " pixels";
+    infoText[2] = "Mode:            " + ((runningDla) ? "DLA" : "DBM");
+    infoText[3] = "Sticking Factor: " + sf;
     // infoText[4] = "Pattern:          " + currentPattern;
     // infoText[5] = "Params mode:      " + ((constantParams) ? "Constant" : "Spatially-Varying");
     // infoText[6] = "Drawing:          " + ((drawU) ? "U" : "V");
