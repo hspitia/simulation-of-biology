@@ -22,7 +22,7 @@ int infoPanelWidth    = 350;
 int infoPanelHeight   = 600;
 
 // Grid variables
-int cellSize = 2;
+int cellSize = 3;
 int nCols    = floor(canvasSize/cellSize) + 2;
 int nRows    = floor(canvasSize/cellSize) + 2;
 
@@ -40,7 +40,7 @@ float minK = 0.03;
 float maxK = 0.07;
 float minF = 0.00;
 float maxF = 0.08;
-float dt   = 2.176;
+float dt   = 2.15;
 
 // Grid arrays
 Grid grid;
@@ -89,7 +89,6 @@ void setup() {
 void draw() {
     if (millis() - lastTime > interval && simRunning){
         runSimulationStep();
-        gridPrime.display(drawU);
         lastTime  = millis();
     }
     displayInfo();
@@ -119,8 +118,7 @@ void runSimulationStep() {
         else
             gridPrime.diffusion(grid, variableK, variableF);
     }
-    
-    // gridPrime.display(drawU);
+    gridPrime.display(drawU);
     swapGrids();
 }
 // =============================================================================
@@ -222,10 +220,6 @@ class Grid {
         for (int r = 0; r < nRegions; r++) {
             int rowStart = (int)random(adjustedMargin, nRows-2 - adjustedMargin);
             int colStart = (int)random(adjustedMargin, nCols-2 - adjustedMargin);
-            // int rowStart = 2;
-            // int colStart = 2;
-            // println("rowStart: "+rowStart);
-            // println("colStart: "+colStart);
             
             for (int i = rowStart; i < rowStart+regionSize; i++) {
                 for (int j = colStart; j < colStart+regionSize; j++) {
@@ -264,7 +258,7 @@ class Grid {
         }
     }
     // -----------------------------------------------------------------------------
-    // Reaction-Diffusion with fixed parameters
+    // Reaction-Diffusion with constant parameters
     void reactionDiffusion(Grid obj, float k, float f){
         int start = 1;
         int end   = nRows-2;
@@ -276,9 +270,7 @@ class Grid {
                 float u = cell.compU;
                 float v = cell.compV;
                 
-                //                                              Reaction
-                // cellPrime.compU = u + (rU * laplaceU(obj, i, j) - u*v*v + (f*(1-u))) * 2.7;
-                // cellPrime.compV = v + (rV * laplaceV(obj, i, j) + u*v*v - ((k+f)*v)) * 2.7;
+                //                    Diffusion                      Reaction
                 cellPrime.compU = u + (rU * laplace(obj, i, j, true) - u*v*v + (f*(1-u)))  * dt;
                 cellPrime.compV = v + (rV * laplace(obj, i, j, false) + u*v*v - ((k+f)*v)) * dt;
                 
@@ -312,7 +304,7 @@ class Grid {
         }
     }
     // -----------------------------------------------------------------------------
-    // Diffusion with fixed
+    // Diffusion with constant parameters
     void diffusion(Grid obj, float k, float f){
         int start = 1;
         int end   = nRows-2;
@@ -415,26 +407,21 @@ class Cell {
     float k, f;
     float compU, compV;
     
-    Cell(float x, float y, float w, float h, float u, float v) {//, float k, float f) {
+    Cell(float x, float y, float w, float h, float u, float v) {
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
-        // this.k = k;
-        // this.f = f;
         compU  = u;
         compV  = v;
     }
     
     void display(boolean drawU) {
-        color strokeColor = #888888;
-        stroke(strokeColor);
+        // color strokeColor = #888888;
+        // stroke(strokeColor);
         noStroke();
         color currentColor = color(compU - compV);
-        // color currentColor = color(0.2, 0.3, compU - compV);
-        // color currentColor = color(compU);
         if(!drawU) currentColor = color(compV);
-        // if(!drawU) currentColor = color(0.2, 0.1, compV);
         fill(currentColor);
         rect(x, y, w, h);
     }
@@ -523,7 +510,6 @@ PVector getCellUnderMouse(int x, int y) {
     }
     
     return (new PVector(row+1, col+1));
-    // return (new PVector(row, col));
 }
 // =========================================================
 void increaseInitialRegions(){
@@ -539,8 +525,6 @@ void updateCellCoordInfo() {
         PVector pos = getCellUnderMouse(mouseX, mouseY);
         int row = (int)pos.x;
         int col = (int)pos.y;
-        // xPos = "" + grid.grid[row][col].x;
-        // yPos = "" + grid.grid[row][col].y;
         xPos = "" + col;
         yPos = "" + row;
         // xPos = "" + mouseX;
@@ -588,16 +572,12 @@ void setupText(){
 }
 // =========================================================
 void displayInfo() {
-    // int canvasSize = 600; //temporal
-    
-    // color infoPanelColor = #B0B0B0;
     noStroke();
     fill(infoPanelColor);
     rect(canvasSize, 0, infoPanelWidth, infoPanelHeight);
     
     // updateCellCoordInfo();
     updateCurrentCellInfo(gridPrime);
-    
     
     String[] controlText = new String[12];
     String[] infoText    = new String[13];
@@ -628,7 +608,7 @@ void displayInfo() {
     if (mousePressed) {
         infoText[8]  = "Parameter values of cell (" + yPos + "," + xPos + "): ";
         infoText[9]  = "     u: " + currentU;
-        infoText[10]  = "     v: " + currentV;
+        infoText[10] = "     v: " + currentV;
         infoText[11] = "     k: " + currentK;
         infoText[12] = "     f: " + currentF;
     }
@@ -637,11 +617,6 @@ void displayInfo() {
             infoText[i] = "";
         }
     }
-    
-    // values[0] = getOnOffStr(flockCenteringOn);
-    // values[1] = getOnOffStr(velMatchingOn);
-    // values[2] = getOnOffStr(colAvoidanceOn);
-    // values[3] = getOnOffStr(wanderingOn);
     
     int marginX = canvasSize + 15;
     int marginY = 30;
@@ -674,17 +649,6 @@ void displayInfo() {
     }
     
     // String coordinates = "(row,col): (" + yPos + "," + xPos + ")";
-    // textY += 100;
+    // textY += 20;
     // text(coordinates, textX, textY);
-    
-    // // textX = marginX;
-    // textY += 40;
-    // textFont(myFontBold);
-    // text("Controls:", textX, textY);
-    // textY += 3;
-    // textFont(myFont);
-    // for (int i = 0; i < controlText.length; ++i) {
-    //     textY += offsetY;
-    //     text(controlText[i], textX, textY);
-    // }
 }
