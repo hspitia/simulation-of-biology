@@ -26,9 +26,10 @@ color titleColor      = #FF9D00;
 color textColor       = #E2E2E2;
 color backgroundColor = #444444;
 color strokeColor     = #333333;
-color deadCellColor   = #222222;
-// color aliveCellColor  = #FF9D00;
-color aliveCellColor  = #00686F;
+color emptyCellColor  = #222222;
+// color filledCellColor = #FF9D00;
+color filledCellColor = #00686F;
+color pathCellColor   = #3D5238;
 
 PFont myFont;
 PFont myFontBold;
@@ -42,6 +43,8 @@ boolean simRunning = false;
 boolean runningDla = true;
 // Simulation values
 float sf = 1;
+// temporary variables
+PVector lastPos;
 
 // =========================================================
 void setup() {
@@ -59,58 +62,14 @@ void draw() {
     grid.display();
     displayInfo();
     
-    // if (millis() - lastTime > interval){
-    //     if (!singleStep){
-    //         runStep();
-    //     }
-    // }
+    if (millis() - lastTime > interval && simRunning){
+        grid.randomWalk();
+    }
     
-    // if (singleStep && !mousePressed)
-    //     tmpGrid = new Grid(grid);
 }
 
 // =========================================================
 void runStep() {
-}
-// =========================================================
-String getStatusStr(boolean alive) {
-    String strStatus = "DEAD";
-    if (alive) strStatus = "ALIVE";
-    return strStatus;
-}
-// =========================================================
-class Cell {
-    // Attributes
-    float x, y;
-    float w, h;
-    int status;
-    // --------------------------------------------------------
-    // Methods
-    // constructor
-    Cell(float x, float y, float w, float h, int status) {
-        this.x      = x;
-        this.y      = y;
-        this.w      = w;
-        this.h      = h;
-        this.status = status;
-    }
-    // --------------------------------------------------------
-    Cell(Cell obj) {
-        this.x      = obj.x;
-        this.y      = obj.y;
-        this.w      = obj.w;
-        this.h      = obj.h;
-        this.status = obj.status;
-    }
-    // --------------------------------------------------------
-    void display() {
-        // stroke(strokeColor);
-        noStroke();
-        color currentColor = deadCellColor;
-        if (status == 1) currentColor = aliveCellColor;
-        fill(currentColor);
-        rect(x, y, w, h); 
-    }
 }
 // =========================================================
 class Grid {
@@ -155,6 +114,32 @@ class Grid {
         }
     }
     // --------------------------------------------------------
+    private PVector getRandomPosition() {
+        int row;
+        int col;
+        do {
+            row = floor(random(nRows));
+            col = floor(random(nCols));
+        } while(grid[row][col].status == 1);
+        return new PVector(col,row);
+    }
+    // --------------------------------------------------------
+    void randomWalk() {
+        int nSteps = 20;
+        PVector initPos = getRandomPosition();
+        int row = (int)initPos.y;
+        int col = (int)initPos.x;
+        int steps = 0;
+        while (steps++ < nSteps) {
+            row += round(random(-1, 1));
+            col += round(random(-1, 1));
+            if (row >= 0 && row < nRows && 
+                col >= 0 && col < nCols) {
+                grid[row][col].status = 2; // path
+            }
+        }
+    }
+    // --------------------------------------------------------
     void initSingleSeed() {
         clear();
         
@@ -180,6 +165,41 @@ class Grid {
         }
     }
     // --------------------------------------------------------
+}
+// =========================================================
+class Cell {
+    // Attributes
+    float x, y;
+    float w, h;
+    int status;
+    // --------------------------------------------------------
+    // Methods
+    // constructor
+    Cell(float x, float y, float w, float h, int status) {
+        this.x      = x;
+        this.y      = y;
+        this.w      = w;
+        this.h      = h;
+        this.status = status;
+    }
+    // --------------------------------------------------------
+    Cell(Cell obj) {
+        this.x      = obj.x;
+        this.y      = obj.y;
+        this.w      = obj.w;
+        this.h      = obj.h;
+        this.status = obj.status;
+    }
+    // --------------------------------------------------------
+    void display() {
+        // stroke(strokeColor);
+        noStroke();
+        color currentColor = emptyCellColor;
+        if (status == 2) currentColor = pathCellColor; //
+        if (status == 1) currentColor = filledCellColor;
+        fill(currentColor);
+        rect(x, y, w, h); 
+    }
 }
 // =========================================================
 void keyPressed() {
