@@ -12,13 +12,18 @@
 Grid grid;
 // Grid tmpGrid;
 
-int nCols             = 100;
-int nRows             = 100;
-int cellSize          = 4;
 
-int canvasSize        = nCols*cellSize;
+// int canvasSize        = nCols*cellSize;
+int canvasSize        = 600;
 int infoPanelWidth    = 300;
 int infoPanelHeight   = canvasSize;
+
+// Grid variables
+int cellSize = 2;
+int nCols    = floor(canvasSize/cellSize);
+int nRows    = floor(canvasSize/cellSize);
+
+
 
 
 color infoPanelColor  = #001A31;
@@ -36,25 +41,27 @@ PFont myFontBold;
 PFont myTitleFont;
 
 int lastTime       = 0;
-int interval       = 100;
+int interval       = 1;
 // flags
 boolean singleStep = true;
 boolean simRunning = false;
 boolean runningDla = true;
 // Simulation values
 float sf = 1;
-// temporary variables
-PVector lastPos;
+
+int externalMargin = (int)(nRows/3);
+PVector lastOrigin;
 
 // =========================================================
 void setup() {
-    size(700, 400);
+    size(900, 600);
     grid = new Grid(nRows, nCols, cellSize);
     
     myFont      = createFont("Ubuntu Mono", 14);
     myFontBold  = createFont("Ubuntu Bold", 14);
     myTitleFont = createFont("Ubuntu Bold", 18);
     
+    grid.initSingleSeed();
 }
 // =========================================================
 void draw() {
@@ -78,6 +85,8 @@ class Grid {
     int rows;
     int cellSize;
     Cell[][] grid;
+    int lastRow;
+    int lastCol;
     // --------------------------------------------------------
     // Methods
     // constructor
@@ -107,6 +116,7 @@ class Grid {
         cellSize       = obj.cellSize;
         grid           = new Cell[rows][cols];
         
+        
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
                 grid[i][j] = new Cell(obj.grid[i][j]);
@@ -120,11 +130,23 @@ class Grid {
         do {
             row = floor(random(nRows));
             col = floor(random(nCols));
-        } while(isFilled(row, col));
+        } while(isFilled(row, col) || isNear(row, col));
+        
+        lastRow = row;
+        lastCol = col;
+        
         return new PVector(col,row);
     }
     // --------------------------------------------------------
-    private int[] getRowNeighbors(int row, int col) {
+    private boolean isNear(int row, int col) {
+        if ((row >= externalMargin && row < (nRows-externalMargin)) ||
+            (col >= externalMargin && col < (nCols-externalMargin)))
+            return true;
+        
+        return false;
+    }
+    // --------------------------------------------------------
+    private int[] getRowNeighbors(int row) {
         int rowLowerAdjust = 0;
         int rowUpperAdjust = 0;
         
@@ -135,7 +157,7 @@ class Grid {
         return neighborRows;
     }
     // --------------------------------------------------------
-    private int[] getColNeighbors(int row, int col) {
+    private int[] getColNeighbors(int col) {
         int colLowerAdjust = 0;
         int colUpperAdjust = 0;
         
@@ -147,23 +169,18 @@ class Grid {
     }
     // --------------------------------------------------------
     void randomWalk() {
-        int nSteps = 20;
+        // int nSteps      = 20;
+        // int steps       = 0;
         PVector initPos = getRandomPosition();
-        int row = (int)initPos.y;
-        int col = (int)initPos.x;
-        int steps = 0;
-        // while (steps++ < nSteps) {
-        //     row += round(random(-1, 1));
-        //     col += round(random(-1, 1));
-        //     if (row >= 0 && row < nRows && 
-        //         col >= 0 && col < nCols) {
-        //         grid[row][col].status = 2; // path
-        //     }
-        // }
+        int row         = (int)initPos.y;
+        int col         = (int)initPos.x;
         
         while (isAlone(row, col)) {
             row += round(random(-1, 1));
             col += round(random(-1, 1));
+            // println(row+","+col);
+            
+            // Check for grid boundaries
             if (row < 0 || row > nRows-1 || 
                 col < 0 || col > nCols-1) {
                 // grid[row][col].status = 2; // path
@@ -172,14 +189,14 @@ class Grid {
                 col     = (int)initPos.x;
             }
         }
-        grid[row][col].status = 1; // filled
+        if (random(1) <= sf)
+            grid[row][col].status = 1; // filled
     }
     // --------------------------------------------------------
     boolean isAlone(int row, int col) {
-        int[] rowNeighbors = getRowNeighbors(row, col);
-        int[] colNeighbors = getColNeighbors(row, col);
+        int[] rowNeighbors = getRowNeighbors(row);
+        int[] colNeighbors = getColNeighbors(col);
         
-        int nAlive = 0;
         for (int i : rowNeighbors) {
             for (int j : colNeighbors) {
                 if (i != row || j != col) {
@@ -203,6 +220,9 @@ class Grid {
         
         int row = floor(nRows/2);
         int col = floor(nCols/2);
+        
+        lastRow = row;
+        lastCol = col;
         
         grid[row][col].status = 1; // FILLED
     }
