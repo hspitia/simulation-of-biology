@@ -29,7 +29,7 @@ color strokeColor     = #333333;
 color emptyCellColor  = #222222;
 // color filledCellColor = #FF9D00;
 color filledCellColor = #00686F;
-color pathCellColor   = #3D5238;
+color pathCellColor   = #21331D;
 
 PFont myFont;
 PFont myFontBold;
@@ -120,8 +120,30 @@ class Grid {
         do {
             row = floor(random(nRows));
             col = floor(random(nCols));
-        } while(grid[row][col].status == 1);
+        } while(isFilled(row, col));
         return new PVector(col,row);
+    }
+    // --------------------------------------------------------
+    private int[] getRowNeighbors(int row, int col) {
+        int rowLowerAdjust = 0;
+        int rowUpperAdjust = 0;
+        
+        if (row == 0) rowLowerAdjust = nRows;
+        if (row == nRows-1) rowUpperAdjust = -nRows;
+        
+        int[] neighborRows = {(row - 1 + rowLowerAdjust), row, (row + 1 + rowUpperAdjust)};
+        return neighborRows;
+    }
+    // --------------------------------------------------------
+    private int[] getColNeighbors(int row, int col) {
+        int colLowerAdjust = 0;
+        int colUpperAdjust = 0;
+        
+        if (col == 0) colLowerAdjust = nCols;
+        if (col == nCols-1) colUpperAdjust = -nCols;
+        
+        int[] neighborCols = {(col - 1 + colLowerAdjust), col, (col + 1 + colUpperAdjust)};
+        return neighborCols;
     }
     // --------------------------------------------------------
     void randomWalk() {
@@ -130,14 +152,50 @@ class Grid {
         int row = (int)initPos.y;
         int col = (int)initPos.x;
         int steps = 0;
-        while (steps++ < nSteps) {
+        // while (steps++ < nSteps) {
+        //     row += round(random(-1, 1));
+        //     col += round(random(-1, 1));
+        //     if (row >= 0 && row < nRows && 
+        //         col >= 0 && col < nCols) {
+        //         grid[row][col].status = 2; // path
+        //     }
+        // }
+        
+        while (isAlone(row, col)) {
             row += round(random(-1, 1));
             col += round(random(-1, 1));
-            if (row >= 0 && row < nRows && 
-                col >= 0 && col < nCols) {
-                grid[row][col].status = 2; // path
+            if (row < 0 || row > nRows-1 || 
+                col < 0 || col > nCols-1) {
+                // grid[row][col].status = 2; // path
+                initPos = getRandomPosition();
+                row     = (int)initPos.y;
+                col     = (int)initPos.x;
             }
         }
+        grid[row][col].status = 1; // filled
+    }
+    // --------------------------------------------------------
+    boolean isAlone(int row, int col) {
+        int[] rowNeighbors = getRowNeighbors(row, col);
+        int[] colNeighbors = getColNeighbors(row, col);
+        
+        int nAlive = 0;
+        for (int i : rowNeighbors) {
+            for (int j : colNeighbors) {
+                if (i != row || j != col) {
+                    if (isFilled(i,j))
+                        return false;
+                } 
+            }
+        }
+        return true;
+    }
+    // --------------------------------------------------------
+    private boolean isFilled(int row, int col) {
+        if (grid[row][col].status == 1) 
+            return true;
+        
+        return false;
     }
     // --------------------------------------------------------
     void initSingleSeed() {
