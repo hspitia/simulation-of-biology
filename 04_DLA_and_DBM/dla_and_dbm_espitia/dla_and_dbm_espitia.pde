@@ -19,7 +19,7 @@ int infoPanelWidth    = 300;
 int infoPanelHeight   = canvasSize;
 
 // Grid variables
-int cellSize = 2;
+int cellSize = 3;
 int nCols    = floor(canvasSize/cellSize);
 int nRows    = floor(canvasSize/cellSize);
 
@@ -130,7 +130,8 @@ class Grid {
         do {
             row = floor(random(nRows));
             col = floor(random(nCols));
-        } while(isFilled(row, col) || isNear(row, col));
+        } while(isFilled(row, col));
+        // } while(isFilled(row, col) || isNear(row, col));
         
         lastRow = row;
         lastCol = col;
