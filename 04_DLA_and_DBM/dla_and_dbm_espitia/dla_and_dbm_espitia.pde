@@ -62,6 +62,7 @@ void setup() {
     myTitleFont = createFont("Ubuntu Bold", 18);
     
     grid.initSingleSeed();
+    // testArrayListRefs();
 }
 // =========================================================
 void draw() {
@@ -71,6 +72,67 @@ void draw() {
     
     if (millis() - lastTime > interval && simRunning){
         grid.randomWalk();
+    }
+    
+}
+
+// =========================================================
+void testArrayListRefs() {
+    int nCells = 5;
+    Cell[] cells = new Cell[nCells];
+    
+    for (int i = 0; i < nCells; ++i) {
+        cells[i] = new Cell(i*cellSize, 0, cellSize, cellSize, 0);
+    }
+    println("cells: ");
+    for (Cell c : cells) {
+        println("c: "+c);
+    }
+    
+    ArrayList<Cell> cellList = new ArrayList<Cell>();
+    
+    for (Cell c : cells) {
+        cellList.add(c);
+    }
+    
+    println("\ncellList: ");
+    for (Cell c : cellList) {
+        println("c: "+c);
+    }
+    
+    println("\nModifying cells:");
+    cells[1].status = 1;
+    cells[2].status = 1;
+    for (Cell c : cells) {
+        println("c: "+c);
+    }
+    
+    println("\ncellList: ");
+    for (Cell c : cellList) {
+        println("c: "+c);
+    }
+    
+    println("\nModifying cellList:");
+    cellList.remove(0);
+    println("cells: ");
+    for (Cell c : cells) {
+        println("c: "+c);
+    }
+    println("\ncellList: ");
+    for (Cell c : cellList) {
+        println("c: "+c);
+    }
+    
+    println("\nModifying cells:");
+    cells[0].status = 1;
+    cells[4].status = 1;
+    for (Cell c : cells) {
+        println("c: "+c);
+    }
+    
+    println("\ncellList: ");
+    for (Cell c : cellList) {
+        println("c: "+c);
     }
     
 }
@@ -87,6 +149,8 @@ class Grid {
     Cell[][] grid;
     int lastRow;
     int lastCol;
+    ArrayList<Cell> filledCells;
+    ArrayList<Cell> candidateCells;
     // --------------------------------------------------------
     // Methods
     // constructor
@@ -107,6 +171,9 @@ class Grid {
                                       status);
             }
         }
+        
+        filledCells    = new ArrayList<Cell>;
+        candidateCells = new ArrayList<Cell>;
     }
     // --------------------------------------------------------
     // copy constructor
@@ -256,15 +323,18 @@ class Cell {
     float x, y;
     float w, h;
     int status;
+    float ep;
+    
     // --------------------------------------------------------
     // Methods
     // constructor
-    Cell(float x, float y, float w, float h, int status) {
+    Cell(float x, float y, float w, float h, int status, float ep) {
         this.x      = x;
         this.y      = y;
         this.w      = w;
         this.h      = h;
         this.status = status;
+        this.ep     = ep;
     }
     // --------------------------------------------------------
     Cell(Cell obj) {
@@ -273,6 +343,7 @@ class Cell {
         this.w      = obj.w;
         this.h      = obj.h;
         this.status = obj.status;
+        this.ep     = obj.ep;
     }
     // --------------------------------------------------------
     void display() {
@@ -284,6 +355,24 @@ class Cell {
         fill(currentColor);
         rect(x, y, w, h); 
     }
+    // --------------------------------------------------------
+    PVector getPosition(){
+        return new PVector(y/h, x/w);
+    }
+    // --------------------------------------------------------
+    int getRow(){
+        return (int)(y/h);
+    }
+    // --------------------------------------------------------
+    int getCol(){
+        return (int)(x/w);
+    }
+    // --------------------------------------------------------
+    String toString() {
+        String outStr = "(" + getRow() + "," + getCol() + ") - st: " + status;
+        return outStr;
+    }
+    // --------------------------------------------------------
 }
 // =========================================================
 void keyPressed() {
