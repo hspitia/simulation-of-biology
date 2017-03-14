@@ -170,13 +170,12 @@ class Grid {
     }
     // --------------------------------------------------------
     void randomWalk() {
-        // int nSteps      = 20;
-        // int steps       = 0;
-        PVector initPos = getRandomPosition();
-        int row         = (int)initPos.y;
-        int col         = (int)initPos.x;
+        PVector initPos     = getRandomPosition();
+        int row             = (int)initPos.y;
+        int col             = (int)initPos.x;
+        boolean keepWalking = true;
         
-        while (isAlone(row, col)) {
+        while (keepWalking) {
             row += round(random(-1, 1));
             col += round(random(-1, 1));
             // println(row+","+col);
@@ -184,14 +183,20 @@ class Grid {
             // Check for grid boundaries
             if (row < 0 || row > nRows-1 || 
                 col < 0 || col > nCols-1) {
-                // grid[row][col].status = 2; // path
                 initPos = getRandomPosition();
                 row     = (int)initPos.y;
                 col     = (int)initPos.x;
+            } 
+            else {
+                if (!isAlone(row, col)) {
+                    if (random(1) <= sf) {
+                        grid[row][col].status = 1; // filled
+                        keepWalking = false;
+                    }
+                }
             }
         }
-        if (random(1) <= sf)
-            grid[row][col].status = 1; // filled
+        
     }
     // --------------------------------------------------------
     boolean isAlone(int row, int col) {
