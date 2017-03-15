@@ -47,7 +47,8 @@ boolean singleStep = true;
 boolean simRunning = false;
 boolean runningDla = true;
 // Simulation values
-float sf = 1;
+float sf  = 1;
+float eta = 0;
 
 int externalMargin = (int)(nRows/3);
 PVector lastOrigin;
@@ -61,8 +62,8 @@ void setup() {
     myFontBold  = createFont("Ubuntu Bold", 14);
     myTitleFont = createFont("Ubuntu Bold", 18);
     
-    grid.initSingleSeed();
-    // testArrayListRefs();
+    grid.initDlaSingleSeed();
+    testArrayListRefs();
 }
 // =========================================================
 void draw() {
@@ -82,7 +83,7 @@ void testArrayListRefs() {
     Cell[] cells = new Cell[nCells];
     
     for (int i = 0; i < nCells; ++i) {
-        cells[i] = new Cell(i*cellSize, 0, cellSize, cellSize, 0);
+        cells[i] = new Cell(i*cellSize, 0, cellSize, cellSize, 0, 0);
     }
     println("cells: ");
     for (Cell c : cells) {
@@ -135,6 +136,11 @@ void testArrayListRefs() {
         println("c: "+c);
     }
     
+    // distances
+    for (Cell c : cells) {
+        println("dist: " + cells[0].getDist(c.getRow(), c.getCol()));
+    }
+    
 }
 
 // =========================================================
@@ -149,7 +155,7 @@ class Grid {
     Cell[][] grid;
     int lastRow;
     int lastCol;
-    ArrayList<Cell> filledCells;
+    ArrayList<Cell> patternCells;
     ArrayList<Cell> candidateCells;
     // --------------------------------------------------------
     // Methods
@@ -168,12 +174,12 @@ class Grid {
                 grid[i][j] = new Cell(j * this.cellSize, 
                                       i * this.cellSize,
                                       this.cellSize, this.cellSize,
-                                      status);
+                                      status, 0);
             }
         }
         
-        filledCells    = new ArrayList<Cell>;
-        candidateCells = new ArrayList<Cell>;
+        patternCells  = new ArrayList<Cell>();
+        candidateCells = new ArrayList<Cell>();
     }
     // --------------------------------------------------------
     // copy constructor
@@ -288,7 +294,7 @@ class Grid {
         return false;
     }
     // --------------------------------------------------------
-    void initSingleSeed() {
+    void initDlaSingleSeed() {
         clear();
         
         int row = floor(nRows/2);
@@ -298,6 +304,19 @@ class Grid {
         lastCol = col;
         
         grid[row][col].status = 1; // FILLED
+    }
+    // --------------------------------------------------------
+    void initDbmSingleSeed() {
+        clear();
+        
+        int row = floor(nRows/2);
+        int col = floor(nCols/2);
+        
+        lastRow = row;
+        lastCol = col;
+        
+        grid[row][col].status = 1; // FILLED
+        patternCells.add(grid[row][col]);
     }
     // --------------------------------------------------------
     void display () {
@@ -373,6 +392,10 @@ class Cell {
         return outStr;
     }
     // --------------------------------------------------------
+    float getDist(int row, int col) {
+        return dist((float)getRow(), (float)getCol(), (float)row, (float)col);
+    }
+    // --------------------------------------------------------
 }
 // =========================================================
 void keyPressed() {
@@ -386,40 +409,44 @@ void keyPressed() {
             break;
         }
         case '1': {
-            grid.initSingleSeed();
+            grid.initDlaSingleSeed();
             sf  = 1.0;
             runningDla = true;
             break;
         }
         case '2': {
-            grid.initSingleSeed();
+            grid.initDlaSingleSeed();
             sf  = 0.1;
             runningDla = true;
             break;
         }
         case '3': {
-            grid.initSingleSeed();
+            grid.initDlaSingleSeed();
             sf  = 0.01;
             runningDla = true;
             break;
         }
         case '4': {
-            grid.initSingleSeed();
+            grid.initDlaSingleSeed();
+            eta = 0;
             runningDla = false;
             break;
         }
         case '5': {
-            grid.initSingleSeed();
+            grid.initDlaSingleSeed();
+            eta = 3;
             runningDla = false;
             break;
         }
         case '6': {
-            grid.initSingleSeed();
+            grid.initDlaSingleSeed();
+            eta = 6;
             runningDla = false;
             break;
         }
         case '0': {
-            grid.initSingleSeed();
+            grid.initDlaSingleSeed();
+            sf  = 0.3;
             runningDla = true;
             break;
         }
@@ -461,7 +488,7 @@ void displayInfo() {
     controlText[5]  = "4:     DBM, eta = 0";
     controlText[6]  = "5:     DBM, eta = 3";
     controlText[7]  = "6:     DBM, eta = 6";
-    controlText[8]  = "0:     Custom (seed pattern, sf = XX)";
+    controlText[8]  = "0:     DLA (custom pattern, sf = XX)";
     
     infoText[0] = "Grid size:       " + nRows + " x " + nCols + " cells";
     infoText[1] = "Cell size:       " + cellSize + " pixels";
