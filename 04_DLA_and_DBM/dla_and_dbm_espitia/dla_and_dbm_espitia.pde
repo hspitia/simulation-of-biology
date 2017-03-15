@@ -19,7 +19,7 @@ int infoPanelWidth    = 300;
 int infoPanelHeight   = canvasSize;
 
 // Grid variables
-int cellSize = 2;
+int cellSize = 3;
 int nCols    = floor(canvasSize/cellSize);
 int nRows    = floor(canvasSize/cellSize);
 
