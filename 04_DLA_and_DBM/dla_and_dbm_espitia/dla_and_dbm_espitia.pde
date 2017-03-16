@@ -64,6 +64,7 @@ void setup() {
     
     grid.initDlaSingleSeed();
     testArrayListRefs();
+    testNeighbors();
 }
 // =========================================================
 void draw() {
@@ -76,73 +77,6 @@ void draw() {
     }
     
 }
-
-// =========================================================
-void testArrayListRefs() {
-    int nCells = 5;
-    Cell[] cells = new Cell[nCells];
-    
-    for (int i = 0; i < nCells; ++i) {
-        cells[i] = new Cell(i*cellSize, 0, cellSize, cellSize, 0, 0);
-    }
-    println("cells: ");
-    for (Cell c : cells) {
-        println("c: "+c);
-    }
-    
-    ArrayList<Cell> cellList = new ArrayList<Cell>();
-    
-    for (Cell c : cells) {
-        cellList.add(c);
-    }
-    
-    println("\ncellList: ");
-    for (Cell c : cellList) {
-        println("c: "+c);
-    }
-    
-    println("\nModifying cells:");
-    cells[1].status = 1;
-    cells[2].status = 1;
-    for (Cell c : cells) {
-        println("c: "+c);
-    }
-    
-    println("\ncellList: ");
-    for (Cell c : cellList) {
-        println("c: "+c);
-    }
-    
-    println("\nModifying cellList:");
-    cellList.remove(0);
-    println("cells: ");
-    for (Cell c : cells) {
-        println("c: "+c);
-    }
-    println("\ncellList: ");
-    for (Cell c : cellList) {
-        println("c: "+c);
-    }
-    
-    println("\nModifying cells:");
-    cells[0].status = 1;
-    cells[4].status = 1;
-    for (Cell c : cells) {
-        println("c: "+c);
-    }
-    
-    println("\ncellList: ");
-    for (Cell c : cellList) {
-        println("c: "+c);
-    }
-    
-    // distances
-    for (Cell c : cells) {
-        println("dist: " + cells[0].getDist(c.getRow(), c.getCol()));
-    }
-    
-}
-
 // =========================================================
 void runStep() {
 }
@@ -218,6 +152,24 @@ class Grid {
             return true;
         
         return false;
+    }
+    // --------------------------------------------------------
+    private ArrayList<Integer> getRowNeighbor(int pos) {
+        ArrayList<Integer> neighbors = new ArrayList<Integer>();
+        if (pos-1 >= 0) neighbors.add(pos-1);
+        neighbors.add(pos);
+        if (pos+1 <= rows-1) neighbors.add(pos+1);
+        
+        return neighbors;
+    }
+    // --------------------------------------------------------
+    private ArrayList<Integer> getColNeighbor(int pos) {
+        ArrayList<Integer> neighbors = new ArrayList<Integer>();
+        if (pos-1 >= 0) neighbors.add(pos-1);
+        neighbors.add(pos);
+        if (pos+1 <= cols-1) neighbors.add(pos+1);
+        
+        return neighbors;
     }
     // --------------------------------------------------------
     private int[] getRowNeighbors(int row) {
@@ -315,8 +267,24 @@ class Grid {
         lastRow = row;
         lastCol = col;
         
-        grid[row][col].status = 1; // FILLED
+        // grid[row][col].status = 1; // FILLED
+        // patternCells.add(grid[row][col]);
+        fillCell(row, col);
+    }
+    // --------------------------------------------------------
+    void fillCell(int row, int col) {
+        grid[row][col].status = 1;
         patternCells.add(grid[row][col]);
+        
+        ArrayList<Integer> rowNeighbors = getRowNeighbor(row);
+        ArrayList<Integer> colNeighbors = getColNeighbor(col);
+        
+        for (int r : rowNeighbors) {
+            for (int c : colNeighbors) {
+                grid[r][c].status = 2; // CANDIDATE
+                candidateCells.add(grid[r][c]);
+            }
+        }
     }
     // --------------------------------------------------------
     void display () {
@@ -532,4 +500,152 @@ void displayInfo() {
     // String coordinates = "(row,col): (" + yPos + "," + xPos + ")";
     // textY += 20;
     // text(coordinates, textX, textY);
+}
+// =========================================================
+void testNeighbors () {
+    int row = 0;
+    int col = 0;
+    ArrayList<Integer> rN = grid.getRowNeighbor(row);
+    ArrayList<Integer> cN = grid.getColNeighbor(col);
+    printNeighbors(rN, cN);
+    println("");
+    
+    row = 0;
+    col = 4;
+    rN = grid.getRowNeighbor(row);
+    cN = grid.getColNeighbor(col);
+    printNeighbors(rN, cN);
+    println("");
+    
+    row = 0;
+    col = nCols-1;
+    rN = grid.getRowNeighbor(row);
+    cN = grid.getColNeighbor(col);
+    printNeighbors(rN, cN);
+    println("");
+    
+    row = 4;
+    col = nCols-1;
+    rN = grid.getRowNeighbor(row);
+    cN = grid.getColNeighbor(col);
+    printNeighbors(rN, cN);
+    println("");
+    
+    row = nRows-1;
+    col = nCols-1;
+    rN = grid.getRowNeighbor(row);
+    cN = grid.getColNeighbor(col);
+    printNeighbors(rN, cN);
+    println("");
+    
+    
+    row = nRows-1;
+    col = 4;
+    rN = grid.getRowNeighbor(row);
+    cN = grid.getColNeighbor(col);
+    printNeighbors(rN, cN);
+    println("");
+    
+    
+    row = nRows-1;
+    col = 0;
+    rN = grid.getRowNeighbor(row);
+    cN = grid.getColNeighbor(col);
+    printNeighbors(rN, cN);
+    println("");
+    
+    row = 4;
+    col = 0;
+    rN = grid.getRowNeighbor(row);
+    cN = grid.getColNeighbor(col);
+    printNeighbors(rN, cN);
+    println("");
+    
+    row = 4;
+    col = 4;
+    rN = grid.getRowNeighbor(row);
+    cN = grid.getColNeighbor(col);
+    printNeighbors(rN, cN);
+    println("");
+    // for (int r : rN) {
+    //     for (int c : cN) {
+    //         print(r + ","+ c + "  ");
+    //     }
+    //     println("");
+    // }
+    
+}
+// =========================================================
+void printNeighbors(ArrayList<Integer> rowN, ArrayList<Integer> colN) {
+    for (int r : rowN) {
+        for (int c : colN) {
+            print(r + ","+ c + "  ");
+        }
+        println("");
+    }
+}
+// =========================================================
+void testArrayListRefs() {
+    int nCells = 5;
+    Cell[] cells = new Cell[nCells];
+    
+    for (int i = 0; i < nCells; ++i) {
+        cells[i] = new Cell(i*cellSize, 0, cellSize, cellSize, 0, 0);
+    }
+    println("cells: ");
+    for (Cell c : cells) {
+        println("c: "+c);
+    }
+    
+    ArrayList<Cell> cellList = new ArrayList<Cell>();
+    
+    for (Cell c : cells) {
+        cellList.add(c);
+    }
+    
+    println("\ncellList: ");
+    for (Cell c : cellList) {
+        println("c: "+c);
+    }
+    
+    println("\nModifying cells:");
+    cells[1].status = 1;
+    cells[2].status = 1;
+    for (Cell c : cells) {
+        println("c: "+c);
+    }
+    
+    println("\ncellList: ");
+    for (Cell c : cellList) {
+        println("c: "+c);
+    }
+    
+    println("\nModifying cellList:");
+    cellList.remove(0);
+    println("cells: ");
+    for (Cell c : cells) {
+        println("c: "+c);
+    }
+    println("\ncellList: ");
+    for (Cell c : cellList) {
+        println("c: "+c);
+    }
+    
+    println("\nModifying cells:");
+    cells[0].status = 1;
+    cells[4].status = 1;
+    for (Cell c : cells) {
+        println("c: "+c);
+    }
+    
+    println("\ncellList: ");
+    for (Cell c : cellList) {
+        println("c: "+c);
+    }
+    
+    // distances
+    for (Cell c : cells) {
+        println("dist: " + cells[0].getDist(c.getRow(), c.getCol()));
+    }
+    
 }
