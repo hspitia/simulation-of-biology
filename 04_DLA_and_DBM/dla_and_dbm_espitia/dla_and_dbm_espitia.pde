@@ -53,10 +53,14 @@ float eta = 0;
 int externalMargin = (int)(nRows/3);
 PVector lastOrigin;
 
+int nIterations = 5000;
+int counter = 0;
+
 // =========================================================
 void setup() {
     size(900, 600);
-    grid = new Grid(nRows, nCols, cellSize);
+    frameRate(6000);
+    grid = new Grid(nRows, nCols, cellSize, eta);
     
     myFont      = createFont("Ubuntu Mono", 14);
     myFontBold  = createFont("Ubuntu Bold", 14);
@@ -64,7 +68,8 @@ void setup() {
     
     grid.initDlaSingleSeed();
     testArrayListRefs();
-    testNeighbors();
+    // testNeighbors();
+    counter = 0;
 }
 // =========================================================
 void draw() {
@@ -72,8 +77,17 @@ void draw() {
     grid.display();
     displayInfo();
     
-    if (millis() - lastTime > interval && simRunning){
-        grid.randomWalk();
+    // if (millis() - lastTime > interval && simRunning){
+    if (simRunning){
+        if (runningDla) 
+            grid.randomWalk();
+        else {
+            // if (counter++ < nIterations)
+                grid.runDBM();
+                // printArrayList(grid.candidateCells);
+                // grid.computeMaxAndMinPotential();
+                // println("maxP: "+grid.maxP+" minP: "+grid.minP);
+        }
     }
     
 }
@@ -91,10 +105,15 @@ class Grid {
     int lastCol;
     ArrayList<Cell> patternCells;
     ArrayList<Cell> candidateCells;
+    float eta;
+    float maxP       = 0.0;
+    float minP       = 0.0;
+    float phiIEtaSum = 0.0;
+    
     // --------------------------------------------------------
     // Methods
     // constructor
-    Grid(int rows, int cols, int cellSize) {
+    Grid(int rows, int cols, int cellSize, float eta) {
         this.cols     = cols;
         this.rows     = rows;
         this.cellSize = cellSize;
@@ -118,6 +137,7 @@ class Grid {
     // --------------------------------------------------------
     // copy constructor
     Grid(Grid obj) {
+        eta            = obj.eta;
         cols           = obj.cols;
         rows           = obj.rows;
         cellSize       = obj.cellSize;
@@ -231,7 +251,7 @@ class Grid {
         for (int i : rowNeighbors) {
             for (int j : colNeighbors) {
                 if (i != row || j != col) {
-                    if (isFilled(i,j))
+                    if (grid[i][j].isFilled())
                         return false;
                 } 
             }
@@ -240,10 +260,7 @@ class Grid {
     }
     // --------------------------------------------------------
     private boolean isFilled(int row, int col) {
-        if (grid[row][col].status == 1) 
-            return true;
-        
-        return false;
+        return (grid[row][col].status == 1) ;
     }
     // --------------------------------------------------------
     void initDlaSingleSeed() {
@@ -270,21 +287,140 @@ class Grid {
         // grid[row][col].status = 1; // FILLED
         // patternCells.add(grid[row][col]);
         fillCell(row, col);
+        updateNeighborsStatus(row, col);
+        println("patternCells: "+patternCells.size());
+        println("candidateCells: "+candidateCells.size());
+        
     }
     // --------------------------------------------------------
-    void fillCell(int row, int col) {
-        grid[row][col].status = 1;
-        patternCells.add(grid[row][col]);
+    void runDBM() {
+        // println("patternCells: "+patternCells.size());
+        // println("candidateCells: "+candidateCells.size());
         
+        // Select a new cell to add to the pattern
+        // int idx = int(random(candidateCells.size()));
+        int idx = selectCandidateCell();
+        // println("idx. " + idx);
+        
+        Cell newCell = candidateCells.get(idx);
+        int row      = newCell.getRow(); 
+        int col      = newCell.getCol();
+        
+        fillCell(row, col);
+        candidateCells.remove(idx); // point for improvement
+        int nCandidates = candidateCells.size();
+        updateCandidatesPotential(newCell);
+        updateNeighborsStatus(row, col);
+        
+        // Compute the electric potencial for the new candidates
+        for (int i = nCandidates; i < candidateCells.size(); ++i) {
+            Cell cCell = candidateCells.get(i);
+            cCell.ep = computeElectricPotential(cCell);
+        }
+    }
+    // --------------------------------------------------------
+    private void fillCell(int row, int col) {
+        grid[row][col].status = 1; // FILLED
+        patternCells.add(grid[row][col]);
+    }
+    // --------------------------------------------------------
+    private void updateNeighborsStatus(int row, int col) {
+        // Update neighbors' status
         ArrayList<Integer> rowNeighbors = getRowNeighbor(row);
         ArrayList<Integer> colNeighbors = getColNeighbor(col);
         
         for (int r : rowNeighbors) {
             for (int c : colNeighbors) {
-                grid[r][c].status = 2; // CANDIDATE
-                candidateCells.add(grid[r][c]);
+                // print(r+","+c+"  ");
+                if ((r != row || c != col) && grid[r][c].status != 1) {
+                        grid[r][c].status = 2; // CANDIDATE
+                        candidateCells.add(grid[r][c]);
+                    // print("*  ");
+                }
+            }
+            // println("");
+        }
+        
+        // Turn back the original status (filled) of the current 
+        // cell (to avoid verifications at the previous loop)
+        // grid[row][col].status = 1; // FILLED
+    }
+    // --------------------------------------------------------
+    private float computeElectricPotential(Cell cell) {
+        float potential = 0;
+        // float r0        = (float)cellSize/2;
+        float r0        = 1.0;
+        
+        for (Cell pCell : patternCells) {
+            potential += (1 - (r0 / cell.distTo(pCell)));
+        }
+        
+        return potential;
+    }
+    // --------------------------------------------------------
+    private void updateCandidatesPotential(Cell newPatternCell) {
+        float r0 = (float)cellSize/2;
+        
+        for (Cell cCell : candidateCells) {
+            cCell.ep = cCell.ep + (1 - (r0/cCell.distTo(newPatternCell)));
+        }
+    }
+    // --------------------------------------------------------
+    private void computeMaxAndMinPotential() {
+        maxP = candidateCells.get(0).ep;
+        minP = candidateCells.get(0).ep;
+        
+        for (int i = 1; i < candidateCells.size(); ++i) {
+            Cell cCell = candidateCells.get(i);
+            if (maxP < cCell.ep) 
+                maxP = cCell.ep;
+            
+            if (minP > cCell.ep)
+                minP = cCell.ep;
+        }
+    }
+    // --------------------------------------------------------
+    private void computeCandidatesPhiIEta() {
+        computeMaxAndMinPotential();
+        phiIEtaSum = 0.0;
+        for (Cell cCell : candidateCells) {
+            float phiI    = (cCell.ep - minP) / (maxP - minP);
+            cCell.phiIEta = pow(phiI, eta);
+            phiIEtaSum    += cCell.phiIEta;
+        }
+    }
+    // --------------------------------------------------------
+    private void computeCandidatesProb() {
+        for (Cell cCell : candidateCells) {
+            cCell.pI = cCell.phiIEta/phiIEtaSum;
+        }
+    }
+    // --------------------------------------------------------
+    private void computeCadidatePartialSumI() {
+        float sum = 0.0;
+        for (Cell cCell : candidateCells) {
+            sum += cCell.pI;
+            cCell.partialSumI = sum;
+        }
+    }
+    // --------------------------------------------------------
+    private int selectCandidateCell() {
+        
+        computeCandidatesPhiIEta();
+        computeCandidatesProb();
+        computeCadidatePartialSumI();
+        
+        float lastPartialSumI = candidateCells.get(candidateCells.size()-1).partialSumI;
+        float r = random(lastPartialSumI);
+        int idx = -1;
+        for (int i = 0; i < candidateCells.size(); ++i) {
+            if (r < candidateCells.get(i).partialSumI) {
+                idx = i;
+                break;
             }
         }
+        
+        return idx;
     }
     // --------------------------------------------------------
     void display () {
@@ -311,26 +447,35 @@ class Cell {
     float w, h;
     int status;
     float ep;
+    float phiIEta;
+    float pI;
+    float partialSumI;
     
     // --------------------------------------------------------
     // Methods
     // constructor
     Cell(float x, float y, float w, float h, int status, float ep) {
-        this.x      = x;
-        this.y      = y;
-        this.w      = w;
-        this.h      = h;
-        this.status = status;
-        this.ep     = ep;
+        this.x           = x;
+        this.y           = y;
+        this.w           = w;
+        this.h           = h;
+        this.status      = status;
+        this.ep          = ep;
+        this.phiIEta     = 0;
+        this.pI          = 0;
+        this.partialSumI = 0;
     }
     // --------------------------------------------------------
     Cell(Cell obj) {
-        this.x      = obj.x;
-        this.y      = obj.y;
-        this.w      = obj.w;
-        this.h      = obj.h;
-        this.status = obj.status;
-        this.ep     = obj.ep;
+        this.x           = obj.x;
+        this.y           = obj.y;
+        this.w           = obj.w;
+        this.h           = obj.h;
+        this.status      = obj.status;
+        this.ep          = obj.ep;
+        this.phiIEta     = obj.phiIEta;
+        this.pI          = obj.pI;
+        this.partialSumI = obj.partialSumI;
     }
     // --------------------------------------------------------
     void display() {
@@ -341,6 +486,10 @@ class Cell {
         if (status == 1) currentColor = filledCellColor;
         fill(currentColor);
         rect(x, y, w, h); 
+    }
+    // --------------------------------------------------------
+    boolean isFilled() {
+        return (status == 1);
     }
     // --------------------------------------------------------
     PVector getPosition(){
@@ -360,9 +509,15 @@ class Cell {
         return outStr;
     }
     // --------------------------------------------------------
-    float getDist(int row, int col) {
-        return dist((float)getRow(), (float)getCol(), (float)row, (float)col);
+    float distTo(Cell obj) {
+        // return dist((float)getRow(), (float)getCol(), 
+                    // (float)obj.getRow(), (float)obj.getCol());
+        return dist(x, y, obj.x, obj.y);
     }
+    // --------------------------------------------------------
+    // float distTo(int row, int col) {
+    //     return dist((float)getRow(), (float)getCol(), (float)row, (float)col);
+    // }
     // --------------------------------------------------------
 }
 // =========================================================
@@ -395,20 +550,23 @@ void keyPressed() {
             break;
         }
         case '4': {
-            grid.initDlaSingleSeed();
-            eta = 0;
+            grid.initDbmSingleSeed();
+            grid.eta = 0;
+            // eta = 0;
             runningDla = false;
             break;
         }
         case '5': {
-            grid.initDlaSingleSeed();
-            eta = 3;
+            grid.initDbmSingleSeed();
+            grid.eta = 3;
+            // eta = 3;
             runningDla = false;
             break;
         }
         case '6': {
-            grid.initDlaSingleSeed();
-            eta = 6;
+            grid.initDbmSingleSeed();
+            grid.eta = 6;
+            // eta = 6;
             runningDla = false;
             break;
         }
@@ -576,6 +734,13 @@ void testNeighbors () {
     
 }
 // =========================================================
+void printArrayList(ArrayList<Cell> list) {
+    for (Cell c : list) {
+        print(c.ep + " ");
+    }
+    println("");
+}
+// =========================================================
 void printNeighbors(ArrayList<Integer> rowN, ArrayList<Integer> colN) {
     for (int r : rowN) {
         for (int c : colN) {
@@ -645,7 +810,7 @@ void testArrayListRefs() {
     
     // distances
     for (Cell c : cells) {
-        println("dist: " + cells[0].getDist(c.getRow(), c.getCol()));
+        println("dist: " + cells[0].distTo(c));
     }
     
 }
