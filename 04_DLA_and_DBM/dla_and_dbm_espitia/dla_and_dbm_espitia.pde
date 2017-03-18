@@ -12,23 +12,17 @@
 // ==========================================================
 // Global variables
 Grid grid;
-// Grid tmpGrid;
-
-
-// int canvasSize        = nCols*cellSize;
 int canvasSize        = 600;
 int infoPanelWidth    = 300;
 int infoPanelHeight   = canvasSize;
 
 // Grid variables
-int cellSize = 10;
+int cellSize = 2;
 int nCols    = floor(canvasSize/cellSize);
 int nRows    = floor(canvasSize/cellSize);
 
-
-
-
-color infoPanelColor  = #001A31;
+// Color variables
+color infoPanelColor  = #001A31; 
 color titleColor      = #FF9D00;
 color textColor       = #E2E2E2;
 color backgroundColor = #444444;
@@ -38,31 +32,33 @@ color filledCellColor = #FF9D00;
 // color filledCellColor = #00686F;
 color pathCellColor   = #21331D;
 
+// Fonts
 PFont myFont;
 PFont myFontBold;
 PFont myTitleFont;
 
+// Sim speed variables
 int lastTime       = 0;
 int interval       = 1;
+
 // flags
 boolean singleStep = true;
 boolean simRunning = false;
 boolean runningDla = true;
 
 // Simulation values
-float sf  = 1;
-float eta = 0;
+float sf       = 1;
+float customSf = 0.7;
+float eta      = 0;
 
 int externalMargin = (int)(nRows/3);
-PVector lastOrigin;
 
-// Debug variables
-int nIterations = 8;
-int counter     = 0;
-
-
+// // Debug variables
+// int nIterations = 8;
+// int counter     = 0;
 String xPos = "";
 String yPos = "";
+
 // =========================================================
 void setup() {
     size(900, 600);
@@ -74,9 +70,7 @@ void setup() {
     myTitleFont = createFont("Ubuntu Bold", 18);
     
     grid.initDlaSingleSeed();
-    // testArrayListRefs();
-    // testNeighbors();
-    counter = 0;
+    // counter = 0;
 }
 // =========================================================
 void draw() {
@@ -89,13 +83,10 @@ void draw() {
         if (runningDla) 
             grid.runDLA();
         else {
-            // if (counter++ < nIterations){
-                // println("counter: "+counter);
-                grid.runDBM();
-            // }
-                // printArrayList(grid.candidateCells);
-                // grid.computeMaxAndMinPotential();
-                // println("maxP: "+grid.maxP+" minP: "+grid.minP);
+            grid.runDBM();
+            // printArrayList(grid.candidateCells);
+            // grid.computeMaxAndMinPotential();
+            // println("maxP: "+grid.maxP+" minP: "+grid.minP);
         }
     }
     
@@ -120,20 +111,17 @@ void updateCellCoordInfo() {
         int col = (int)pos.y;
         xPos = "" + col;
         yPos = "" + row;
-        // xPos = "" + mouseX;
-        // yPos = "" + mouseY;
     }
 }
 // =========================================================
 void mousePressed() {
-    // PVector current = grid.getCellUnderMouse(mouseX, mouseY);
     PVector current = getCellUnderMouse(mouseX, mouseY);
     int row = int(current.x);
     int col = int(current.y);
     if(runningDla) {
-        if (grid.grid[row][col].status == 0) 
+        if (!grid.grid[row][col].isFilled()) 
             grid.grid[row][col].status = 1;
-        else if (grid.grid[row][col].status == 1) 
+        else if (grid.grid[row][col].isFilled())
             grid.grid[row][col].status = 0;
     }
 }
@@ -144,8 +132,6 @@ class Grid {
     int rows;
     int cellSize;
     Cell[][] grid;
-    // int lastRow;
-    // int lastCol;
     ArrayList<Cell> patternCells;
     ArrayList<Cell> candidateCells;
     float eta;
@@ -190,7 +176,6 @@ class Grid {
         cellSize       = obj.cellSize;
         grid           = new Cell[rows][cols];
         
-        
         for (int i = 0; i < rows; ++i) {
             for (int j = 0; j < cols; ++j) {
                 grid[i][j] = new Cell(obj.grid[i][j]);
@@ -206,9 +191,6 @@ class Grid {
             col = floor(random(nCols));
         } while(isFilled(row, col));
         // } while(isFilled(row, col) || isNear(row, col));
-        
-        // lastRow = row;
-        // lastCol = col;
         
         return new PVector(col,row);
     }
@@ -316,10 +298,28 @@ class Grid {
         int row = floor(nRows/2);
         int col = floor(nCols/2);
         
-        // lastRow = row;
-        // lastCol = col;
-        
         grid[row][col].status = 1; // FILLED
+    }
+    // --------------------------------------------------------
+    void initDlaPatternSeed(int size) {
+        clear();
+        
+        int row    = floor(nRows/2);
+        int col    = floor(nCols/2);
+        int rStart = row - size;
+        int rEnd   = row + size;
+        int cStart = col - size;
+        int cEnd   = col + size;
+        
+        grid[row][col].status = 1;
+        
+        for (int i = 0; i < size; ++i) {
+            grid[rStart+i][cStart+i].status = 1;
+            grid[rStart+i][cEnd-i].status   = 1;
+            grid[rEnd-i][cStart+i].status   = 1;
+            grid[rEnd-i][cEnd-i].status     = 1;
+        }
+                
     }
     // --------------------------------------------------------
     void initDbmSingleSeed() {
@@ -331,12 +331,7 @@ class Grid {
         int row = floor(nRows/2);
         int col = floor(nCols/2);
         
-        // lastRow = row;
-        // lastCol = col;
-        
-        // fillCell(row, col);
         fillCell(grid[row][col]);
-        // updateNeighborsStatus(row, col);
         updateNeighborsStatus(grid[row][col]);
         updateCandidatesPotential(grid[row][col]);
         
@@ -348,9 +343,6 @@ class Grid {
     }
     // --------------------------------------------------------
     void runDBM() {
-        // println("patternCells: "+patternCells.size());
-        // println("candidateCells: "+candidateCells.size());
-        
         // Select a new cell to add to the pattern
         // int idx = int(random(candidateCells.size()));
         int idx      = selectCandidateCell();
@@ -380,11 +372,6 @@ class Grid {
         // println("idx. " + idx);
         
     }
-    // // --------------------------------------------------------
-    // private void fillCell(int row, int col) {
-    //     grid[row][col].status = 1; // FILLED
-    //     patternCells.add(grid[row][col]);
-    // }
     // --------------------------------------------------------
     private void fillCell(Cell cell) {
         cell.status = 1; // FILLED
@@ -401,14 +388,11 @@ class Grid {
         
         for (int r : rowNeighbors) {
             for (int c : colNeighbors) {
-                // print(r+","+c+"  ");
                 if ((r != row || c != col) && grid[r][c].status == 0) {
                         grid[r][c].status = 2; // CANDIDATE
                         candidateCells.add(grid[r][c]);
-                    // print("*  ");
                 }
             }
-            // println("");
         }
     }
     // --------------------------------------------------------
@@ -548,8 +532,8 @@ class Cell {
     }
     // --------------------------------------------------------
     void display() {
-        stroke(strokeColor);
-        // noStroke();
+        // stroke(strokeColor);
+        noStroke();
         color currentColor = emptyCellColor;
         // if (status == 2) currentColor = pathCellColor; //
         if (status == 1) currentColor = filledCellColor;
@@ -584,8 +568,6 @@ class Cell {
     }
     // --------------------------------------------------------
     float distTo(Cell obj) {
-        // return dist((float)getRow(), (float)getCol(), 
-                    // (float)obj.getRow(), (float)obj.getCol());
         return dist(x, y, obj.x, obj.y);
     }
     // --------------------------------------------------------
@@ -622,27 +604,27 @@ void keyPressed() {
         case '4': {
             grid.initDbmSingleSeed();
             grid.eta   = 0;
-            counter    = 0;
+            // counter    = 0;
             runningDla = false;
             break;
         }
         case '5': {
             grid.initDbmSingleSeed();
             grid.eta   = 3;
-            counter    = 0;
+            // counter    = 0;
             runningDla = false;
             break;
         }
         case '6': {
             grid.initDbmSingleSeed();
             grid.eta   = 6;
-            counter    = 0;
+            // counter    = 0;
             runningDla = false;
             break;
         }
         case '0': {
-            grid.initDlaSingleSeed();
-            grid.sf    = 0.7;
+            grid.initDlaPatternSeed(15);
+            grid.sf    = customSf;
             runningDla = true;
             break;
         }
@@ -668,14 +650,13 @@ void displayInfo() {
     noStroke();
     fill(infoPanelColor);
     rect(canvasSize, 0, infoPanelWidth, infoPanelHeight);
-    updateCellCoordInfo();
+    // updateCellCoordInfo();
     
     int nControlText = 8;
     int nInfoText    = 4;
     
     String[] controlText = new String[nControlText];
     String[] infoText    = new String[nInfoText];
-    // String[] values      = new String[5];
     
     controlText[0]  = "Space: Start/Stop growth";
     controlText[1]  = "1:     DLA, sticking factor = 1";
@@ -684,21 +665,12 @@ void displayInfo() {
     controlText[4]  = "4:     DBM, eta = 0";
     controlText[5]  = "5:     DBM, eta = 3";
     controlText[6]  = "6:     DBM, eta = 6";
-    controlText[7]  = "0:     DLA (custom pattern, sf = 0.8)";
+    controlText[7]  = "0:     DLA, custom pattern, sf = " + customSf;
     
     infoText[0] = "Grid size:       " + nRows + " x " + nCols + " cells";
     infoText[1] = "Cell size:       " + cellSize + " pixels";
     infoText[2] = "Mode:            " + ((runningDla) ? "DLA" : "DBM");
     infoText[3] = ((runningDla) ? "Sticking Factor: " + grid.sf : "eta:             " + grid.eta);
-    
-    // String algorithmParam = ((runningDla) ? "Sticking Factor: " + sf : "eta:             " + eta);
-    
-    // infoText[3] = "Sticking Factor: " + sf;
-    
-    // infoText[4] = "Pattern:          " + currentPattern;
-    // infoText[5] = "Params mode:      " + ((constantParams) ? "Constant" : "Spatially-Varying");
-    // infoText[6] = "Drawing:          " + ((drawU) ? "U" : "V");
-    // infoText[7] = "dt:               " + dt;
     
     int marginX = canvasSize + 15;
     int marginY = 30;
@@ -730,10 +702,26 @@ void displayInfo() {
         text(infoText[i], textX, textY);
     }
     
-    String coordinates = "(row,col): (" + yPos + "," + xPos + ")";
-    textY += 20;
-    text(coordinates, textX, textY);
+    // String coordinates = "(row,col): (" + yPos + "," + xPos + ")";
+    // textY += 20;
+    // text(coordinates, textX, textY);
 }
+// =========================================================
+void printArrayList(ArrayList<Cell> list) {
+    for (int i = 0; i < list.size(); ++i) {
+        println(i+1 + " - " + list.get(i));
+    }
+    println("---");
+}
+// // =========================================================
+// void printNeighbors(ArrayList<Integer> rowN, ArrayList<Integer> colN) {
+//     for (int r : rowN) {
+//         for (int c : colN) {
+//             print(r + ","+ c + "  ");
+//         }
+//         println("");
+//     }
+// }
 // =========================================================
 // void testNeighbors () {
 //     int row = 0;
@@ -806,29 +794,6 @@ void displayInfo() {
 //     //     }
 //     //     println("");
 //     // }
-    
-// }
-// =========================================================
-void printArrayList(ArrayList<Cell> list) {
-    // for (Cell c : list) {
-    //     // print(c.ep + " ");
-    //     println(c);
-    // }
-    
-    for (int i = 0; i < list.size(); ++i) {
-        println(i+1 + " - " + list.get(i));
-    }
-    
-    println("---");
-}
-// // =========================================================
-// void printNeighbors(ArrayList<Integer> rowN, ArrayList<Integer> colN) {
-//     for (int r : rowN) {
-//         for (int c : colN) {
-//             print(r + ","+ c + "  ");
-//         }
-//         println("");
-//     }
 // }
 // // =========================================================
 // void testArrayListRefs() {
@@ -893,5 +858,4 @@ void printArrayList(ArrayList<Cell> list) {
 //     for (Cell c : cells) {
 //         println("dist: " + cells[0].distTo(c));
 //     }
-    
 // }
