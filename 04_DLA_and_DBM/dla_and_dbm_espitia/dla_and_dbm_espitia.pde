@@ -1,5 +1,7 @@
 // ==========================================================
-// Decription:  This program recreates Conways's Game of Life
+// Decription:  This program recreates the Diffusion Limited 
+//              Aggregation (DLA) and the Dielectric 
+//              Breakdown Model algorithms.
 // 
 // Author:      Hector Fabio Espitia Navarro
 // Version:     1.0
@@ -19,7 +21,7 @@ int infoPanelWidth    = 300;
 int infoPanelHeight   = canvasSize;
 
 // Grid variables
-int cellSize = 2;
+int cellSize = 10;
 int nCols    = floor(canvasSize/cellSize);
 int nRows    = floor(canvasSize/cellSize);
 
@@ -32,8 +34,8 @@ color textColor       = #E2E2E2;
 color backgroundColor = #444444;
 color strokeColor     = #333333;
 color emptyCellColor  = #222222;
-// color filledCellColor = #FF9D00;
-color filledCellColor = #00686F;
+color filledCellColor = #FF9D00;
+// color filledCellColor = #00686F;
 color pathCellColor   = #21331D;
 
 PFont myFont;
@@ -46,6 +48,7 @@ int interval       = 1;
 boolean singleStep = true;
 boolean simRunning = false;
 boolean runningDla = true;
+
 // Simulation values
 float sf  = 1;
 float eta = 0;
@@ -53,21 +56,25 @@ float eta = 0;
 int externalMargin = (int)(nRows/3);
 PVector lastOrigin;
 
-int nIterations = 500;
-int counter = 0;
+// Debug variables
+int nIterations = 8;
+int counter     = 0;
 
+
+String xPos = "";
+String yPos = "";
 // =========================================================
 void setup() {
     size(900, 600);
-    frameRate(6000);
-    grid = new Grid(nRows, nCols, cellSize, eta);
+    // frameRate(6000);
+    grid = new Grid(nRows, nCols, cellSize, eta, sf);
     
     myFont      = createFont("Ubuntu Mono", 14);
     myFontBold  = createFont("Ubuntu Bold", 14);
     myTitleFont = createFont("Ubuntu Bold", 18);
     
     grid.initDlaSingleSeed();
-    testArrayListRefs();
+    // testArrayListRefs();
     // testNeighbors();
     counter = 0;
 }
@@ -80,12 +87,11 @@ void draw() {
     // if (millis() - lastTime > interval && simRunning){
     if (simRunning){
         if (runningDla) 
-            grid.randomWalk();
+            grid.runDLA();
         else {
             // if (counter++ < nIterations){
                 // println("counter: "+counter);
                 grid.runDBM();
-                
             // }
                 // printArrayList(grid.candidateCells);
                 // grid.computeMaxAndMinPotential();
@@ -95,7 +101,41 @@ void draw() {
     
 }
 // =========================================================
-void runStep() {
+PVector getCellUnderMouse(int x, int y) {
+    int col = nCols-1;
+    int row = nRows-1;
+    
+    if (mouseX < canvasSize && mouseY < canvasSize) {
+        col = (int)x/cellSize;
+        row = (int)y/cellSize;
+    }
+    
+    return (new PVector(row, col));
+}
+// =========================================================
+void updateCellCoordInfo() {
+    if (mouseX < canvasSize && mouseY < canvasSize) {
+        PVector pos = getCellUnderMouse(mouseX, mouseY);
+        int row = (int)pos.x;
+        int col = (int)pos.y;
+        xPos = "" + col;
+        yPos = "" + row;
+        // xPos = "" + mouseX;
+        // yPos = "" + mouseY;
+    }
+}
+// =========================================================
+void mousePressed() {
+    // PVector current = grid.getCellUnderMouse(mouseX, mouseY);
+    PVector current = getCellUnderMouse(mouseX, mouseY);
+    int row = int(current.x);
+    int col = int(current.y);
+    if(runningDla) {
+        if (grid.grid[row][col].status == 0) 
+            grid.grid[row][col].status = 1;
+        else if (grid.grid[row][col].status == 1) 
+            grid.grid[row][col].status = 0;
+    }
 }
 // =========================================================
 class Grid {
@@ -104,11 +144,12 @@ class Grid {
     int rows;
     int cellSize;
     Cell[][] grid;
-    int lastRow;
-    int lastCol;
+    // int lastRow;
+    // int lastCol;
     ArrayList<Cell> patternCells;
     ArrayList<Cell> candidateCells;
     float eta;
+    float sf;
     float maxP       = 0.0;
     float minP       = 0.0;
     float phiIEtaSum = 0.0;
@@ -116,10 +157,12 @@ class Grid {
     // --------------------------------------------------------
     // Methods
     // constructor
-    Grid(int rows, int cols, int cellSize, float eta) {
+    Grid(int rows, int cols, int cellSize, float eta, float sf) {
         this.cols     = cols;
         this.rows     = rows;
         this.cellSize = cellSize;
+        this.sf       = sf;
+        this.eta      = eta;
         
         grid = new Cell[this.rows][this.cols];
         
@@ -134,12 +177,13 @@ class Grid {
             }
         }
         
-        patternCells  = new ArrayList<Cell>();
+        patternCells   = new ArrayList<Cell>();
         candidateCells = new ArrayList<Cell>();
     }
     // --------------------------------------------------------
     // copy constructor
     Grid(Grid obj) {
+        sf             = obj.sf;
         eta            = obj.eta;
         cols           = obj.cols;
         rows           = obj.rows;
@@ -163,8 +207,8 @@ class Grid {
         } while(isFilled(row, col));
         // } while(isFilled(row, col) || isNear(row, col));
         
-        lastRow = row;
-        lastCol = col;
+        // lastRow = row;
+        // lastCol = col;
         
         return new PVector(col,row);
     }
@@ -217,7 +261,7 @@ class Grid {
         return neighborCols;
     }
     // --------------------------------------------------------
-    void randomWalk() {
+    void runDLA() {
         PVector initPos     = getRandomPosition();
         int row             = (int)initPos.y;
         int col             = (int)initPos.x;
@@ -272,8 +316,8 @@ class Grid {
         int row = floor(nRows/2);
         int col = floor(nCols/2);
         
-        lastRow = row;
-        lastCol = col;
+        // lastRow = row;
+        // lastCol = col;
         
         grid[row][col].status = 1; // FILLED
     }
@@ -287,13 +331,13 @@ class Grid {
         int row = floor(nRows/2);
         int col = floor(nCols/2);
         
-        lastRow = row;
-        lastCol = col;
+        // lastRow = row;
+        // lastCol = col;
         
-        // grid[row][col].status = 1; // FILLED
-        // patternCells.add(grid[row][col]);
-        fillCell(row, col);
-        updateNeighborsStatus(row, col);
+        // fillCell(row, col);
+        fillCell(grid[row][col]);
+        // updateNeighborsStatus(row, col);
+        updateNeighborsStatus(grid[row][col]);
         updateCandidatesPotential(grid[row][col]);
         
         // println("candidateCells: ");
@@ -309,17 +353,19 @@ class Grid {
         
         // Select a new cell to add to the pattern
         // int idx = int(random(candidateCells.size()));
-        int idx = selectCandidateCell();
+        int idx      = selectCandidateCell();
         
         Cell newCell = candidateCells.get(idx);
         int row      = newCell.getRow(); 
         int col      = newCell.getCol();
         
-        fillCell(row, col);
+        // fillCell(row, col);
+        fillCell(newCell);
         candidateCells.remove(idx); // point for improvement
         int nCandidates = candidateCells.size();
         updateCandidatesPotential(newCell);
-        updateNeighborsStatus(row, col);
+        // updateNeighborsStatus(row, col);
+        updateNeighborsStatus(newCell);
         
         // Compute the electric potencial for the new candidates
         for (int i = nCandidates; i < candidateCells.size(); ++i) {
@@ -334,13 +380,21 @@ class Grid {
         // println("idx. " + idx);
         
     }
+    // // --------------------------------------------------------
+    // private void fillCell(int row, int col) {
+    //     grid[row][col].status = 1; // FILLED
+    //     patternCells.add(grid[row][col]);
+    // }
     // --------------------------------------------------------
-    private void fillCell(int row, int col) {
-        grid[row][col].status = 1; // FILLED
-        patternCells.add(grid[row][col]);
+    private void fillCell(Cell cell) {
+        cell.status = 1; // FILLED
+        patternCells.add(cell);
     }
     // --------------------------------------------------------
-    private void updateNeighborsStatus(int row, int col) {
+    // private void updateNeighborsStatus(int row, int col) {
+    private void updateNeighborsStatus(Cell cell) {
+        int row = cell.getRow();
+        int col = cell.getCol();
         // Update neighbors' status
         ArrayList<Integer> rowNeighbors = getRowNeighbor(row);
         ArrayList<Integer> colNeighbors = getColNeighbor(col);
@@ -356,15 +410,10 @@ class Grid {
             }
             // println("");
         }
-        
-        // Turn back the original status (filled) of the current 
-        // cell (to avoid verifications at the previous loop)
-        // grid[row][col].status = 1; // FILLED
     }
     // --------------------------------------------------------
     private float computeElectricPotential(Cell cell) {
         float potential = 0;
-        // float r0        = (float)cellSize/2;
         float r0        = 1.0;
         
         for (Cell pCell : patternCells) {
@@ -450,7 +499,11 @@ class Grid {
     void clear() {
         for (int row = 0; row < rows; ++row) {
             for (int col = 0; col < cols; ++col) {
-                grid[row][col].status = 0; // EMPTY
+                grid[row][col].status      = 0; // EMPTY
+                grid[row][col].ep          = 0;
+                grid[row][col].phiIEta     = 0;
+                grid[row][col].pI          = 0;
+                grid[row][col].partialSumI = 0;
             }
         }
     }
@@ -495,8 +548,8 @@ class Cell {
     }
     // --------------------------------------------------------
     void display() {
-        // stroke(strokeColor);
-        noStroke();
+        stroke(strokeColor);
+        // noStroke();
         color currentColor = emptyCellColor;
         // if (status == 2) currentColor = pathCellColor; //
         if (status == 1) currentColor = filledCellColor;
@@ -536,10 +589,6 @@ class Cell {
         return dist(x, y, obj.x, obj.y);
     }
     // --------------------------------------------------------
-    // float distTo(int row, int col) {
-    //     return dist((float)getRow(), (float)getCol(), (float)row, (float)col);
-    // }
-    // --------------------------------------------------------
 }
 // =========================================================
 void keyPressed() {
@@ -554,46 +603,46 @@ void keyPressed() {
         }
         case '1': {
             grid.initDlaSingleSeed();
-            sf  = 1.0;
+            grid.sf    = 1.0;
             runningDla = true;
             break;
         }
         case '2': {
             grid.initDlaSingleSeed();
-            sf  = 0.1;
+            grid.sf    = 0.1;
             runningDla = true;
             break;
         }
         case '3': {
             grid.initDlaSingleSeed();
-            sf  = 0.01;
+            grid.sf    = 0.01;
             runningDla = true;
             break;
         }
         case '4': {
             grid.initDbmSingleSeed();
-            grid.eta = 0;
-            // eta = 0;
+            grid.eta   = 0;
+            counter    = 0;
             runningDla = false;
             break;
         }
         case '5': {
             grid.initDbmSingleSeed();
-            grid.eta = 3;
-            // eta = 3;
+            grid.eta   = 3;
+            counter    = 0;
             runningDla = false;
             break;
         }
         case '6': {
             grid.initDbmSingleSeed();
-            grid.eta = 6;
-            // eta = 6;
+            grid.eta   = 6;
+            counter    = 0;
             runningDla = false;
             break;
         }
         case '0': {
             grid.initDlaSingleSeed();
-            sf  = 0.3;
+            grid.sf    = 0.7;
             runningDla = true;
             break;
         }
@@ -619,8 +668,9 @@ void displayInfo() {
     noStroke();
     fill(infoPanelColor);
     rect(canvasSize, 0, infoPanelWidth, infoPanelHeight);
+    updateCellCoordInfo();
     
-    int nControlText = 9;
+    int nControlText = 8;
     int nInfoText    = 4;
     
     String[] controlText = new String[nControlText];
@@ -628,19 +678,18 @@ void displayInfo() {
     // String[] values      = new String[5];
     
     controlText[0]  = "Space: Start/Stop growth";
-    controlText[1]  = "S:     Take one simulation step";
-    controlText[2]  = "1:     DLA, sticking factor = 1";
-    controlText[3]  = "2:     DLA, sticking factor = 0.1";
-    controlText[4]  = "3:     DLA, sticking factor = 0.01";
-    controlText[5]  = "4:     DBM, eta = 0";
-    controlText[6]  = "5:     DBM, eta = 3";
-    controlText[7]  = "6:     DBM, eta = 6";
-    controlText[8]  = "0:     DLA (custom pattern, sf = XX)";
+    controlText[1]  = "1:     DLA, sticking factor = 1";
+    controlText[2]  = "2:     DLA, sticking factor = 0.1";
+    controlText[3]  = "3:     DLA, sticking factor = 0.01";
+    controlText[4]  = "4:     DBM, eta = 0";
+    controlText[5]  = "5:     DBM, eta = 3";
+    controlText[6]  = "6:     DBM, eta = 6";
+    controlText[7]  = "0:     DLA (custom pattern, sf = 0.8)";
     
     infoText[0] = "Grid size:       " + nRows + " x " + nCols + " cells";
     infoText[1] = "Cell size:       " + cellSize + " pixels";
     infoText[2] = "Mode:            " + ((runningDla) ? "DLA" : "DBM");
-    infoText[3] = ((runningDla) ? "Sticking Factor: " + sf : "eta:             " + grid.eta);
+    infoText[3] = ((runningDla) ? "Sticking Factor: " + grid.sf : "eta:             " + grid.eta);
     
     // String algorithmParam = ((runningDla) ? "Sticking Factor: " + sf : "eta:             " + eta);
     
@@ -681,84 +730,84 @@ void displayInfo() {
         text(infoText[i], textX, textY);
     }
     
-    // String coordinates = "(row,col): (" + yPos + "," + xPos + ")";
-    // textY += 20;
-    // text(coordinates, textX, textY);
+    String coordinates = "(row,col): (" + yPos + "," + xPos + ")";
+    textY += 20;
+    text(coordinates, textX, textY);
 }
 // =========================================================
-void testNeighbors () {
-    int row = 0;
-    int col = 0;
-    ArrayList<Integer> rN = grid.getRowNeighbor(row);
-    ArrayList<Integer> cN = grid.getColNeighbor(col);
-    printNeighbors(rN, cN);
-    println("");
+// void testNeighbors () {
+//     int row = 0;
+//     int col = 0;
+//     ArrayList<Integer> rN = grid.getRowNeighbor(row);
+//     ArrayList<Integer> cN = grid.getColNeighbor(col);
+//     printNeighbors(rN, cN);
+//     println("");
     
-    row = 0;
-    col = 4;
-    rN = grid.getRowNeighbor(row);
-    cN = grid.getColNeighbor(col);
-    printNeighbors(rN, cN);
-    println("");
+//     row = 0;
+//     col = 4;
+//     rN = grid.getRowNeighbor(row);
+//     cN = grid.getColNeighbor(col);
+//     printNeighbors(rN, cN);
+//     println("");
     
-    row = 0;
-    col = nCols-1;
-    rN = grid.getRowNeighbor(row);
-    cN = grid.getColNeighbor(col);
-    printNeighbors(rN, cN);
-    println("");
+//     row = 0;
+//     col = nCols-1;
+//     rN = grid.getRowNeighbor(row);
+//     cN = grid.getColNeighbor(col);
+//     printNeighbors(rN, cN);
+//     println("");
     
-    row = 4;
-    col = nCols-1;
-    rN = grid.getRowNeighbor(row);
-    cN = grid.getColNeighbor(col);
-    printNeighbors(rN, cN);
-    println("");
+//     row = 4;
+//     col = nCols-1;
+//     rN = grid.getRowNeighbor(row);
+//     cN = grid.getColNeighbor(col);
+//     printNeighbors(rN, cN);
+//     println("");
     
-    row = nRows-1;
-    col = nCols-1;
-    rN = grid.getRowNeighbor(row);
-    cN = grid.getColNeighbor(col);
-    printNeighbors(rN, cN);
-    println("");
-    
-    
-    row = nRows-1;
-    col = 4;
-    rN = grid.getRowNeighbor(row);
-    cN = grid.getColNeighbor(col);
-    printNeighbors(rN, cN);
-    println("");
+//     row = nRows-1;
+//     col = nCols-1;
+//     rN = grid.getRowNeighbor(row);
+//     cN = grid.getColNeighbor(col);
+//     printNeighbors(rN, cN);
+//     println("");
     
     
-    row = nRows-1;
-    col = 0;
-    rN = grid.getRowNeighbor(row);
-    cN = grid.getColNeighbor(col);
-    printNeighbors(rN, cN);
-    println("");
+//     row = nRows-1;
+//     col = 4;
+//     rN = grid.getRowNeighbor(row);
+//     cN = grid.getColNeighbor(col);
+//     printNeighbors(rN, cN);
+//     println("");
     
-    row = 4;
-    col = 0;
-    rN = grid.getRowNeighbor(row);
-    cN = grid.getColNeighbor(col);
-    printNeighbors(rN, cN);
-    println("");
     
-    row = 4;
-    col = 4;
-    rN = grid.getRowNeighbor(row);
-    cN = grid.getColNeighbor(col);
-    printNeighbors(rN, cN);
-    println("");
-    // for (int r : rN) {
-    //     for (int c : cN) {
-    //         print(r + ","+ c + "  ");
-    //     }
-    //     println("");
-    // }
+//     row = nRows-1;
+//     col = 0;
+//     rN = grid.getRowNeighbor(row);
+//     cN = grid.getColNeighbor(col);
+//     printNeighbors(rN, cN);
+//     println("");
     
-}
+//     row = 4;
+//     col = 0;
+//     rN = grid.getRowNeighbor(row);
+//     cN = grid.getColNeighbor(col);
+//     printNeighbors(rN, cN);
+//     println("");
+    
+//     row = 4;
+//     col = 4;
+//     rN = grid.getRowNeighbor(row);
+//     cN = grid.getColNeighbor(col);
+//     printNeighbors(rN, cN);
+//     println("");
+//     // for (int r : rN) {
+//     //     for (int c : cN) {
+//     //         print(r + ","+ c + "  ");
+//     //     }
+//     //     println("");
+//     // }
+    
+// }
 // =========================================================
 void printArrayList(ArrayList<Cell> list) {
     // for (Cell c : list) {
@@ -772,77 +821,77 @@ void printArrayList(ArrayList<Cell> list) {
     
     println("---");
 }
-// =========================================================
-void printNeighbors(ArrayList<Integer> rowN, ArrayList<Integer> colN) {
-    for (int r : rowN) {
-        for (int c : colN) {
-            print(r + ","+ c + "  ");
-        }
-        println("");
-    }
-}
-// =========================================================
-void testArrayListRefs() {
-    int nCells = 5;
-    Cell[] cells = new Cell[nCells];
+// // =========================================================
+// void printNeighbors(ArrayList<Integer> rowN, ArrayList<Integer> colN) {
+//     for (int r : rowN) {
+//         for (int c : colN) {
+//             print(r + ","+ c + "  ");
+//         }
+//         println("");
+//     }
+// }
+// // =========================================================
+// void testArrayListRefs() {
+//     int nCells = 5;
+//     Cell[] cells = new Cell[nCells];
     
-    for (int i = 0; i < nCells; ++i) {
-        cells[i] = new Cell(i*cellSize, 0, cellSize, cellSize, 0, 0);
-    }
-    println("cells: ");
-    for (Cell c : cells) {
-        println("c: "+c);
-    }
+//     for (int i = 0; i < nCells; ++i) {
+//         cells[i] = new Cell(i*cellSize, 0, cellSize, cellSize, 0, 0);
+//     }
+//     println("cells: ");
+//     for (Cell c : cells) {
+//         println("c: "+c);
+//     }
     
-    ArrayList<Cell> cellList = new ArrayList<Cell>();
+//     ArrayList<Cell> cellList = new ArrayList<Cell>();
     
-    for (Cell c : cells) {
-        cellList.add(c);
-    }
+//     for (Cell c : cells) {
+//         cellList.add(c);
+//     }
     
-    println("\ncellList: ");
-    for (Cell c : cellList) {
-        println("c: "+c);
-    }
+//     println("\ncellList: ");
+//     for (Cell c : cellList) {
+//         println("c: "+c);
+//     }
     
-    println("\nModifying cells:");
-    cells[1].status = 1;
-    cells[2].status = 1;
-    for (Cell c : cells) {
-        println("c: "+c);
-    }
+//     println("\nModifying cells:");
+//     cells[1].status = 1;
+//     cells[2].status = 1;
+//     for (Cell c : cells) {
+//         println("c: "+c);
+//     }
     
-    println("\ncellList: ");
-    for (Cell c : cellList) {
-        println("c: "+c);
-    }
+//     println("\ncellList: ");
+//     for (Cell c : cellList) {
+//         println("c: "+c);
+//     }
     
-    println("\nModifying cellList:");
-    cellList.remove(0);
-    println("cells: ");
-    for (Cell c : cells) {
-        println("c: "+c);
-    }
-    println("\ncellList: ");
-    for (Cell c : cellList) {
-        println("c: "+c);
-    }
+//     println("\nModifying cellList:");
+//     cellList.remove(0);
+//     println("cells: ");
+//     for (Cell c : cells) {
+//         println("c: "+c);
+//     }
+//     println("\ncellList: ");
+//     for (Cell c : cellList) {
+//         println("c: "+c);
+//     }
     
-    println("\nModifying cells:");
-    cells[0].status = 1;
-    cells[4].status = 1;
-    for (Cell c : cells) {
-        println("c: "+c);
-    }
+//     println("\nModifying cells:");
+//     cells[0].status = 1;
+//     cells[4].status = 1;
+//     for (Cell c : cells) {
+//         println("c: "+c);
+//     }
     
-    println("\ncellList: ");
-    for (Cell c : cellList) {
-        println("c: "+c);
-    }
+//     println("\ncellList: ");
+//     for (Cell c : cellList) {
+//         println("c: "+c);
+//     }
     
-    // distances
-    for (Cell c : cells) {
-        println("dist: " + cells[0].distTo(c));
-    }
+//     // distances
+//     for (Cell c : cells) {
+//         println("dist: " + cells[0].distTo(c));
+//     }
     
-}
+// }
