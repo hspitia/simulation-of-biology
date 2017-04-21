@@ -32,20 +32,22 @@ public class Ptm {
     g=10;
     damp=0.3;
     delta_time=0.05;
-      if(px+delta_time*vx>199 || px+delta_time*vx<0 ){
-        vx=-vx;
-      }
-      olderpx=oldpx;
-      oldpx=px;
-      px=px+delta_time*vx;
-      
-      if(py+delta_time*vy>99 || py+delta_time*vy<0 ){
-        vy=-vy;
-      }
-      olderpy=oldpy;
-      oldpy=py;
-      py=py+delta_time*vy;
+    if(px+delta_time*vx>199 || px+delta_time*vx<0 ){
+      vx=-vx;
+    }
+    olderpx=oldpx;
+    oldpx=px;
+    px=px+delta_time*vx;
     
+    if(py+delta_time*vy>99 || py+delta_time*vy<0 ){
+      vy=-vy;
+    }
+    olderpy=oldpy;
+    oldpy=py;
+      
+    // location = location + (velocity * delta_time)
+    // location.add(velocity * delta_time)
+    py=py+delta_time*vy;
     //damping force
     fdampx=-damp*vx;
     fdampy=-damp*vy;

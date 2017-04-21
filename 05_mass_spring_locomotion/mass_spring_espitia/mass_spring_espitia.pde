@@ -33,9 +33,10 @@ int infoPanelSize = 300;
 Environment env;
 int nMasses  = 5;
 int nSprings = 5;
-float g      = 9.8;
-float damp   = 0.3;
-float maxVel = 2.0;
+float g      = 0.0;
+float damp   = 0.9;
+float mass   = 50.0;
+float maxVel = 8.0;
 
 // Time
 int lastTime = 0;
@@ -50,7 +51,7 @@ void setup() {
     size(900, 600);
     background(backgroundColor);
     
-    env = new Environment(nMasses, nSprings, g, damp, maxVel);
+    env = new Environment(nMasses, nSprings, g, damp, mass, maxVel);
     // sim.display();
     // // printArray(PFont.list());
     myFont      = createFont("Ubuntu Mono", 14);
@@ -60,8 +61,8 @@ void setup() {
 // =============================================================================
 void draw() {
     displaySimPanel();
-    displayInfoPanel();
     env.display();
+    displayInfoPanel();
     
     if (millis() - lastTime > interval && simRunning){
         runSimulationStep();
@@ -74,7 +75,7 @@ void runSimulationStep(){
 }
 // =============================================================================
 void restart() {
-    env = new Environment(nMasses, nSprings, g, damp, maxVel);
+    env = new Environment(nMasses, nSprings, g, damp, mass, maxVel);
 }
 // =============================================================================
 class Environment {
@@ -82,16 +83,19 @@ class Environment {
     int nSprings;
     float g;
     float damp;
+    float mass;
     float maxVel;
     PointMass[] pointMasses;
     int pointMassRadius = 14;
     
     Environment(int nPointMasses, int nSprings, 
-                float g, float damp, float maxVel) {
+                float g, float damp, 
+                float mass, float maxVel) {
         this.nPointMasses = nPointMasses;
         this.nSprings     = nSprings;
         this.g            = g;
         this.damp         = damp;
+        this.mass         = mass;
         this.maxVel       = maxVel;
         
         pointMasses = new PointMass[this.nPointMasses];
@@ -99,7 +103,7 @@ class Environment {
         for (int i = 0; i < this.nPointMasses; ++i) {
             PVector newPos = new PVector(random(canvasSize - pointMassRadius),
                                          random(canvasSize - pointMassRadius)); 
-            pointMasses[i] = new PointMass(newPos, 
+            pointMasses[i] = new PointMass(mass, newPos, 
                                            getRandomVelocity(),
                                            pointMassRadius);
         }
@@ -140,9 +144,20 @@ class Environment {
     }
 }
 // =============================================================================
+class Spring {
+    PointMass pm1;
+    PointMass pm2;
+    float restLength;
+    float k;
+    float amplitude;
+    float fequency;
+    float phase;
+    
+}
 // =============================================================================
 class PointMass {
     // Attributes
+    float mass;
     PVector pos;
     PVector vel;
     PVector accel;
@@ -151,7 +166,8 @@ class PointMass {
     
     // Methods
     // Constructor
-    PointMass(PVector pos, PVector vel, int pointMassRadius) {
+    PointMass(float mass, PVector pos, PVector vel, int pointMassRadius) {
+        this.mass        = mass;
         this.pos         = pos;
         this.vel         = vel;
         this.shapeRadius = pointMassRadius;
@@ -171,18 +187,57 @@ class PointMass {
     
     void update(){
         // check borders
-        float offset = shapeRadius/2;
+        float offset = (shapeRadius/2);
         float[] limits = {offset, (canvasSize-offset)};
-        if (pos.y > (canvasSize-offset) || pos.y < offset)
-            pos.y = limits[int(pos.y < offset)];
         
+        // toroidal
+        // if (pos.y > (canvasSize-offset) || pos.y < offset)
+        //     pos.y = limits[int(pos.y < offset)];
+        
+        // if (pos.x > (canvasSize-offset) || pos.x < offset)
+        //     pos.x = limits[int(pos.x < offset)];
+        
+        
+        // bouncing
         if (pos.x > (canvasSize-offset) || pos.x < offset)
-            pos.x = limits[int(pos.x < offset)];
+            vel.x *= -1;
         
-        vel.add(accel);
-        vel.limit(maxVel);
+        if (pos.y > (canvasSize-offset) || pos.y < offset)
+            vel.y *= -1;
+        
+        if (pos.y > (canvasSize-offset))
+            pos.y = canvasSize-offset;
+        
+        // if (pos.y > (canvasSize-offset) || pos.y < offset)
+            // vel.y *= -1;
+        
+        // gravity
+        vel.y += g;
+        
+        // vel.limit(maxVel);
+        // pos.y = pos.y + delta_time * vel.y;
+        // pos.x = pos.x + delta_time * vel.x;
         pos.add(vel);
         
+        
+        //damping force
+    
+        // dampingForce.x = -damp * vx;
+        // dampingForce.y = -damp * vy;
+        // PVector dampingForce = vel.copy();
+        // dampingForce.mult(-damp);
+        PVector dampingForce = new PVector(vel.x*(-damp), vel.y*(-damp));
+        
+        //                        acceleration (F/m) 
+        // vx = vx + delta_time * (fdampx) / m;
+        // vy = vy + delta_time * (fdampy) / m;
+        
+        // accel = dampingForce.copy();
+        // accel.div(mass);
+        accel = new PVector(dampingForce.x/mass, dampingForce.y/mass);
+        vel.add(accel);
+        
+        // reset acceleration
         accel.mult(0);
     }
     
