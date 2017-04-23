@@ -11,17 +11,18 @@ class PointMass {
     // Methods
     // -------------------------------------------------------------------------
     PointMass(float mass,   PVector pos, PVector vel, 
-              float maxVel, int pointMassDiameter) {
+              float maxVel, float massDiameterFactor) {
         this.mass          = mass;
         this.pos           = pos;
         this.vel           = vel;
         this.maxVel        = maxVel;
-        this.shapeDiameter = pointMassDiameter;
-        // this.shapeDiameter = (mass*16);
+        // this.shapeDiameter = pointMassDiameter;
+        this.shapeDiameter = (mass * massDiameterFactor);
         this.accel         = new PVector(0, 0);
     }
     // -------------------------------------------------------------------------
     void display() {
+        strokeWeight(2);
         // stroke(massColor);
         stroke(strokeColor);
         fill(massColor);
@@ -35,45 +36,34 @@ class PointMass {
     }
     // -------------------------------------------------------------------------
     void checkEdges() {
-         // check borders
-        float offset = shapeDiameter/2;
-        // float[] limits = {offset, (canvasSize-offset)};
+         // Change direction when edges are reached
+
+        float offset = (shapeDiameter/2)+1;
+        // float offset = 0;
+                
+        float dampingFactor = 1;
         
-        // // toroidal
-        // if (pos.y > (canvasSize-offset) || pos.y < offset)
-        //     pos.y = limits[int(pos.y < offset)];
-        
-        // if (pos.x > (canvasSize-offset) || pos.x < offset)
-        //     pos.x = limits[int(pos.x < offset)];
-        
-        
-        // bouncing
-        if (pos.x > (canvasSize-offset) || pos.x < offset)
-            vel.x *= -0.8;
-        
-        if (pos.y > (canvasSize-offset) || pos.y < offset)
-            vel.y *= -0.8;
-        
-        if (pos.x > (canvasSize-offset))
-            pos.x = canvasSize-offset;
-        
-        if (pos.x < offset)
+        if (pos.x > (canvasSize-offset)) {
+            pos.x = (canvasSize-offset);
+            vel.x *= -dampingFactor;
+        } else if (pos.x < offset) {
+            vel.x *= -dampingFactor;
             pos.x = offset;
-        
-        if (pos.y > (canvasSize-offset))
-            pos.y = canvasSize-offset;
-        
-        if (pos.y < offset)
+        }
+
+        if (pos.y > (canvasSize-offset)) {
+            vel.y *= -dampingFactor;
+            pos.y = (canvasSize-offset);
+        } else if (pos.y < offset) {
+            vel.y *= -dampingFactor;
             pos.y = offset;
+        }
     }
     // -------------------------------------------------------------------------
     void update(){
-        checkEdges();
-        
         vel.add(accel);
         vel.limit(maxVel);
         pos.add(vel);
-        // reset acceleration
         accel.mult(0);
     }
     // -------------------------------------------------------------------------

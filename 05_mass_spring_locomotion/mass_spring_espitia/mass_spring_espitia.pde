@@ -16,7 +16,8 @@ color infoPanelColor  = #001A31;
 color pathColor       = #888888;
 color strokeColor     = #333333;
 // color strokeColor     = #FFB115;
-color massColor       = #FFB115;
+// color massColor       = #FFB115;
+color massColor       = color(255, 177, 21, 200);
 color titleColor      = #FF9D00;
 color textColor       = #E2E2E2;
 
@@ -33,10 +34,10 @@ int infoPanelSize = 300;
 Environment env;
 int nMasses  = 10;
 int nSprings = 10;
-PVector g    = new PVector(0.0, 9.8);
+PVector g    = new PVector(0.0, 2);
 // PVector g    = new PVector(0.0, 0);
-float damp   = 0.14;
-float mass   = 5.0;
+float damp   = 0.12;
+float mass   = 10.0;
 float maxVel = 20.0;
 
 // Time
@@ -87,7 +88,7 @@ class Environment {
     float mass;
     float maxVel;
     PointMass[] pointMasses;
-    int pointMassRadius = 30;
+    float massDiameterFactor = 6;
     // -------------------------------------------------------------------------
     Environment(int nPointMasses, int nSprings, 
                 PVector g, float damp, 
@@ -102,29 +103,34 @@ class Environment {
         pointMasses = new PointMass[this.nPointMasses];
         
         for (int i = 0; i < this.nPointMasses; ++i) {
-            PVector newPos = new PVector(random(canvasSize - pointMassRadius),
-                                         random(canvasSize - pointMassRadius)); 
+            PVector newPos = new PVector(random(canvasSize),
+                                         random(canvasSize)); 
             // pointMasses[i] = new PointMass(int(random(1, mass)), newPos, 
-            pointMasses[i] = new PointMass(int(random(1, mass)), newPos, 
+            pointMasses[i] = new PointMass(int(random(4, mass)), newPos, 
                                            getRandomVelocity(),
-                                           maxVel, pointMassRadius);
+                                           maxVel, massDiameterFactor);
         }
     }
     // -------------------------------------------------------------------------
     void update() {
         for (PointMass pm : pointMasses) {
             // background(backgroundColor);
-            PVector dampingForce = PVector.mult(pm.vel, -0.02);
-            pm.applyForce(dampingForce);
-            // pm.applyForce(g);
+            
+            // PVector damping = PVector.mult(pm.vel, -1);     // get vel's opposite direction
+            // damping.normalize();                            // normalize to the unit vector
+            // damping.mult(damp);                             // give magnitude
+            
+            
+            PVector damping = PVector.mult(pm.vel, -damp);
+            PVector gravity = PVector.mult(g, pm.mass);     // scale by mass
 
-            // PVector wind = new PVector(0.01,0);
-            PVector gravity = new PVector(0,9.8);
-            
-            // pm.applyForce(wind);
+            // apply forces
+            pm.applyForce(damping);
             pm.applyForce(gravity);
-            
+            // update velocity
             pm.update();
+            // check for edges
+            pm.checkEdges();
         }
     }
     // -------------------------------------------------------------------------
