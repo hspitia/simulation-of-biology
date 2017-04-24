@@ -129,7 +129,15 @@ class Spring {
     // }
     // -------------------------------------------------------------------------
     void display() {
-        strokeWeight(4);
+        int st = 4;
+        // float d = dist(pm1.pos.x, pm1.pos.y, pm2.pos.x, pm2.pos.y);
+        
+        // if (d < restLength) 
+        //     st += 2;
+        // else if (d < restLength) 
+        //     st -= 2;
+            
+        strokeWeight(st);
         stroke(springColor);
         
         // int nPositions = 2;

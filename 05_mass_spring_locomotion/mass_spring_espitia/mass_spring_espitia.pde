@@ -35,15 +35,15 @@ int infoPanelSize = 300;
 
 // Environment variables
 Environment env;
-int nMasses      = 3;
-int nSprings     = 2;
+int nMasses      = 4;
+int nSprings     = 4;
 // PVector g     = new PVector(0.0, 2);
 // PVector g     = new PVector(0.0, 0);
 float g          = 3;
 float damp       = 0.12;
 float mass       = 10.0;
 float maxVel     = 20.0;
-float restLength = 80.0;
+float restLength = 100.0;
 
 
 // Time
@@ -124,7 +124,8 @@ class Environment {
                                          random(canvasSize)); 
             // pointMasses[i] = new PointMass(int(random(1, mass)), newPos, 
             pointMasses[i] = new PointMass(int(random(4, mass)), newPos, 
-                                           getRandomVelocity(),
+                                           // getRandomVelocity(),
+                                           new PVector(0,0),
                                            maxVel, massDiameterFactor, i);
         }
         
@@ -150,7 +151,8 @@ class Environment {
     void setupSpringPointMasses() {
         springPointMasses.add(new PVector(0, 1));
         springPointMasses.add(new PVector(1, 2));
-        springPointMasses.add(new PVector(2, 3));
+        springPointMasses.add(new PVector(1, 3));
+        springPointMasses.add(new PVector(0, 2));
     }
     // -------------------------------------------------------------------------
     void update() {
