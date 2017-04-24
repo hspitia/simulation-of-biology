@@ -1,24 +1,39 @@
 class PointMass {
     // Attributes
-    float mass;
-    PVector pos;
-    PVector vel;
-    PVector accel;
-    float   shapeDiameter;
-    String  id;
-    float maxVel;
+    float             mass;
+    PVector           pos;
+    PVector           vel;
+    PVector           accel;
+    float             shapeDiameter;
+    ArrayList<Spring> springs;
+    int               id;
+    float             maxVel;
+    
+    // For mouse interaction
+    PVector dragOffset;
+    boolean dragging = false;
+    boolean over     = false; 
     
     // Methods
     // -------------------------------------------------------------------------
     PointMass(float mass,   PVector pos, PVector vel, 
-              float maxVel, float massDiameterFactor) {
+              float maxVel, float massDiameterFactor, 
+              int id) {
         this.mass          = mass;
         this.pos           = pos;
         this.vel           = vel;
         this.maxVel        = maxVel;
-        // this.shapeDiameter = pointMassDiameter;
-        this.shapeDiameter = (mass * massDiameterFactor);
         this.accel         = new PVector(0, 0);
+        this.shapeDiameter = (mass * massDiameterFactor);
+        this.dragOffset    = new PVector();
+        
+        this.id            = id;
+        
+        springs = new ArrayList<Spring>();
+    }
+    // -------------------------------------------------------------------------
+    void addSpring(Spring s) {
+        springs.add(s);
     }
     // -------------------------------------------------------------------------
     void display() {
@@ -26,6 +41,7 @@ class PointMass {
         // stroke(massColor);
         stroke(strokeColor);
         fill(massColor);
+        if (dragging || over) fill(massOverColor);
         ellipse(pos.x, pos.y, shapeDiameter, shapeDiameter);
     }
     // -------------------------------------------------------------------------
@@ -65,6 +81,33 @@ class PointMass {
         vel.limit(maxVel);
         pos.add(vel);
         accel.mult(0);
+    }
+    // -------------------------------------------------------------------------
+    void over(int mx, int my) {
+        float d = dist(mx, my, pos.x, pos.y);
+        if (d < (shapeDiameter/2)) 
+            over = true;
+        else
+            over = false;
+    }   
+    // -------------------------------------------------------------------------
+    void clicked(int mx, int my) {
+        if (over) {
+            dragging = true;
+            dragOffset.x = pos.x-mx;
+            dragOffset.y = pos.y-my;
+        }
+    }
+    // -------------------------------------------------------------------------
+    void stopDragging() {
+        dragging = false;
+    }
+    // -------------------------------------------------------------------------
+    void drag(int mx, int my) {
+        if (dragging) {
+            pos.x = mx + dragOffset.x;
+            pos.y = my + dragOffset.y;
+        }
     }
     // -------------------------------------------------------------------------
     String toString(){

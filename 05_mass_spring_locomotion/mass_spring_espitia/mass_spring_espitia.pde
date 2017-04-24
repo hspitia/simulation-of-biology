@@ -11,15 +11,18 @@
 // Global variables
 // colors
 // color backgroundColor = #333333;
-color backgroundColor = #444444;
-color infoPanelColor  = #001A31; 
-color pathColor       = #888888;
-color strokeColor     = #333333;
-// color strokeColor     = #FFB115;
+color backgroundColor    = #444444;
+color infoPanelColor     = #001A31; 
+color pathColor          = #888888;
+// color strokeColor        = #333333;
+color strokeColor        = #222222;
+color springColor        = #0068D8;
 // color massColor       = #FFB115;
-color massColor       = color(255, 177, 21, 200);
-color titleColor      = #FF9D00;
-color textColor       = #E2E2E2;
+// color massOverColor      = #FF8C00;
+color massColor          = color(255, 177, 21, 255);
+color massOverColor      = color(255, 140, 0, 255);
+color titleColor         = #FF9D00;
+color textColor          = #E2E2E2;
 
 // fonts
 PFont myFont;
@@ -32,13 +35,16 @@ int infoPanelSize = 300;
 
 // Environment variables
 Environment env;
-int nMasses  = 10;
-int nSprings = 10;
-PVector g    = new PVector(0.0, 2);
-// PVector g    = new PVector(0.0, 0);
-float damp   = 0.12;
-float mass   = 10.0;
-float maxVel = 20.0;
+int nMasses      = 3;
+int nSprings     = 2;
+// PVector g     = new PVector(0.0, 2);
+// PVector g     = new PVector(0.0, 0);
+float g          = 3;
+float damp       = 0.12;
+float mass       = 10.0;
+float maxVel     = 20.0;
+float restLength = 80.0;
+
 
 // Time
 int lastTime = 0;
@@ -46,14 +52,15 @@ int interval = 0;
 
 // Flags
 boolean simRunning = true;
-
+boolean gravityOn  = true;
+boolean dampingOn  = true;
 
 // =============================================================================
 void setup() {
     size(900, 600);
     background(backgroundColor);
     
-    env = new Environment(nMasses, nSprings, g, damp, mass, maxVel);
+    env = new Environment(nMasses, nSprings, g, damp, mass, maxVel, restLength);
     // sim.display();
     // // printArray(PFont.list());
     myFont      = createFont("Ubuntu Mono", 14);
@@ -77,68 +84,132 @@ void runSimulationStep(){
 }
 // =============================================================================
 void restart() {
-    env = new Environment(nMasses, nSprings, g, damp, mass, maxVel);
+    env = new Environment(nMasses, nSprings, g, damp, mass, maxVel, restLength);
+    updateGravity();
+    updateDamping();
 }
 // =============================================================================
 class Environment {
     int nPointMasses;
     int nSprings;
-    PVector g;
+    // PVector g;
+    float g;
     float damp;
     float mass;
     float maxVel;
+    float restLength;
     PointMass[] pointMasses;
-    float massDiameterFactor = 6;
+    Spring[] springs;
+    ArrayList<PVector> springPointMasses = new ArrayList<PVector>();
+    int[] associatedSprings              = new int[nPointMasses];
+    float k                              = 0.2;
+    float massDiameterFactor             = 6;
+    
     // -------------------------------------------------------------------------
     Environment(int nPointMasses, int nSprings, 
-                PVector g, float damp, 
-                float mass, float maxVel) {
+                float g, float damp, 
+                float mass, float maxVel, float restLength) {
         this.nPointMasses = nPointMasses;
         this.nSprings     = nSprings;
         this.g            = g;
         this.damp         = damp;
         this.mass         = mass;
         this.maxVel       = maxVel;
+        this.restLength   = restLength;
         
+        // Point masses creation
         pointMasses = new PointMass[this.nPointMasses];
-        
         for (int i = 0; i < this.nPointMasses; ++i) {
             PVector newPos = new PVector(random(canvasSize),
                                          random(canvasSize)); 
             // pointMasses[i] = new PointMass(int(random(1, mass)), newPos, 
             pointMasses[i] = new PointMass(int(random(4, mass)), newPos, 
                                            getRandomVelocity(),
-                                           maxVel, massDiameterFactor);
+                                           maxVel, massDiameterFactor, i);
         }
+        
+        // make spring and pointMasses triads
+        setupSpringPointMasses();
+        
+        // Springs creation
+        springs = new Spring[nSprings];
+        for (int i = 0; i < nSprings; ++i) {
+            int pm1Idx = int(springPointMasses.get(i).x);
+            int pm2Idx = int(springPointMasses.get(i).y);
+            springs[i] = new Spring(pointMasses[pm1Idx], 
+                                    pointMasses[pm2Idx],
+                                    k, restLength, i);
+            // add the current spring to the corresponding 
+            // pointMass
+            pointMasses[pm1Idx].addSpring(springs[i]);
+            pointMasses[pm2Idx].addSpring(springs[i]);
+        }
+        
+    }
+    // -------------------------------------------------------------------------
+    void setupSpringPointMasses() {
+        springPointMasses.add(new PVector(0, 1));
+        springPointMasses.add(new PVector(1, 2));
+        springPointMasses.add(new PVector(2, 3));
     }
     // -------------------------------------------------------------------------
     void update() {
+        // Apply forces to point masses:
+        // forces different from springs
         for (PointMass pm : pointMasses) {
-            // background(backgroundColor);
-            
-            // PVector damping = PVector.mult(pm.vel, -1);     // get vel's opposite direction
-            // damping.normalize();                            // normalize to the unit vector
-            // damping.mult(damp);                             // give magnitude
-            
-            
+            // create forces
             PVector damping = PVector.mult(pm.vel, -damp);
-            PVector gravity = PVector.mult(g, pm.mass);     // scale by mass
-
+            PVector gravity = new PVector(0, g);
+            gravity.mult(pm.mass);   // scale by mass
+            
             // apply forces
             pm.applyForce(damping);
             pm.applyForce(gravity);
-            // update velocity
+        }
+        
+        // forces from springs
+        for (Spring s : springs) {
+            PVector sForce = s.getForce(s.pm1.id);
+            s.pm1.applyForce(sForce);
+            sForce = s.getForce(s.pm2.id);
+            s.pm2.applyForce(sForce);
+        }
+        
+        // Execute motion in point masses
+        for (PointMass pm : pointMasses) {
+            // execute motion
             pm.update();
+            
+            // mouse interaction
+            pm.over(mouseX, mouseY);
+            pm.drag(mouseX, mouseY);
+            
             // check for edges
             pm.checkEdges();
+        }
+        
+        for (Spring s : springs) {
+            s.update();
         }
     }
     // -------------------------------------------------------------------------
     void display(){
         // background(backgroundColor);
+        for (Spring s : springs) {
+            s.display();
+        }
+        
+        // for (int i = 0; i < nSprings; ++i) {
+        //     int pm1Idx = int(springPointMasses.get(i).x);
+        //     int pm2Idx = int(springPointMasses.get(i).y);
+        //     springs[i].display(pointMasses[pm1Idx],
+        //                        pointMasses[pm2Idx]);
+        // }
+        
         for (PointMass pm : pointMasses) {
             pm.display();
         }
+        
     }
     // -------------------------------------------------------------------------
     private PVector getRandomVelocity() {
@@ -160,18 +231,33 @@ class Environment {
 // =============================================================================
 // Auxiliary Functions
 // =============================================================================
+void mousePressed() {
+  for (PointMass pm : env.pointMasses) { 
+    // pm.pressed();
+    pm.clicked(mouseX,mouseY);
+  }
+  
+}
+// =============================================================================
+void updateGravity(){
+    env.g     = int(gravityOn) * g;
+}
+// =============================================================================
+void updateDamping(){
+    env.damp  = int(dampingOn) * damp;
+}
+// =============================================================================
+void mouseReleased() {
+  for (PointMass pm : env.pointMasses) { 
+    // pm.released();
+    pm.stopDragging();
+  }
+}
+// =============================================================================
 void displaySimPanel() {
-    // // Background for creatures path
-    // if (leavePath) {
-    //     // noStroke();
-        fill(backgroundColor);
-        rect(0, 0, canvasSize, canvasSize);
-    // }
-    // // No path
-    // else {
-    //     background(backgroundColor);
-    // }
-    // displayInfoPanel();
+    noStroke();
+    fill(backgroundColor);
+    rect(0, 0, canvasSize, canvasSize);
 }
 // =============================================================================
 void displayInfoPanel(){
@@ -186,6 +272,18 @@ void keyPressed() {
         case 'r':
         case 'R': {
             restart();
+            break;
+        }
+        case 'g':
+        case 'G': {
+            gravityOn = !gravityOn;
+            updateGravity();
+            break;
+        }
+        case 'd':
+        case 'D': {
+            dampingOn = !dampingOn;
+            updateDamping();
             break;
         }
         case ' ': {
