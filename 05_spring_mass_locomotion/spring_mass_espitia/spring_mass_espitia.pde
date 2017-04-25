@@ -132,50 +132,38 @@ class SpringMassSystem {
         float amplitude  = 60;    // pixels. Extension of springs
         float fequency   = 120;   // frames
         float period     = 240;   // frames
-        float restLength = 100;   // pixels
-        float k          = 30; 
+        float restLength = 20;   // pixels
+        float k          = 0.9; 
         
         // Create point masses
         pointMasses = new PointMass[nPointMasses];
         int idx = 0;
         
+        // Create positions for point masses
         ArrayList<PVector> pmPositions = new ArrayList<PVector>();
         PVector startPoint = new PVector(canvasSize/2, canvasSize/2 - 60);
+        pmPositions.add(new PVector(50, 89));
+        pmPositions.add(new PVector(70, 89));
+        pmPositions.add(new PVector(60, 89-sqrt(300)));
         
-        pmPositions.add(startPoint);
-        pmPositions.add(PVector.add(startPoint, new PVector(restLength*sin(5*PI/4), restLength*cos(5*PI/4))));
-        pmPositions.add(PVector.add(startPoint, new PVector(restLength*sin(7*PI/4), restLength*cos(7*PI/4))));
+        // move points relative to the start point
+        for (PVector p : pmPositions) {
+            p.add(startPoint);
+        }
         
+        // Create point masses
         for (int i = 0; i < nPointMasses; ++i) {
-            pointMasses[i] = new PointMass(6, pmPositions.get(i), 
+            pointMasses[i] = new PointMass(4, pmPositions.get(i), 
                                            new PVector(0,0),
                                            maxVel, massDiameterFactor, i);
         }
                 
-        //                                  //mass, position, velocity
-        // pointMasses[idx] = new PointMass(6, new PVector(), new PVector(0,0),
-        //                                  maxVel, massDiameterFactor, idx);
-        // idx++;
-        // pointMasses[idx] = new PointMass(6, new PVector(pointMasses[idx-1].pos.x + restLength, 
-        //                                                 pointMasses[idx-1].pos.y + ), // position
-        //                                new PVector(0,0), 
-        //                                maxVel, 
-        //                                massDiameterFactor, 
-        //                                idx);
-        // idx++;
-        // pointMasses[idx] = new PointMass(6, new PVector(pointMasses[idx-1].pos.x + restLength, 
-        //                                                 pointMasses[idx-1].pos.y), // position
-        //                                new PVector(0,0), 
-        //                                maxVel, 
-        //                                massDiameterFactor, 
-        //                                idx);
-        
         // Create spring-mass triads
         springPointMasses.add(new PVector(0, 1));
         springPointMasses.add(new PVector(1, 2));
         springPointMasses.add(new PVector(0, 2));
         
-        // // Create srings
+        // Create srings
         springs = new Spring[nSprings];
         for (int i = 0; i < nSprings; ++i) {
             int pm1Idx = int(springPointMasses.get(i).x);
@@ -184,8 +172,7 @@ class SpringMassSystem {
                                     pointMasses[pm2Idx],
                                     k, restLength, i, 
                                     amplitude, fequency, period);
-            // add the current spring to the corresponding 
-            // pointMass
+            // add the current spring to the corresponding pointMass
             pointMasses[pm1Idx].addSpring(springs[i]);
             pointMasses[pm2Idx].addSpring(springs[i]);
         }

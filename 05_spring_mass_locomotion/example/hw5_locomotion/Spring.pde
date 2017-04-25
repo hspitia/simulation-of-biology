@@ -35,6 +35,7 @@ public class Spring{
       float disp = amp*sin(2*PI*freq*t+ph);
       l0=amp+disp;
       println("disp: "+disp);
+      println("l0: "+l0);
     }
   }  
 }
