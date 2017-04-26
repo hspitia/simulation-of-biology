@@ -4,17 +4,20 @@ PVector p1, p2;
 float frequency = 240;
 float period    = 120;
 float amplitude = 20;
+float phase = 20;
 
 // Time
 int lastTime = 0;
 int interval = 0;
+float restLength = 20;
+float length = restLength;
 
 
 
 void setup() {
     size(1000, 600);
     p1 = new PVector(400, 300);
-    p2 = new PVector(500, 300);
+    p2 = new PVector(600, 300);
 }
 
 void draw() {
@@ -22,60 +25,44 @@ void draw() {
     
     if (millis() - lastTime > interval){
         background(backgroundColor);
+        
+        period    = 120;
+        
+        amplitude = 4;
+        
+        frequency = 1/period;
+        phase     = PI/2;
+        
+        float x1 = amplitude * sin(TWO_PI * frequency * frameCount + 0);
+        // float x1 = amplitude * cos(TWO_PI * frameCount / period + 0);
+        float x2 = amplitude * cos(TWO_PI * frameCount / period + phase);
+        
+        float maxX1 = 0;
+        float minX1 = 0;
+        float maxX2 = 0;
+        float minX2 = 0;
+        if (x1 > maxX1) maxX1 = x1;
+        if (x1 < minX1) minX1 = x1;
+        if (x2 > maxX2) maxX2 = x2;
+        if (x2 < minX2) minX2 = x2;
+        
+        // println("minX1: "+minX1+"   maxX1:"+maxX1);
+        // println("minX2: "+minX2+"   maxX1:"+maxX2);
+        
         strokeWeight(4);
-        // p1 = new PVector(200, 300);
-        // p2 = new PVector(400, 300);
+        p1.x -= x1;
+        p2.x += x2;
+        line(p1.x, p1.y, p2.x, p2.y);
         
-        float x1 = 0;
-        float disp = amplitude + amplitude/2 * sin(TWO_PI * frameCount / period);
-        // float disp = 1 * cos(TWO_PI * frameCount / 120);
-        // float disp = cos(TWO_PI * frameCount / period);
-        println("frameCount: "+frameCount);
-        println("disp: "+disp);
+        float disp = x1;
+        length = restLength + disp;
+        println("length: "+length);
+        // println("length: "+length);
         
-        PVector dir = PVector.sub(p1, p2);
-        float angle = dir.heading();
-        // println("angle: "+angle);
-        
-        
-        PVector newP1 = new PVector(round(disp*cos(angle)), 
-                                    round(disp*sin(angle)));
-        // PVector newP2 = new PVector(round(-disp*cos(angle)), 
-        //                             round(-disp*sin(angle)));
-        // println("p1: "+p1+"  p2:"+p2);
-        // // println("newP1: "+newP1);
-        p1.add(newP1);
-        // p2.add(newP2);
-        // // println("p1: "+p1);
-        // strokeWeight(3);
-        // // line(p1.x, p1.y, p2.x, p2.y);
         strokeWeight(1);
-        fill(255, 140, 0, 255);
-        ellipse(p1.x, p1.y, 30, 30);
-        // // fill(255);
-        // // ellipse(p2.x, p2.y, 30, 30);
-        
-        // background(255);
-         
-        // float period = 120;
-        // float amplitude = 20;
+        ellipse(p1.x, p1.y, 10, 10);
+        ellipse(p2.x, p2.y, 10, 10);
 
-        // // Calculating horizontal location according to the formula for simple harmonic motion
-
-        // float x = amplitude + amplitude/2 * sin(TWO_PI * frameCount / period);
-        // println("x: "+x);
-        
-        
-        // PVector dir = PVector.sub(p1, p2);
-        // float angle = dir.heading();
-        
-        
-        // stroke(0);
-        // fill(175);
-        // translate(width/2,height/2);
-        // line(0,0,x,0);
-        // ellipse(x,0,20,20);
-        
         lastTime = millis();
     }
     
