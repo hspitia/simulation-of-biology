@@ -23,38 +23,30 @@ color massColor          = color(255, 177, 21, 255);
 color massOverColor      = color(255, 140, 0, 255);
 color titleColor         = #FF9D00;
 color textColor          = #E2E2E2;
-
 // fonts
 PFont myFont;
 PFont myFontBold;
 PFont myTitleFont;
-
 // canvas related variables
 int canvasSize    = 600;
 int infoPanelSize = 300;
-
 // SpringMassSystem variables
 SpringMassSystem smSystem;
 int nMasses      = 2;
 int nSprings     = 1;
-// PVector g     = new PVector(0.0, 2);
-// PVector g     = new PVector(0.0, 0);
-float g          = 3;
-float damp       = 0.12;
+float g          = 0.2;
+float damp       = 1.8;
 float mass       = 10.0;
 float maxVel     = 20.0;
 float restLength = 100.0;
-
-
 // Time
 int lastTime = 0;
 int interval = 0;
-
 // Flags
 boolean simRunning = true;
 boolean gravityOn  = false;
 boolean dampingOn  = true;
-boolean singleStep = false;
+boolean singleStep = true;
 
 // =============================================================================
 void setup() {
@@ -76,7 +68,6 @@ void draw() {
     smSystem.display();
     displayInfoPanel();
     
-    // if (millis() - lastTime > interval && simRunning){
     if (millis() - lastTime > interval){
         if (!singleStep){
             runSimulationStep();
@@ -98,7 +89,6 @@ void restart() {
 class SpringMassSystem {
     int nPointMasses;
     int nSprings;
-    // PVector g;
     float g;
     float damp;
     float mass;
@@ -107,9 +97,7 @@ class SpringMassSystem {
     PointMass[] pointMasses;
     Spring[] springs;
     ArrayList<PVector> springPointMasses = new ArrayList<PVector>();
-    int[] associatedSprings              = new int[nPointMasses];
-    // float k                              = 0.2;
-    float massDiameterFactor             = 3;
+    float massDiameterFactor             = 1;
     
     // -------------------------------------------------------------------------
     SpringMassSystem(int nPointMasses, int nSprings, 
@@ -125,26 +113,13 @@ class SpringMassSystem {
         
         // setupRandomSystem();
         // setupTestSystem01(2, 1);
-        setupTriangle(3, 3);
+        // setupTriangle();
+        setupShape01();
     }
     // -------------------------------------------------------------------------
-    void setupTriangle(int nPointMasses, int nSprings) {
-        float amplitude  = 60;    // pixels. Extension of springs
-        float fequency   = 120;   // frames
-        float period     = 240;   // frames
-        float restLength = 20;   // pixels
-        float k          = 0.9; 
-        
-        // Create point masses
-        pointMasses = new PointMass[nPointMasses];
-        int idx = 0;
-        
-        // Create positions for point masses
-        ArrayList<PVector> pmPositions = new ArrayList<PVector>();
-        PVector startPoint = new PVector(canvasSize/2, canvasSize/2 - 60);
-        pmPositions.add(new PVector(50, 89));
-        pmPositions.add(new PVector(70, 89));
-        pmPositions.add(new PVector(60, 89-sqrt(300)));
+    void createMassesAndSprings(int nPointMasses, int nSprings, float restLength,
+                                int[] masses, float[] ks, ArrayList<PVector> pmPositions,
+                                PVector startPoint) {
         
         // move points relative to the start point
         for (PVector p : pmPositions) {
@@ -153,16 +128,11 @@ class SpringMassSystem {
         
         // Create point masses
         for (int i = 0; i < nPointMasses; ++i) {
-            pointMasses[i] = new PointMass(4, pmPositions.get(i), 
+            pointMasses[i] = new PointMass(masses[i], pmPositions.get(i), 
                                            new PVector(0,0),
-                                           maxVel, massDiameterFactor, i);
+                                           maxVel, 0.5, i);
         }
                 
-        // Create spring-mass triads
-        springPointMasses.add(new PVector(0, 1));
-        springPointMasses.add(new PVector(1, 2));
-        springPointMasses.add(new PVector(0, 2));
-        
         // Create srings
         springs = new Spring[nSprings];
         for (int i = 0; i < nSprings; ++i) {
@@ -170,67 +140,185 @@ class SpringMassSystem {
             int pm2Idx = int(springPointMasses.get(i).y);
             springs[i] = new Spring(pointMasses[pm1Idx], 
                                     pointMasses[pm2Idx],
-                                    k, restLength, i, 
-                                    amplitude, fequency, period);
+                                    ks[i], restLength, i, 
+                                    0, 0, 0);
             // add the current spring to the corresponding pointMass
             pointMasses[pm1Idx].addSpring(springs[i]);
             pointMasses[pm2Idx].addSpring(springs[i]);
         }
     }
     // -------------------------------------------------------------------------
-    void setupTestSystem01(int nPointMasses, int nSprings) {
-        float amplitude  = 60;    // pixels. Extension of springs
-        float fequency   = 120;   // frames
-        float period     = 240;   // frames
-        float restLength = 60;   // pixels
-        float k          = 0.2; 
+    void updateSprings(){
+        // moveTriangle();
+        moveShape01();
+    }
+    // -------------------------------------------------------------------------
+    void moveShape01() {
+        // amp freq pha per
+        springs[6].setMovementParams(-3, 0, 60, 0);
+        springs[6].updateLength();
+        
+        springs[5].setMovementParams(3, 0, 120, PI/4);
+        springs[5].updateLength();
+        
+        
+        springs[4].setMovementParams(-3, 0, 60, 0.8);
+        springs[4].updateLength();
+        
+        springs[10].setMovementParams(3, 0, 120, PI/4+0.8);
+        springs[10].updateLength();
+        // 
+        // springs[0].setMovementParams(3, 0, 60, 0);
+        // springs[0].updateLength();
+        // springs[3].setMovementParams(3, 0, 60, 1);
+        // springs[3].updateLength();
+        // 
+        // for (int i = 6; i <= 10; ++i) {
+        //     springs[i].setMovementParams(-3, 0, 60, 0);
+        //     springs[i].updateLength();
+        // }
+        // 
+        // springs[0].setMovementParams(3, 0, 60, 0);
+        // springs[0].updateLength();
+        // springs[3].setMovementParams(3, 0, 60, 1);
+        // springs[3].updateLength();
+        
+    }
+    // -------------------------------------------------------------------------
+    void setupShape01() {
+        int nPointMasses = 7;
+        int nSprings     = 11;
+        float restLength = 80;
+        int[] masses     = {30,30,30,30,30,30,30};
+        float[] ks       = {12,12,12,12,12,12,6,6,6,6,15};
+        
+        // Create spring-mass triads
+        springPointMasses.add(new PVector(0, 1));
+        springPointMasses.add(new PVector(1, 3));
+        springPointMasses.add(new PVector(1, 4));
+        springPointMasses.add(new PVector(1, 2));
+        springPointMasses.add(new PVector(1, 6));
+        springPointMasses.add(new PVector(1, 5));
+        springPointMasses.add(new PVector(0, 5));
+        springPointMasses.add(new PVector(0, 3));
+        springPointMasses.add(new PVector(3, 4));
+        springPointMasses.add(new PVector(2, 4));
+        springPointMasses.add(new PVector(2, 6));
         
         // Create point masses
         pointMasses = new PointMass[nPointMasses];
         int idx = 0;
-        pointMasses[idx] = new PointMass(6,                   // mass
-                                       new PVector(300,300), // position
-                                       new PVector(0,0),     // velocity
-                                       maxVel, 
-                                       massDiameterFactor, 
-                                       idx);                   // id
-        idx++;
-        pointMasses[idx] = new PointMass(6,                   // mass
-                                       new PVector(pointMasses[idx-1].pos.x + restLength, 
-                                       pointMasses[idx-1].pos.y), // position
-                                       new PVector(0,0),     // velocity
-                                       maxVel, 
-                                       massDiameterFactor, 
-                                       idx);
+        
+        // Create positions for point masses
+        ArrayList<PVector> pmPositions = new ArrayList<PVector>();
+        PVector startPoint = new PVector(canvasSize/2, canvasSize/2);
+        pmPositions.add(new PVector(0, 0));
+        pmPositions.add(new PVector(restLength, 0));
+        pmPositions.add(new PVector(2*restLength, 0));
+        pmPositions.add(new PVector(restLength/2, 0-sqrt((pow(restLength,2)-pow(restLength/2,2)))));
+        pmPositions.add(new PVector(pmPositions.get(3).x+restLength, pmPositions.get(3).y));
+        pmPositions.add(new PVector(restLength/2, sqrt((pow(restLength,2)-pow(restLength/2,2)))));
+        pmPositions.add(new PVector(pmPositions.get(5).x+restLength, pmPositions.get(5).y));
+        
+        createMassesAndSprings(nPointMasses, nSprings, restLength,
+                               masses, ks, pmPositions,
+                               startPoint);
+    }
+    // -------------------------------------------------------------------------
+    void moveTriangle() {
+        // amp freq pha per
+        // springs[0].setMovementParams(3, 0, 60, 0);
+        // springs[0].updateLength();
+        springs[1].setMovementParams(1, 0, 240, 1);
+        springs[1].updateLength();
+        springs[2].setMovementParams(3, 0, 60, 2);
+        springs[2].updateLength();
+    }
+    // -------------------------------------------------------------------------
+    void setupTriangle() {
+        int nPointMasses = 3;
+        int nSprings     = 3;
+        float restLength = 80;
+        int[] masses     = {30,30,30};
+        float[] ks       = {8,8,8};
         
         // Create spring-mass triads
         springPointMasses.add(new PVector(0, 1));
-        // springPointMasses.add(new PVector(1, 2));
-        // springPointMasses.add(new PVector(1, 3));
-        // springPointMasses.add(new PVector(0, 2));
+        springPointMasses.add(new PVector(1, 2));
+        springPointMasses.add(new PVector(0, 2));
         
-        // // Create srings
-        springs = new Spring[nSprings];
-        for (int i = 0; i < nSprings; ++i) {
-            int pm1Idx = int(springPointMasses.get(i).x);
-            int pm2Idx = int(springPointMasses.get(i).y);
-            springs[i] = new Spring(pointMasses[pm1Idx], 
-                                    pointMasses[pm2Idx],
-                                    k, restLength, i, 
-                                    amplitude, fequency, period);
-            // add the current spring to the corresponding 
-            // pointMass
-            pointMasses[pm1Idx].addSpring(springs[i]);
-            pointMasses[pm2Idx].addSpring(springs[i]);
-        }
+        // Create point masses
+        pointMasses = new PointMass[nPointMasses];
+        int idx = 0;
+        
+        // Create positions for point masses
+        ArrayList<PVector> pmPositions = new ArrayList<PVector>();
+        PVector startPoint = new PVector(canvasSize/2, canvasSize/2 - 60);
+        pmPositions.add(new PVector(0, 0));
+        pmPositions.add(new PVector(restLength, 0));
+        pmPositions.add(new PVector(restLength/2, 0-sqrt((pow(restLength,2)-pow(restLength/2,2)))));
+        
+        createMassesAndSprings(nPointMasses, nSprings, restLength,
+                               masses, ks, pmPositions,
+                               startPoint);
     }
+    // // -------------------------------------------------------------------------
+    // void setupTestSystem01(int nPointMasses, int nSprings) {
+    //     float amplitude  = 60;    // pixels. Extension of springs
+    //     float fequency   = 120;   // frames
+    //     float period     = 240;   // frames
+    //     float phase      = 0;   // frames
+    //     float restLength = 60;   // pixels
+    //     float k          = 0.2; 
+        
+    //     // Create point masses
+    //     pointMasses = new PointMass[nPointMasses];
+    //     int idx = 0;
+    //     pointMasses[idx] = new PointMass(6,                   // mass
+    //                                    new PVector(300,300), // position
+    //                                    new PVector(0,0),     // velocity
+    //                                    maxVel, 
+    //                                    massDiameterFactor, 
+    //                                    idx);                   // id
+    //     idx++;
+    //     pointMasses[idx] = new PointMass(6,                   // mass
+    //                                    new PVector(pointMasses[idx-1].pos.x + restLength, 
+    //                                    pointMasses[idx-1].pos.y), // position
+    //                                    new PVector(0,0),     // velocity
+    //                                    maxVel, 
+    //                                    massDiameterFactor, 
+    //                                    idx);
+        
+    //     // Create spring-mass triads
+    //     springPointMasses.add(new PVector(0, 1));
+    //     // springPointMasses.add(new PVector(1, 2));
+    //     // springPointMasses.add(new PVector(1, 3));
+    //     // springPointMasses.add(new PVector(0, 2));
+        
+    //     // // Create srings
+    //     springs = new Spring[nSprings];
+    //     for (int i = 0; i < nSprings; ++i) {
+    //         int pm1Idx = int(springPointMasses.get(i).x);
+    //         int pm2Idx = int(springPointMasses.get(i).y);
+    //         springs[i] = new Spring(pointMasses[pm1Idx], 
+    //                                 pointMasses[pm2Idx],
+    //                                 k, restLength, i, 
+    //                                 amplitude, fequency, period);
+    //         // , phase);
+    //         // add the current spring to the corresponding 
+    //         // pointMass
+    //         pointMasses[pm1Idx].addSpring(springs[i]);
+    //         pointMasses[pm2Idx].addSpring(springs[i]);
+    //     }
+    // }
     // -------------------------------------------------------------------------
     void setupRandomSystem() {
         int nMasses      = 4;
         int nSprings     = 4;
-        float amplitude  = 20;    // pixels. Extension of springs
-        float fequency   = 120;   // frames
+        float amplitude  = 1;    // pixels. Extension of springs
+        float fequency   = 60;   // frames
         float period     = 214;   // frames
+        float phase      = 0;   // frames
         float restLength = 100;   // pixels
         float k          = 0.2; 
         
@@ -261,6 +349,7 @@ class SpringMassSystem {
                                     pointMasses[pm2Idx],
                                     k, restLength, i, 
                                     amplitude, fequency, period);
+                                    // , phase);
             // add the current spring to the corresponding 
             // pointMass
             pointMasses[pm1Idx].addSpring(springs[i]);
@@ -309,11 +398,7 @@ class SpringMassSystem {
             // check for edges
             pm.checkEdges();
         }
-        
-        // for (Spring s : springs) {
-        //     s.updateLength();
-        //     // println("s.currentLength: "+s.currentLength);
-        // }
+        updateSprings();
     }
     // -------------------------------------------------------------------------
     void display(){

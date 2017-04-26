@@ -16,6 +16,7 @@ class Spring {
     float amplitude;
     float frequency;
     float period;
+    float phase;
     
     int id;
     
@@ -104,32 +105,17 @@ class Spring {
         return force;
     }
     // -------------------------------------------------------------------------
-    void setMovementParams(float amplitude, float frequency, float period){
+    void setMovementParams(float amplitude, float frequency, float period, float phase){
         this.amplitude = amplitude;
         this.frequency = frequency;
         this.period    = period;
+        this.phase     = phase;
     }
     // -------------------------------------------------------------------------
     void updateLength() {
-        println("frequency: "+frequency);
-        println("amplitude: "+amplitude);
-        println("period: "+period);
-        // float disp  = cos(TWO_PI * frameCount / period);
-        float disp  = (amplitude) * sin(TWO_PI * frequency * frameCount + period);
-        // l0=amp+amp*sin(2*PI*freq*t+ph);
-        currentLength = currentLength + disp;
-        println("disp: "+disp);
-        // PVector dirPm1 = PVector.sub(pm1.pos, pm2.pos);
-        // PVector dirPm2 = PVector.sub(pm2.pos, pm1.pos);
-        // float distance = dirPm1.mag();
-        
-        // float diffRatio = disp / distance;
-        // dirPm1.mult(diffRatio);
-        // pm1.pos = dirPm1;
-        
-        // dirPm2.mult(diffRatio);
-        // pm2.pos = dirPm2;
-        
+        // float amplitude = 2;
+        // float period    = 60;
+        this.restLength = this.restLength + amplitude/2 * sin(TWO_PI * frameCount/period + phase);
         
         // // ------------------------------------------------------------
         // PVector dirPm1 = PVector.sub(pm1.pos, pm2.pos);
