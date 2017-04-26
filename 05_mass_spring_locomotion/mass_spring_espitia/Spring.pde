@@ -3,36 +3,44 @@ import java.util.Set;
 // import java.util.*;  
 
 class Spring {
-    HashMap<Integer,PointMass> pointMasses;
-    HashMap<Integer,PVector>   restPoints;
+    // HashMap<Integer,PointMass> pointMasses;
+    // HashMap<Integer,PVector>   restPoints;
     PointMass pm1;
     PointMass pm2;
-    PVector anchor1;
-    PVector anchor2;
+    // PVector anchor1;
+    // PVector anchor2;
     float restLength;
+    float currentLength;
     float k;
     
     float amplitude;
-    float fequency;
-    float phawfse;
+    float frequency;
+    float period;
+    float phase;
+    
     int id;
     
     Spring(PointMass pm1, PointMass pm2, 
-           float k, float restLength, int id) {
-        this.pm1        = pm1;
-        this.pm2        = pm2;
-        this.k          = k;
-        this.restLength = restLength;
-        this.id         = id;
+           float k, float restLength, int id,
+           float amplitude, float frequency, float period) {
+        this.pm1           = pm1;
+        this.pm2           = pm2;
+        this.k             = k;
+        this.restLength    = restLength;
+        this.currentLength = restLength;
+        this.id            = id;
+        this.amplitude     = amplitude;
+        this.frequency     = frequency;
+        this.period        = period;
         // this.anchor1 = anchor1;
         // this.anchor2 = anchor2;
-        pointMasses = new HashMap<Integer,PointMass>();
-        pointMasses.put(pm1.id, pm1);
-        pointMasses.put(pm2.id, pm2);
+        // pointMasses = new HashMap<Integer,PointMass>();
+        // pointMasses.put(pm1.id, pm1);
+        // pointMasses.put(pm2.id, pm2);
         
-        restPoints = new HashMap<Integer,PVector>();
-        restPoints.put(pm1.id, pm2.pos);
-        restPoints.put(pm2.id, pm1.pos);
+        // restPoints = new HashMap<Integer,PVector>();
+        // restPoints.put(pm1.id, pm2.pos);
+        // restPoints.put(pm2.id, pm1.pos);
     }
     // -------------------------------------------------------------------------
     // PVector connect(int nPointMass) {
@@ -91,15 +99,40 @@ class Spring {
         float length   = force.mag();                    // distance between point masses
         force.normalize();                               // direction - unit vector
         float strectch = length - restLength;            // difference of lenghts
+        // float strectch = currentLength - restLength;            // difference of lenghts
         force.mult(-1 * k * strectch);                   // spring force
         
         return force;
     }
     // -------------------------------------------------------------------------
-    void update() {
-        anchor1 = pm1.pos.get();
-        anchor2 = pm2.pos.get();
+    void setMovementParams(float amplitude, float frequency, float period, float phase){
+        this.amplitude = amplitude;
+        this.frequency = frequency;
+        this.period    = period;
+        this.phase     = phase;
     }
+    // -------------------------------------------------------------------------
+    void updateLength() {
+        // float amplitude = 2;
+        // float period    = 60;
+        this.restLength = this.restLength + amplitude/2 * sin(TWO_PI * frameCount/period + phase);
+        
+        // // ------------------------------------------------------------
+        // PVector dirPm1 = PVector.sub(pm1.pos, pm2.pos);
+        // PVector dirPm2 = PVector.sub(pm2.pos, pm1.pos);
+        // float angle1 = dirPm1.heading();
+        // float angle2 = dirPm2.heading();
+        // dirPm1.normalize();
+        // dirPm2.normalize();
+        // pm1.pos.add(new PVector(cos(angle1)*disp, sin(angle1) * disp));
+        // pm2.pos.add(new PVector(cos(angle1)*-disp, sin(angle1)*-disp));
+        
+        
+    }
+    // // -------------------------------------------------------------------------
+    // void update() {
+        
+    // }
     // // -------------------------------------------------------------------------
     // // Constrain the distance between bob and anchor between min and max
     // void constrainLength(Bob b, float minlen, float maxlen) {
@@ -130,13 +163,6 @@ class Spring {
     // -------------------------------------------------------------------------
     void display() {
         int st = 4;
-        // float d = dist(pm1.pos.x, pm1.pos.y, pm2.pos.x, pm2.pos.y);
-        
-        // if (d < restLength) 
-        //     st += 2;
-        // else if (d < restLength) 
-        //     st -= 2;
-            
         strokeWeight(st);
         stroke(springColor);
         

@@ -31,8 +31,11 @@ public class Spring{
   
   public void updateLength(){
     if(t!=-1){
-    t=t+1;
-    l0=amp+amp*sin(2*PI*freq*t+ph);
+      t=t+1;
+      float disp = amp*sin(2*PI*freq*t+ph);
+      l0=amp+disp;
+      println("disp: "+disp);
+      println("l0: "+l0);
     }
   }  
 }
