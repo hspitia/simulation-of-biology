@@ -33,13 +33,11 @@ int canvasSize    = 600;
 int infoPanelSize = 300;
 // MassSpringSystem variables
 MassSpringSystem smSystem;
-int nMasses      = 2;
-int nSprings     = 1;
+int creature     = 1;
 float g          = 0.2;
 float damp       = 3.8;
 float mass       = 10.0;
 float maxVel     = 20.0;
-// float restLength = 100.0;
 // Time
 int lastTime = 0;
 int interval = 0;
@@ -56,7 +54,7 @@ void setup() {
     background(backgroundColor);
     
     // smSystem = new MassSpringSystem(nMasses, nSprings, g, damp, mass, maxVel);
-    smSystem = new MassSpringSystem(g, damp, mass, maxVel);
+    smSystem = new MassSpringSystem(g, damp, mass, maxVel, creature);
     updateGravity();
     updateDamping();
     // sim.display();
@@ -87,7 +85,7 @@ void runSimulationStep(){
 // =============================================================================
 void restart() {
     // smSystem = new MassSpringSystem(nMasses, nSprings, g, damp, mass, maxVel);
-    smSystem = new MassSpringSystem(g, damp, mass, maxVel);
+    smSystem = new MassSpringSystem(g, damp, mass, maxVel, creature);
     updateGravity();
     updateDamping();
 }
@@ -110,18 +108,23 @@ class MassSpringSystem {
     ArrayList<Spring> springsToUpdate;
     
     // -------------------------------------------------------------------------
-    MassSpringSystem( 
-                float g, float damp, 
-                float mass, float maxVel) {
+    MassSpringSystem(float g, float damp, float mass, float maxVel, int creature) {
         this.g                  = g;
         this.damp               = damp;
         this.mass               = mass;
         this.maxVel             = maxVel;
         this.massDiameterFactor = 1;
         
-        setupShape01();
-        // setupShape02();
-        // setupShape03();
+        switch (creature) {
+            case 1 : {
+                setupShape01();
+                break;
+            }
+            case 2: {
+                setupShape03();
+                break;
+            }
+        }
     }
     // -------------------------------------------------------------------------
     void printCurrentLegths() {
@@ -534,6 +537,14 @@ void displayInfoPanel(){
 // =============================================================================
 void keyPressed() {
     switch (key) {
+        case '1': {
+            creature = 1;;
+            break;
+        }
+        case '2': {
+            creature = 2;;
+            break;
+        }
         case 'r':
         case 'R': {
             restart();
