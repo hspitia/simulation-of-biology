@@ -70,15 +70,16 @@ class PointMass {
         fill(strokeColor);
         textAlign(CENTER);
         textFont(pointMassFont);
+        // text(new String(""+id), pos.x, pos.y+3);
         text(new String(""+kFriction), pos.x, pos.y+3);
     }
     // -------------------------------------------------------------------------
     void setFrictionParams(float amplitude, float period, float phase,
-                           float kf1, float kf2) {
+                           float kFriction, float kf1, float kf2) {
         this.amplitude    = amplitude;
         this.period       = period;
         this.phase        = phase;
-        // this.kFriction = kFriction;
+        this.kFriction    = kFriction;
         this.kf1          = kf1;
         this.kf2          = kf2;
     }
