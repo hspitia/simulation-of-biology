@@ -44,7 +44,7 @@ float maxVel     = 20.0;
 int lastTime = 0;
 int interval = 0;
 // Flags
-boolean simRunning   = true;
+boolean simRunning   = false;
 boolean gravityOn    = false;
 boolean dampingOn    = true;
 boolean singleStep   = false;
@@ -120,9 +120,24 @@ class MassSpringSystem {
         this.massDiameterFactor = 1;
         
         setupShape01();
+        // setupShape02();
+        // setupShape03();
     }
     // -------------------------------------------------------------------------
-    void createMassesAndSprings(float restLength, int[] masses, 
+    void printCurrentLegths() {
+        for (Spring s : springList) {
+            PointMass p1 = s.pm1;
+            PointMass p2 = s.pm2;
+            
+            PVector dist = PVector.sub(p1.pos, p2.pos);
+            float l = dist.mag();
+            println("spring : "+s.id+" :"+l);
+        }
+        println("");
+    }
+    
+    // -------------------------------------------------------------------------
+    void createMassesAndSprings(float[] restLengths, int[] masses, 
                                 float[] ks, ArrayList<PVector> pmPositions) {
         
         pointMassList = new ArrayList<PointMass>();
@@ -143,7 +158,7 @@ class MassSpringSystem {
             int pm2Idx = int(springPointMasses.get(i).y);
             springList.add(new Spring(pointMassList.get(pm1Idx), 
                                       pointMassList.get(pm2Idx),
-                                      ks[i], restLength, i, 
+                                      ks[i], restLengths[i], i, 
                                       0, 0));
             // Add the current spring to its corresponding point masses
             pointMassList.get(pm1Idx).addSpring(springList.get(i));
@@ -151,10 +166,168 @@ class MassSpringSystem {
         }
     }
     // -------------------------------------------------------------------------
+    void setupShape03() {
+        float bl = 40;
+        float adL = sqrt(2*bl*bl);
+        //                     0  1  2  3  4  5   6   7  8  9  10 11
+        float[] restLengths = {bl,bl,bl,bl,bl,adL,adL,bl,bl,bl};
+        float[] ks          = {12,12,12,12,12,12, 12, 12,12,12,12,12};
+        int[] masses        = {30,30,30,30,35,35, 30, 30};
+        
+        ptmsToApplyFriction = new ArrayList<PointMass>();
+        springsToUpdate     = new ArrayList<Spring>();
+        
+        PVector startPoint  = new PVector(canvasSize/2, canvasSize - 150);
+        
+        // Create spring-mass triads
+        springPointMasses = new ArrayList<PVector>();
+        springPointMasses.add(new PVector(0, 4)); // 0
+        springPointMasses.add(new PVector(1, 4)); // 1
+        springPointMasses.add(new PVector(0, 2)); // 2
+        springPointMasses.add(new PVector(0, 1)); // 3
+        springPointMasses.add(new PVector(1, 3)); // 4
+        springPointMasses.add(new PVector(1, 2)); // 5
+        springPointMasses.add(new PVector(0, 3)); // 6
+        springPointMasses.add(new PVector(2, 3)); // 7
+        springPointMasses.add(new PVector(2, 5)); // 8
+        springPointMasses.add(new PVector(3, 5)); // 9
+        // springPointMasses.add(new PVector(0, 3)); // 10
+        // springPointMasses.add(new PVector(2, 6)); // 11
+        
+        // Define point masses
+        // Create positions for point masses
+        ArrayList<PVector> pmPositions = new ArrayList<PVector>();
+        float y = sqrt((pow(bl,2)-pow(bl/2,2)));
+        float x = bl;
+        pmPositions.add(new PVector(0, 0));       // 0
+        pmPositions.add(new PVector(x, 0));        // 1
+        pmPositions.add(new PVector(0, x));       // 2
+        pmPositions.add(new PVector(x, x));       // 3
+        pmPositions.add(new PVector(x/2, -y));     // 4
+        pmPositions.add(new PVector(x/2, y+x)); // 5   
+        
+        // Move points relative to the start point
+        for (PVector p : pmPositions) {
+            p.add(startPoint);
+        }
+        
+        // Create point masses and springs
+        createMassesAndSprings(restLengths, masses, ks, pmPositions);
+        
+        // Define motion params:
+        float period = 60;
+        float pha    = 2;
+        // Set friction params for pointMasses
+        // int[] ptmList1 = {0,1,2,3,4,5};
+        int[] ptmList1 = {4};
+        //                          amp period  pha   kFriction kf1  kf2
+        setFrictionParams(ptmList1, 20, period, 0,    0.0,      1.5, 0.0);
+        // int[] ptmList2 = {0,1};
+        // setFrictionParams(ptmList2, 20, period, 0,    0.0,      0.0, 1.5);
+        int[] ptmList3 = {5};
+        setFrictionParams(ptmList3, 20, period, 0,    0.0,      0.0, 1.5);
+        // Set oscillation params for springs
+        // Set params
+        //                                  amp period  phase 
+        springList.get(0).setMovementParams(20, period, 0);
+        springList.get(1).setMovementParams(20, period, 0);
+        springList.get(2).setMovementParams(20, period, 61);
+        springList.get(4).setMovementParams(20, period, 61);
+        springList.get(8).setMovementParams(-20, period, 0);
+        springList.get(9).setMovementParams(-20, period, 0);
+        
+        // Register springs to update
+        springsToUpdate.add(springList.get(0));
+        springsToUpdate.add(springList.get(1));
+        // springsToUpdate.add(springList.get(2));
+        // springsToUpdate.add(springList.get(4));
+        springsToUpdate.add(springList.get(8));
+        springsToUpdate.add(springList.get(9));
+    }
+    // -------------------------------------------------------------------------
+    void setupShape02() {
+        float bl = 40;
+        //                     0  1  2  3  4  5  6  7  8  9  10 11
+        float[] restLengths = {40,40,40,40,40,40,40,40,40,40,40,40};
+        float[] ks          = {12,12,12,12,12,12,12,12,12,12,12,12};
+        int[] masses        = {40,40,40,40,40,40,40,40};
+        
+        ptmsToApplyFriction = new ArrayList<PointMass>();
+        springsToUpdate     = new ArrayList<Spring>();
+        
+        PVector startPoint  = new PVector(canvasSize/4, canvasSize/2);
+        
+        // Create spring-mass triads
+        springPointMasses = new ArrayList<PVector>();
+        springPointMasses.add(new PVector(0, 1)); // 0
+        springPointMasses.add(new PVector(1, 2)); // 1
+        springPointMasses.add(new PVector(0, 4)); // 2
+        springPointMasses.add(new PVector(1, 4)); // 3
+        springPointMasses.add(new PVector(1, 5)); // 4
+        springPointMasses.add(new PVector(2, 5)); // 5
+        springPointMasses.add(new PVector(4, 7)); // 6
+        springPointMasses.add(new PVector(5, 7)); // 7
+        // springPointMasses.add(new PVector(1, 3)); // 8
+        // springPointMasses.add(new PVector(1, 6)); // 9
+        springPointMasses.add(new PVector(0, 3)); // 10
+        springPointMasses.add(new PVector(2, 6)); // 11
+        
+        // Define point masses
+        // Create positions for point masses
+        ArrayList<PVector> pmPositions = new ArrayList<PVector>();
+        float y = sqrt((pow(bl,2)-pow(bl/2,2)));
+        float x = bl;
+        pmPositions.add(new PVector(0, 0));                          // 0
+        pmPositions.add(new PVector(x, 0));                          // 1
+        pmPositions.add(new PVector(x*2, 0));                        // 2
+        pmPositions.add(new PVector(-(x/2), y));                     // 3
+        pmPositions.add(new PVector(pmPositions.get(3).x+x, y));    // 4
+        pmPositions.add(new PVector(pmPositions.get(4).x+x, y));    // 5   
+        pmPositions.add(new PVector(pmPositions.get(5).x+x, y));    // 6
+        pmPositions.add(new PVector(pmPositions.get(1).x, 2*y));    // 7
+        
+        // Move points relative to the start point
+        for (PVector p : pmPositions) {
+            p.add(startPoint);
+        }
+        
+        // Create point masses and springs
+        createMassesAndSprings(restLengths, masses, ks, pmPositions);
+        
+        // // Define motion params:
+        // float period = 60;
+        // // Set friction params for pointMasses
+        // int[] ptmList1 = {0,1,2,3,4};
+        // //                          amp period  pha kFriction kf1  kf2
+        // setFrictionParams(ptmList1, 20, period, 0,  0.0,      0.9, 0.0);
+        // int[] ptmList2 = {5,6};
+        // setFrictionParams(ptmList2, 20, period, 0,  1.5,      0.0, 1.5);
+        
+        // // Set oscillation params for springs
+        // // Set params
+        // //                                  amp period  phase 
+        // // springList.get(4).setMovementParams(-50, period, 0);
+        // springList.get(4).setMovementParams(40, period, 0);
+        // // springList.get(5).setMovementParams(-50, period, 0);
+        // springList.get(5).setMovementParams(40, period, 0);
+        // // springList.get(4).restLength = 90;
+        // // springList.get(5).restLength = 90;
+        
+        // // Register springs to update
+        // springsToUpdate.add(springList.get(4));
+        // springsToUpdate.add(springList.get(5));
+        // // springsToUpdate.add(springList.get(9));
+        // // springsToUpdate.add(springList.get(10));
+    }
+    // -------------------------------------------------------------------------
     void setupShape01() {
-        float restLength = 60;
-        int[] masses     = {50,60,50,50,50,50,50,50};
-        float[] ks       = {6,6,6,6,6,6,6,6,6,6,6,6,6};
+        float bl = 60;
+        // float restLength = 60;
+        // int[] masses     = {50,60,50,50,50,50,50,50};
+        // int[] masses     = {20,30,20,20,20,40,40,40};
+        float[] restLengths = {60,60,60,60,60,60,60,60,60,60,60,60};
+        int[] masses        = {40,50,40,40,40,45,45,40};
+        float[] ks          = {12,12,12,12,6,6,12,6,12,12,12,12,12};
         
         ptmsToApplyFriction = new ArrayList<PointMass>();
         springsToUpdate     = new ArrayList<Spring>();
@@ -189,16 +362,16 @@ class MassSpringSystem {
         //        \ /  \ /
         //         5    6
         ArrayList<PVector> pmPositions = new ArrayList<PVector>();
-        float y = sqrt((pow(restLength,2)-pow(restLength/2,2)));
-        float x = restLength;
+        float y = sqrt((pow(bl,2)-pow(bl/2,2)));
+        float x = bl;
         pmPositions.add(new PVector(0, 0));
         pmPositions.add(new PVector(x, 0));
         pmPositions.add(new PVector(2*x, 0));
         pmPositions.add(new PVector(x/2, -y));
         pmPositions.add(new PVector(pmPositions.get(3).x+x, pmPositions.get(3).y));
-        pmPositions.add(new PVector(restLength/2, y));
+        pmPositions.add(new PVector(bl/2, y));
         pmPositions.add(new PVector(pmPositions.get(5).x+x, pmPositions.get(5).y));
-        // pmPositions.add(new PVector(pmPositions.get(1).x+restLength, -2*y));
+        // pmPositions.add(new PVector(pmPositions.get(1).x+bl, -2*y));
         
         // Move points relative to the start point
         for (PVector p : pmPositions) {
@@ -206,39 +379,45 @@ class MassSpringSystem {
         }
         
         // Create point masses and springs
-        createMassesAndSprings(restLength, masses, ks, pmPositions);
+        createMassesAndSprings(restLengths, masses, ks, pmPositions);
         
         // Define motion params:
         float period = 60;
         // Set friction params for pointMasses
         int[] ptmList1 = {0,1,2,3,4};
-        //                          amp period  pha kf1  kf2
-        setFrictionParams(ptmList1, 20, period, 0,  0.9, 0.0);
+        //                          amp period  pha kFriction kf1  kf2
+        setFrictionParams(ptmList1, 20, period, 0,  0.0,      0.9, 0.0);
         int[] ptmList2 = {5,6};
-        setFrictionParams(ptmList2, 20, period, 0,  0.0, 1.5);
+        setFrictionParams(ptmList2, 20, period, 0,  1.5,      0.0, 1.5);
         
         // Set oscillation params for springs
+        // Set params
         //                                  amp period  phase 
+        // springList.get(4).setMovementParams(-50, period, 0);
         springList.get(4).setMovementParams(40, period, 0);
+        // springList.get(5).setMovementParams(-50, period, 0);
         springList.get(5).setMovementParams(40, period, 0);
-        // springList.get(4).restLength = 90;
-        // springList.get(5).restLength = 90;
+        // springList.get(4).bl = 90;
+        // springList.get(5).bl = 90;
         
         // Register springs to update
         springsToUpdate.add(springList.get(4));
         springsToUpdate.add(springList.get(5));
-        
+        // springsToUpdate.add(springList.get(9));
+        // springsToUpdate.add(springList.get(10));
+        //         
     }
     // -------------------------------------------------------------------------
     void setFrictionParams(int[] ptmIdxList, float amp, float per, float phase, 
-                           float kf1, float kf2) 
+                           float kFriction, float kf1, float kf2) 
     {
         for (Integer i : ptmIdxList) {
             PointMass pm = pointMassList.get(i);
-            pm.setFrictionParams(amp, per, phase, kf1, kf2);
+            pm.setFrictionParams(amp, per, phase, kFriction, kf1, kf2);
             ptmsToApplyFriction.add(pm);
         }
     }
+    
     // -------------------------------------------------------------------------
     void update() {
         // Apply forces to point masses:
@@ -283,23 +462,11 @@ class MassSpringSystem {
         for (Spring s : springsToUpdate) {
             s.updateLength(time);
         }
-        
+        // printCurrentLegths();        
         ++time;
     }
     // -------------------------------------------------------------------------
     void display(){
-        // background(backgroundColor);
-        // if (springs != null) { 
-        //     for (Spring s : springs) {
-        //         s.display();
-        //     }
-        // }
-        
-        // for (PointMass pm : pointMasses) {
-        //     pm.display();
-        // }
-        
-        
         for (Spring s : springList) {
             s.display();
         }
@@ -330,7 +497,7 @@ class MassSpringSystem {
 // Auxiliary Functions
 // =============================================================================
 void mousePressed() {
-  for (PointMass pm : smSystem.pointMasses) { 
+  for (PointMass pm : smSystem.pointMassList) { 
     // pm.pressed();
     pm.clicked(mouseX,mouseY);
   }
@@ -346,7 +513,7 @@ void updateDamping(){
 }
 // =============================================================================
 void mouseReleased() {
-  for (PointMass pm : smSystem.pointMasses) { 
+  for (PointMass pm : smSystem.pointMassList) { 
     // pm.released();
     pm.stopDragging();
   }

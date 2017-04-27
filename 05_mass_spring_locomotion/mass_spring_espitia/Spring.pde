@@ -72,6 +72,7 @@ class Spring {
             start = amplitude;
             end   = 0;
         }
+        // println("x: "+x);
         
         float xMapped = map(x, -1, 1, start, end);
         
