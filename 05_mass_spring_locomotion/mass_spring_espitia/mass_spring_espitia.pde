@@ -38,7 +38,7 @@ float g          = 0.2;
 float damp       = 1.8;
 float mass       = 10.0;
 float maxVel     = 20.0;
-float restLength = 100.0;
+// float restLength = 100.0;
 // Time
 int lastTime = 0;
 int interval = 0;
@@ -46,14 +46,14 @@ int interval = 0;
 boolean simRunning = true;
 boolean gravityOn  = false;
 boolean dampingOn  = true;
-boolean singleStep = true;
+boolean singleStep = false;
 
 // =============================================================================
 void setup() {
     size(900, 600);
     background(backgroundColor);
     
-    smSystem = new SpringMassSystem(nMasses, nSprings, g, damp, mass, maxVel, restLength);
+    smSystem = new SpringMassSystem(nMasses, nSprings, g, damp, mass, maxVel);
     updateGravity();
     updateDamping();
     // sim.display();
@@ -69,7 +69,7 @@ void draw() {
     displayInfoPanel();
     
     if (millis() - lastTime > interval){
-        if (!singleStep){
+        if (singleStep || simRunning){
             runSimulationStep();
         };
     }
@@ -77,11 +77,12 @@ void draw() {
 // =============================================================================
 void runSimulationStep(){
     smSystem.update();
-    lastTime = millis();
+    lastTime   = millis();
+    singleStep = false;
 }
 // =============================================================================
 void restart() {
-    smSystem = new SpringMassSystem(nMasses, nSprings, g, damp, mass, maxVel, restLength);
+    smSystem = new SpringMassSystem(nMasses, nSprings, g, damp, mass, maxVel);
     updateGravity();
     updateDamping();
 }
@@ -93,7 +94,6 @@ class SpringMassSystem {
     float damp;
     float mass;
     float maxVel;
-    float restLength;
     PointMass[] pointMasses;
     Spring[] springs;
     ArrayList<PVector> springPointMasses = new ArrayList<PVector>();
@@ -102,14 +102,13 @@ class SpringMassSystem {
     // -------------------------------------------------------------------------
     SpringMassSystem(int nPointMasses, int nSprings, 
                 float g, float damp, 
-                float mass, float maxVel, float restLength) {
+                float mass, float maxVel) {
         this.nPointMasses = nPointMasses;
         this.nSprings     = nSprings;
         this.g            = g;
         this.damp         = damp;
         this.mass         = mass;
         this.maxVel       = maxVel;
-        this.restLength   = restLength;
         
         // setupRandomSystem();
         // setupTestSystem01(2, 1);
@@ -141,7 +140,7 @@ class SpringMassSystem {
             springs[i] = new Spring(pointMasses[pm1Idx], 
                                     pointMasses[pm2Idx],
                                     ks[i], restLength, i, 
-                                    0, 0, 0);
+                                    0, 0);
             // add the current spring to the corresponding pointMass
             pointMasses[pm1Idx].addSpring(springs[i]);
             pointMasses[pm2Idx].addSpring(springs[i]);
@@ -155,32 +154,36 @@ class SpringMassSystem {
     // -------------------------------------------------------------------------
     void moveShape01() {
         // amp freq pha per
-        springs[6].setMovementParams(-3, 0, 60, 0);
+        springs[6].setMovementParams(20, 120, 0);
         springs[6].updateLength();
         
-        springs[5].setMovementParams(3, 0, 120, PI/4);
-        springs[5].updateLength();
+        // springs[5].setMovementParams(1, 120, PI/4);
+        // springs[5].updateLength();
         
         
-        springs[4].setMovementParams(-3, 0, 60, 0.8);
-        springs[4].updateLength();
+        // springs[4].setMovementParams(-1, 60, 0.8);
+        // springs[4].updateLength();
         
-        springs[10].setMovementParams(3, 0, 120, PI/4+0.8);
-        springs[10].updateLength();
+        // springs[10].setMovementParams(1, 120, PI/4+0.8);
+        // springs[10].updateLength();
         // 
-        // springs[0].setMovementParams(3, 0, 60, 0);
+        // 
+        // 
+        // 
+        // 
+        // springs[0].setMovementParams(3, 60, 0);
         // springs[0].updateLength();
-        // springs[3].setMovementParams(3, 0, 60, 1);
+        // springs[3].setMovementParams(3, 60, 1);
         // springs[3].updateLength();
         // 
         // for (int i = 6; i <= 10; ++i) {
-        //     springs[i].setMovementParams(-3, 0, 60, 0);
+        //     springs[i].setMovementParams(-3, 60, 0);
         //     springs[i].updateLength();
         // }
         // 
-        // springs[0].setMovementParams(3, 0, 60, 0);
+        // springs[0].setMovementParams(3, 60, 0);
         // springs[0].updateLength();
-        // springs[3].setMovementParams(3, 0, 60, 1);
+        // springs[3].setMovementParams(3, 60, 1);
         // springs[3].updateLength();
         
     }
@@ -227,11 +230,11 @@ class SpringMassSystem {
     // -------------------------------------------------------------------------
     void moveTriangle() {
         // amp freq pha per
-        // springs[0].setMovementParams(3, 0, 60, 0);
+        // springs[0].setMovementParams(3, 60, 0);
         // springs[0].updateLength();
-        springs[1].setMovementParams(1, 0, 240, 1);
+        springs[1].setMovementParams(1, 240, 1);
         springs[1].updateLength();
-        springs[2].setMovementParams(3, 0, 60, 2);
+        springs[2].setMovementParams(3, 60, 2);
         springs[2].updateLength();
     }
     // -------------------------------------------------------------------------
@@ -348,7 +351,7 @@ class SpringMassSystem {
             springs[i] = new Spring(pointMasses[pm1Idx], 
                                     pointMasses[pm2Idx],
                                     k, restLength, i, 
-                                    amplitude, fequency, period);
+                                    amplitude, period);
                                     // , phase);
             // add the current spring to the corresponding 
             // pointMass
@@ -408,12 +411,6 @@ class SpringMassSystem {
                 s.display();
             }
         }
-        // for (int i = 0; i < nSprings; ++i) {
-        //     int pm1Idx = int(springPointMasses.get(i).x);
-        //     int pm2Idx = int(springPointMasses.get(i).y);
-        //     springs[i].display(pointMasses[pm1Idx],
-        //                        pointMasses[pm2Idx]);
-        // }
         
         for (PointMass pm : pointMasses) {
             pm.display();
@@ -495,18 +492,14 @@ void keyPressed() {
             updateDamping();
             break;
         }
-        // case ' ': {
-        //     simRunning = !simRunning;
-        //     break;
-        // }
         case ' ': {
-            singleStep = !singleStep;
+            simRunning = !simRunning;
             break;
         }
         case 's':
         case 'S': {
-            if(!singleStep) singleStep = !singleStep;
-            runSimulationStep();
+            singleStep = true;
+            simRunning = false;
             break;
         }
         
