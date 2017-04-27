@@ -14,7 +14,7 @@ class Spring {
     float period;
     float phase;
     
-    float time;
+    // float time;
     
     int id;
     
@@ -30,7 +30,7 @@ class Spring {
         this.id            = id;
         this.amplitude     = amplitude;
         this.period        = period;
-        this.time          = -1;
+        // this.time          = -1;
     }
     // -------------------------------------------------------------------------
     PVector getForce(int pointMassId) {
@@ -62,13 +62,13 @@ class Spring {
         this.phase     = phase;
     }
     // -------------------------------------------------------------------------
-    void updateLength() {
+    void updateLength(int time) {
         float freq = 1/period;
-        // float disp = amplitude * sin(TWO_PI * freq * frameCount + phase);
         float disp = amplitude * sin(TWO_PI * freq * ++time + phase);
         length     = restLength + disp;
         
-        // println("disp: "+disp);
+        // println("disp: "+disp+"  time: "+time);
+        
         // println("length: "+length);
         // println("restLength: "+restLength);
         // // ------------------------------------------------------------

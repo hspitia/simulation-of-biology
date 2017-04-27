@@ -14,11 +14,21 @@ class PointMass {
     boolean dragging = false;
     boolean over     = false; 
     
+    // Friction 
+    float amplitude;
+    float period;
+    float phase;
+    float kFriction;
+    float kf1;
+    float kf2;
+    
     // Methods
     // -------------------------------------------------------------------------
     PointMass(float mass,   PVector pos, PVector vel, 
               float maxVel, float massDiameterFactor, 
-              int id) {
+              int id, float kf1, float kf2) {
+              // float amplitude, float period, float phase,
+              
         this.mass          = mass;
         this.pos           = pos;
         this.vel           = vel;
@@ -28,6 +38,20 @@ class PointMass {
         this.dragOffset    = new PVector();
         
         this.id            = id;
+        
+        this.amplitude     = 0.0;
+        this.period        = 0.0;
+        this.phase         = 0.0;
+        // this.kFriction     = 0.0;
+        // this.kf1 = 0.0;
+        // this.kf2  = 0.0;
+        
+        // this.amplitude     = amplitude;
+        // this.period        = period;
+        // this.phase         = phase;
+        this.kf1 = kf1;
+        this.kf2  = kf1;
+        this.kFriction     = kf2;
         
         springs = new ArrayList<Spring>();
     }
@@ -43,6 +67,33 @@ class PointMass {
         fill(massColor);
         if (dragging || over) fill(massOverColor);
         ellipse(pos.x, pos.y, shapeDiameter, shapeDiameter);
+        fill(strokeColor);
+        textAlign(CENTER);
+        textFont(pointMassFont);
+        text(new String(""+kFriction), pos.x, pos.y+3);
+    }
+    // -------------------------------------------------------------------------
+    void setFrictionParams(float amplitude, float period, float phase,
+                           float kf1, float kf2) {
+        this.amplitude    = amplitude;
+        this.period       = period;
+        this.phase        = phase;
+        // this.kFriction = kFriction;
+        this.kf1          = kf1;
+        this.kf2          = kf2;
+    }
+    // -------------------------------------------------------------------------
+    void updateKf(int time) {
+        float fraction = period/4;
+        float counter  = time/fraction;
+        
+        if (counter % 4 == 1) {
+            kFriction = kf1;
+        } else if (counter % 4 == 3) {
+            kFriction = kf2;
+        }
+            
+        // println("time: "+time+"  kFriction: "+kFriction);
     }
     // -------------------------------------------------------------------------
     void applyForce(PVector force) {
