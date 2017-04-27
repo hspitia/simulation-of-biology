@@ -11,13 +11,17 @@ int lastTime = 0;
 int interval = 0;
 float restLength = 20;
 float length = restLength;
-
+// ArrayList<Integer> list;
 
 
 void setup() {
     size(1000, 600);
     p1 = new PVector(400, 300);
     p2 = new PVector(600, 300);
+    
+    // list = new ArrayList<Integer>();
+    // list.add(0);
+    // list.add(1);
 }
 
 void draw() {
@@ -65,5 +69,12 @@ void draw() {
 
         lastTime = millis();
     }
+    
+    
+    
+    // for (Integer i : list) {
+    //     println("i: "+i);
+    // }
+    
     
 }

@@ -64,23 +64,30 @@ class Spring {
     // -------------------------------------------------------------------------
     void updateLength(int time) {
         float freq = 1/period;
-        float disp = amplitude * sin(TWO_PI * freq * ++time + phase);
-        length     = restLength + disp;
+        float x = sin(TWO_PI * freq * ++time + phase);
+        
+        float start = 0;
+        float end   = amplitude;
+        if (amplitude < 0) {
+            start = amplitude;
+            end   = 0;
+        }
+        
+        float xMapped = map(x, -1, 1, start, end);
+        
+        length     = restLength + xMapped;
+        
+        // length     = restLength + disp;
+        
+        
         
         // println("disp: "+disp+"  time: "+time);
         
+        // println("x: "+x);
+        // println("xMapped: "+xMapped);
         // println("length: "+length);
         // println("restLength: "+restLength);
-        // // ------------------------------------------------------------
-        // this.length += amplitude * sin(TWO_PI * frameCount/period + phase);
-        // // ------------------------------------------------------------
-        // PVector dirPm1 = PVector.sub(pm1.pos, pm2.pos);
-        // PVector dirPm2 = PVector.sub(pm2.pos, pm1.pos);
-        // float angle1 = dirPm1.heading();
-        // float angle2 = dirPm2.heading();
-        // dirPm1.normalize();
-        // dirPm2.normalize();
-        // pm1.pos.add(new PVector(cos(angle1)*disp, sin(angle1) * disp));
+        
         // pm2.pos.add(new PVector(cos(angle1)*-disp, sin(angle1)*-disp));
     }
     // // -------------------------------------------------------------------------

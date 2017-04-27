@@ -78,7 +78,7 @@ class PointMass {
         this.amplitude    = amplitude;
         this.period       = period;
         this.phase        = phase;
-        // this.kFriction = kFriction;
+        this.kFriction    = kf2;
         this.kf1          = kf1;
         this.kf2          = kf2;
     }
