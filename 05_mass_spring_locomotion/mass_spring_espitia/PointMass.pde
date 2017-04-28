@@ -60,7 +60,7 @@ class PointMass {
         springs.add(s);
     }
     // -------------------------------------------------------------------------
-    void display() {
+    void display(int feature) {
         strokeWeight(2);
         // stroke(massColor);
         stroke(strokeColor);
@@ -70,8 +70,20 @@ class PointMass {
         fill(strokeColor);
         textAlign(CENTER);
         textFont(pointMassFont);
-        // text(new String(""+id), pos.x, pos.y+3);
-        text(new String(""+kFriction), pos.x, pos.y+3);
+        String str = "";
+        switch (feature) {
+            case 1 :{
+                str += id;
+                break;    
+            }
+            case 2 :{
+                str += kFriction;
+                break;    
+            }
+        }
+        
+        text(str, pos.x, pos.y+3);
+        // text(new String(""+kFriction), pos.x, pos.y+3);
     }
     // -------------------------------------------------------------------------
     void setFrictionParams(float amplitude, float period, float phase,
@@ -103,7 +115,11 @@ class PointMass {
         accel.add(f);
     }
     // -------------------------------------------------------------------------
-    void checkEdges() {
+    // void checkEdges() {
+    int checkEdges() {
+        
+        int retId = -1;
+        
          // Change direction when edges are reached
 
         float offset = (shapeDiameter/2)+1;
@@ -114,18 +130,37 @@ class PointMass {
         if (pos.x > (canvasSize-offset)) {
             pos.x = (canvasSize-offset);
             vel.x *= -dampingFactor;
+            retId = id;
         } else if (pos.x < offset) {
             vel.x *= -dampingFactor;
             pos.x = offset;
+            retId = id;
         }
 
         if (pos.y > (canvasSize-offset)) {
             vel.y *= -dampingFactor;
             pos.y = (canvasSize-offset);
+            retId = id;
         } else if (pos.y < offset) {
             vel.y *= -dampingFactor;
             pos.y = offset;
+            retId = id;
         }
+        return retId;
+    }
+    // -------------------------------------------------------------------------
+    // void checkEdges() {
+    boolean isCloseToEdge() {
+        
+        boolean isClose = false;
+        
+        float offset = 30; //pixels
+        
+        if (pos.x > (canvasSize-offset) || pos.x < offset || 
+            pos.y > (canvasSize-offset) || pos.y < offset) {
+            isClose = true;
+        }
+        return isClose;
     }
     // -------------------------------------------------------------------------
     void update(){

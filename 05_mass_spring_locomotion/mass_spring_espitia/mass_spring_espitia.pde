@@ -11,7 +11,8 @@
 // Global variables
 // colors
 // color backgroundColor = #333333;
-color backgroundColor    = #444444;
+// color backgroundColor    = #444444;
+color backgroundColor    = #ffffff;
 color infoPanelColor     = #001A31; 
 color pathColor          = #888888;
 // color strokeColor        = #333333;
@@ -29,18 +30,22 @@ PFont pointMassFont;
 PFont myFontBold;
 PFont myTitleFont;
 // canvas related variables
-int canvasSize    = 600;
+int canvasSize    = 700;
 int infoPanelSize = 300;
 // MassSpringSystem variables
 MassSpringSystem smSystem;
-int creature     = 1;
-float g          = 0.2;
-float damp       = 3.8;
-float mass       = 10.0;
-float maxVel     = 20.0;
+
+int creature         = 1;
+int featureToDisplay = 0;
+
+float g              = 0.2;
+float damp           = 10.0;
+float mass           = 10.0;
+float maxVel         = 20.0;
+float wanderWeight   = 0.2;
 // Time
-int lastTime = 0;
-int interval = 0;
+int lastTime         = 0;
+int interval         = 0;
 // Flags
 boolean simRunning   = false;
 boolean gravityOn    = false;
@@ -48,9 +53,10 @@ boolean dampingOn    = true;
 boolean singleStep   = false;
 boolean showFriction = true;
 
+
 // =============================================================================
 void setup() {
-    size(900, 600);
+    size(1000, 700);
     background(backgroundColor);
     
     // smSystem = new MassSpringSystem(nMasses, nSprings, g, damp, mass, maxVel);
@@ -66,6 +72,7 @@ void setup() {
 }
 // =============================================================================
 void draw() {
+    saveFrame("/home/hspitia/projects/sim-biology/05_mass_spring_locomotion/report/images/white/cre"+creature+"-white-seq-#####.tga");
     displaySimPanel();
     smSystem.display();
     displayInfoPanel();
@@ -105,7 +112,9 @@ class MassSpringSystem {
     float massDiameterFactor;
     int time;
     ArrayList<PointMass> ptmsToApplyFriction;
+    ArrayList<PointMass> ptmsToApplyWandering;
     ArrayList<Spring> springsToUpdate;
+    float tempTime = 0;
     
     // -------------------------------------------------------------------------
     MassSpringSystem(float g, float damp, float mass, float maxVel, int creature) {
@@ -152,7 +161,7 @@ class MassSpringSystem {
             // pointMasses[i] = new PointMass(masses[i], pmPositions.get(i), 
                                            new PVector(0,0),
                                            maxVel, 0.5, i,
-                                           0.9, 0.01));
+                                           0.9, 0.0));
         }
                 
         // Create srings
@@ -162,7 +171,7 @@ class MassSpringSystem {
             springList.add(new Spring(pointMassList.get(pm1Idx), 
                                       pointMassList.get(pm2Idx),
                                       ks[i], restLengths[i], i, 
-                                      0, 0));
+                                      0, 0, springColor));
             // Add the current spring to its corresponding point masses
             pointMassList.get(pm1Idx).addSpring(springList.get(i));
             pointMassList.get(pm2Idx).addSpring(springList.get(i));
@@ -174,8 +183,8 @@ class MassSpringSystem {
         float adL = sqrt(2*bl*bl);
         //                     0  1  2  3  4  5   6   7  8  9  10 11
         float[] restLengths = {bl,bl,bl,bl,bl,adL,adL,bl,bl,bl};
-        float[] ks          = {12,12,12,12,12,12, 12, 12,12,12,12,12};
-        int[] masses        = {30,30,30,30,35,35, 30, 30};
+        float[] ks          = {12,12,12,12,12,20, 20, 12,12,12,12,12};
+        int[] masses        = {45,45,45,45,50,50, 45, 45};
         
         ptmsToApplyFriction = new ArrayList<PointMass>();
         springsToUpdate     = new ArrayList<Spring>();
@@ -236,8 +245,8 @@ class MassSpringSystem {
         springList.get(1).setMovementParams(20, period, 0);
         springList.get(2).setMovementParams(20, period, 61);
         springList.get(4).setMovementParams(20, period, 61);
-        springList.get(8).setMovementParams(-20, period, 0);
-        springList.get(9).setMovementParams(-20, period, 0);
+        springList.get(8).setMovementParams(-15, period, 0);
+        springList.get(9).setMovementParams(-15, period, 0);
         
         // Register springs to update
         springsToUpdate.add(springList.get(0));
@@ -246,6 +255,18 @@ class MassSpringSystem {
         // springsToUpdate.add(springList.get(4));
         springsToUpdate.add(springList.get(8));
         springsToUpdate.add(springList.get(9));
+        
+        springList.get(0).springColor = #BA0000;
+        springList.get(1).springColor = #BA0000;
+        springList.get(8).springColor = #BA0000;
+        springList.get(9).springColor = #BA0000;
+        
+        wanderWeight = 23;
+        ptmsToApplyWandering = new ArrayList<PointMass>();
+        ptmsToApplyWandering.add(pointMassList.get(4));
+        // ptmsToApplyWandering.add(pointMassList.get(1));
+        // ptmsToApplyWandering.add(pointMassList.get(2));
+        // ptmsToApplyWandering.add(pointMassList.get(3));
     }
     // -------------------------------------------------------------------------
     void setupShape02() {
@@ -296,41 +317,17 @@ class MassSpringSystem {
         
         // Create point masses and springs
         createMassesAndSprings(restLengths, masses, ks, pmPositions);
-        
-        // // Define motion params:
-        // float period = 60;
-        // // Set friction params for pointMasses
-        // int[] ptmList1 = {0,1,2,3,4};
-        // //                          amp period  pha kFriction kf1  kf2
-        // setFrictionParams(ptmList1, 20, period, 0,  0.0,      0.9, 0.0);
-        // int[] ptmList2 = {5,6};
-        // setFrictionParams(ptmList2, 20, period, 0,  1.5,      0.0, 1.5);
-        
-        // // Set oscillation params for springs
-        // // Set params
-        // //                                  amp period  phase 
-        // // springList.get(4).setMovementParams(-50, period, 0);
-        // springList.get(4).setMovementParams(40, period, 0);
-        // // springList.get(5).setMovementParams(-50, period, 0);
-        // springList.get(5).setMovementParams(40, period, 0);
-        // // springList.get(4).restLength = 90;
-        // // springList.get(5).restLength = 90;
-        
-        // // Register springs to update
-        // springsToUpdate.add(springList.get(4));
-        // springsToUpdate.add(springList.get(5));
-        // // springsToUpdate.add(springList.get(9));
-        // // springsToUpdate.add(springList.get(10));
     }
     // -------------------------------------------------------------------------
     void setupShape01() {
         float bl = 60;
-        // float restLength = 60;
-        // int[] masses     = {50,60,50,50,50,50,50,50};
-        // int[] masses     = {20,30,20,20,20,40,40,40};
+        float y  = sqrt((pow(bl,2)-pow(bl/2,2)));
+        float x  = bl;
+        //                     0  1  2  3  4  5  6  7  8  9  10 11
         float[] restLengths = {60,60,60,60,60,60,60,60,60,60,60,60};
-        int[] masses        = {40,50,40,40,40,45,45,40};
-        float[] ks          = {12,12,12,12,6,6,12,6,12,12,12,12,12};
+        int[] masses        = {40,50,40,50,50,45,45,40};
+        // float[] ks          = {12,12,12,12,18,18,12,12,12,12,12,12,12};
+        float[] ks          = {12,12,12,12,18,18,12,12,12,12,12,12,12,};
         
         ptmsToApplyFriction = new ArrayList<PointMass>();
         springsToUpdate     = new ArrayList<Spring>();
@@ -350,8 +347,8 @@ class MassSpringSystem {
         springPointMasses.add(new PVector(2, 4));
         springPointMasses.add(new PVector(2, 6));
         springPointMasses.add(new PVector(0, 5));
-        // springPointMasses.add(new PVector(3, 7));
-        // springPointMasses.add(new PVector(4, 7));
+        // springPointMasses.add(new PVector(3, 5));
+        // springPointMasses.add(new PVector(4, 6));
         
         // Define point masses
         int idx = 0;
@@ -365,8 +362,8 @@ class MassSpringSystem {
         //        \ /  \ /
         //         5    6
         ArrayList<PVector> pmPositions = new ArrayList<PVector>();
-        float y = sqrt((pow(bl,2)-pow(bl/2,2)));
-        float x = bl;
+        // y = sqrt((pow(bl,2)-pow(bl/2,2)));
+        // x = bl;
         pmPositions.add(new PVector(0, 0));
         pmPositions.add(new PVector(x, 0));
         pmPositions.add(new PVector(2*x, 0));
@@ -398,8 +395,10 @@ class MassSpringSystem {
         //                                  amp period  phase 
         // springList.get(4).setMovementParams(-50, period, 0);
         springList.get(4).setMovementParams(40, period, 0);
-        // springList.get(5).setMovementParams(-50, period, 0);
         springList.get(5).setMovementParams(40, period, 0);
+        // fix collision
+        // springList.get(1).setMovementParams(-10, period, 0);
+        // springList.get(2).setMovementParams(-10, period, 0);
         // springList.get(4).bl = 90;
         // springList.get(5).bl = 90;
         
@@ -408,7 +407,15 @@ class MassSpringSystem {
         springsToUpdate.add(springList.get(5));
         // springsToUpdate.add(springList.get(9));
         // springsToUpdate.add(springList.get(10));
-        //         
+        springList.get(4).springColor = #BA0000;
+        springList.get(5).springColor = #BA0000;
+        
+        wanderWeight = 23;
+        ptmsToApplyWandering = new ArrayList<PointMass>();
+        // ptmsToApplyWandering.add(pointMassList.get(3));
+        // ptmsToApplyWandering.add(pointMassList.get(4));
+        ptmsToApplyWandering.add(pointMassList.get(0));
+        ptmsToApplyWandering.add(pointMassList.get(2));
     }
     // -------------------------------------------------------------------------
     void setFrictionParams(int[] ptmIdxList, float amp, float per, float phase, 
@@ -449,6 +456,28 @@ class MassSpringSystem {
             s.pm2.applyForce(sForce);
         }
         
+        // ArrayList<PointMass> ptmsToApplyWandering = new ArrayList<PointMass>();
+        // ptmsToApplyWandering.add(pointMassList.get(1));
+        // ptmsToApplyWandering.add(pointMassList.get(5));
+        // ptmsToApplyWandering.add(pointMassList.get(6));
+        for (PointMass pm : ptmsToApplyWandering) {
+        // for (PointMass pm : pointMassList) {
+            // PVector wandering = new PVector(random(-1.0, 1),random(-1.0, 1));
+            // PVector force = new PVector(random(-1.0, 1),random(-1.0, 1));
+            PVector force = new PVector(random(-1.0, 1),0);
+            force.normalize();
+            force.mult(maxVel);
+            force.normalize();
+            // float wanderingFac = 23;
+            // if (creature == 2) wanderingFac = 10;
+            force.mult(wanderWeight);
+            
+            // apply forces
+            pm.applyForce(force);
+        }
+        
+        boolean isClose = false;
+        ArrayList<Integer> ptmsInCollision = new ArrayList<Integer>();
         // Execute motion in point masses
         for (PointMass pm : pointMassList) {
             // execute motion
@@ -457,15 +486,52 @@ class MassSpringSystem {
             pm.over(mouseX, mouseY);
             pm.drag(mouseX, mouseY);
             // check for edges
-            pm.checkEdges();
+            // pm.checkEdges();
+            int id = pm.checkEdges();
+            
+            if (pm.isCloseToEdge()){
+                isClose = true;
+                tempTime = 0;
+            }
+            
             pm.updateKf(time);
         }
+        // println("isClose: "+isClose);
+        // // ArrayList<Spring> sToInclude = new ArrayList<Spring>();
+        // if (isClose && tempTime < 120) {
+        //     if (creature == 1) {
+        //         // Set oscillation params to avoid collision
+        //         // Set params
+        //         //                                  amp period  phase 
+        //         // springList.get(4).setMovementParams(-50, period, 0);
+        //         float period = 40;
+        //         // springsToUpdate = new ArrayList<Spring>();
+        //         springList.get(4).setMovementParams(0, period, 0);
+        //         springList.get(5).setMovementParams(20, period, 10);
+        //         println("tempTime: "+tempTime);
+        //     }
+        //     ++tempTime;
+        // } else {
+        //     if (creature == 1) {
+        //         // Set oscillation params to avoid collision
+        //         // Set params
+        //         //                                  amp period  phase 
+        //         // springList.get(4).setMovementParams(-50, period, 0);
+        //         float period = 60;
+        //         // springsToUpdate = new ArrayList<Spring>();
+        //         springList.get(4).setMovementParams(40, period, 0);
+        //         springList.get(5).setMovementParams(40, period, 0);
+        //     }
+        //     tempTime = time;
+        // }
         
         // Update spring length
         for (Spring s : springsToUpdate) {
             s.updateLength(time);
         }
+        
         // printCurrentLegths();        
+        
         ++time;
     }
     // -------------------------------------------------------------------------
@@ -475,7 +541,7 @@ class MassSpringSystem {
         }
         
         for (PointMass pm : pointMassList) {
-            pm.display();
+            pm.display(featureToDisplay);
         }
         
     }
@@ -545,6 +611,16 @@ void keyPressed() {
             creature = 2;;
             break;
         }
+        case 'i':
+        case 'I': {
+            featureToDisplay = 1;
+            break;
+        }
+        case 'f':
+        case 'F': {
+            featureToDisplay = 2;
+            break;
+        }
         case 'r':
         case 'R': {
             restart();
@@ -593,14 +669,25 @@ void setupText(){
 // =========================================================
 void displayHelp() {
     textAlign(LEFT);
-    // String[] labels = new String[7];
-    // String[] values = new String[7];
-    String[] controlText = new String[2];
+    
+    ArrayList<String> controlText = new ArrayList<String>();
+    ArrayList<String> infoText    = new ArrayList<String>();
     
     // labels[0] = "Centering:     " + getOnOffStr(flockCenteringOn);
     
-    controlText[0]  = "R:     Restart simulation";
-    controlText[1]  = "Space: Stop/Resume simulation";
+    controlText.add(new String("D:     Toggle damping force"));
+    controlText.add(new String("G:     Toggle gravity force"));
+    controlText.add(new String("1:     Set creature 1"));
+    controlText.add(new String("2:     Set creature 2"));
+    controlText.add(new String("I:     Display Point Mass Id"));
+    controlText.add(new String("k:     Display Point Mass friction coef."));
+    controlText.add(new String("R:     Restart simulation"));
+    controlText.add(new String("Space: Stop/Resume simulation"));
+    
+    infoText.add(new String("Sim. State:   " + ((simRunning) ? "running" : "paused")));
+    infoText.add(new String("Damping:      " + ((dampingOn) ? "ON" : "OFF")));
+    infoText.add(new String("Gravity:      " + ((gravityOn) ? "ON" : "OFF")));
+    infoText.add(new String("Set creature: " + creature));
     
     // display title
     fill(0);
@@ -620,24 +707,24 @@ void displayHelp() {
     textY += 3;
     // display controls text
     setupText();
-    for (int i = 0; i < controlText.length; ++i) {
+    // for (int i = 0; i < controlText.size(); ++i) {
+    for (String str : controlText) {
         textY += offsetY;
-        text(controlText[i], textX, textY);
+        text(str, textX, textY);
     }
     
-    // textY += 40;
+    textY += 40;
 
-    // textFont(myFontBold);
-    // text("Info:", textX, textY);
+    setupTitle();
+    text("State info:", textX, textY);
     
-    // // textY += marginY + 10;
-    // int offsetY = 16;
-    // textFont(myFont);
-    // for (int i = 0; i < labels.length; ++i) {
-    //     textY += offsetY;
-    //     if (i == labels.length - 1) textY += 5;
-    //     text(labels[i], textX, textY);
-    // }
+    // textY += marginY + 10;
+    offsetY = 16;
+    setupText();
+    for (String str : infoText) {
+        textY += offsetY;
+        text(str, textX, textY);
+    }
     
     
 }

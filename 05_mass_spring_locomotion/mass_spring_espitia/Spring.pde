@@ -14,6 +14,8 @@ class Spring {
     float period;
     float phase;
     
+    color springColor;
+    
     // float time;
     
     int id;
@@ -21,7 +23,7 @@ class Spring {
     Spring(PointMass pm1, PointMass pm2, 
            float k, float restLength, int id,
            float amplitude,
-           float period) {
+           float period, color springColor) {
         this.pm1           = pm1;
         this.pm2           = pm2;
         this.k             = k;
@@ -30,6 +32,7 @@ class Spring {
         this.id            = id;
         this.amplitude     = amplitude;
         this.period        = period;
+        this.springColor   = springColor;
         // this.time          = -1;
     }
     // -------------------------------------------------------------------------
